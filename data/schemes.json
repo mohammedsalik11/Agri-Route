@@ -1,0 +1,194 @@
+[
+  {
+    "schemeId": "pm-kisan",
+    "nameKey": "schemes.pmKisan.name",
+    "descriptionKey": "schemes.pmKisan.description",
+    "benefit": "₹6,000 per year in 3 installments",
+    "category": "income",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://pmkisan.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "pmfby",
+    "nameKey": "schemes.pmfby.name",
+    "descriptionKey": "schemes.pmfby.description",
+    "benefit": "Crop insurance against natural calamities",
+    "category": "insurance",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://pmfby.gov.in",
+    "lastDate": "2026-12-31",
+    "isActive": true
+  },
+  {
+    "schemeId": "kcc",
+    "nameKey": "schemes.kcc.name",
+    "descriptionKey": "schemes.kcc.description",
+    "benefit": "Short-term credit for agricultural needs",
+    "category": "credit",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": null,
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "pm-kusum",
+    "nameKey": "schemes.pmKusum.name",
+    "descriptionKey": "schemes.pmKusum.description",
+    "benefit": "Subsidies for solar pumps and grid-connected solar power plants",
+    "category": "infrastructure",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://pmkusum.mnre.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "aif",
+    "nameKey": "schemes.aif.name",
+    "descriptionKey": "schemes.aif.description",
+    "benefit": "Financing facility for post-harvest management infrastructure",
+    "category": "infrastructure",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://agriinfra.dac.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "pkvy",
+    "nameKey": "schemes.pkvy.name",
+    "descriptionKey": "schemes.pkvy.description",
+    "benefit": "Financial assistance for organic farming promotion",
+    "category": "input",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://pgsindia-ncof.gov.in/pkvy",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "smam",
+    "nameKey": "schemes.smam.name",
+    "descriptionKey": "schemes.smam.description",
+    "benefit": "Subsidy on agricultural machinery and equipment",
+    "category": "input",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://agrimachinery.nic.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "shc",
+    "nameKey": "schemes.shc.name",
+    "descriptionKey": "schemes.shc.description",
+    "benefit": "Soil health status and nutrient recommendations",
+    "category": "input",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://soilhealth.dac.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "enam",
+    "nameKey": "schemes.enam.name",
+    "descriptionKey": "schemes.enam.description",
+    "benefit": "Online trading platform for agricultural commodities",
+    "category": "infrastructure",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://enam.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "rkvy",
+    "nameKey": "schemes.rkvy.name",
+    "descriptionKey": "schemes.rkvy.description",
+    "benefit": "Support for agriculture and allied sector development",
+    "category": "infrastructure",
+    "eligibility": {
+      "states": "ALL",
+      "crops": "ALL",
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://rkvy.nic.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "nfsm",
+    "nameKey": "schemes.nfsm.name",
+    "descriptionKey": "schemes.nfsm.description",
+    "benefit": "Support for increasing production of rice, wheat, pulses",
+    "category": "input",
+    "eligibility": {
+      "states": "ALL",
+      "crops": ["wheat", "paddy", "pulses"],
+      "maxLandAcres": null,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://nfsm.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "krishi-bhagya",
+    "nameKey": "schemes.krishiBhagya.name",
+    "descriptionKey": "schemes.krishiBhagya.description",
+    "benefit": "Financial assistance for farm ponds and micro-irrigation",
+    "category": "income",
+    "eligibility": {
+      "states": ["Karnataka"],
+      "crops": "ALL",
+      "maxLandAcres": 5.0,
+      "socialCategories": "ALL"
+    },
+    "applyUrl": "https://raitamitra.karnataka.gov.in",
+    "lastDate": null,
+    "isActive": true
+  }
+]

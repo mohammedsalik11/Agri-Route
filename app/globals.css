@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  /* Agri Route Palette — field-first design */
+  --color-field-green: #1B4332;
+  --color-field-green-light: #2D6A4F;
+  --color-earth: #B07D3E;
+  --color-earth-light: #D4A867;
+  --color-alert-red: #C1121F;
+  --color-fair-green: #2D6A4F;
+  --color-amber: #E9972C;
+  --color-paper: #FBF7F0;
+  --color-ink: #1A1A1A;
+  --color-ink-light: #4A4A4A;
+  --color-ink-muted: #7A7A7A;
+  --color-border: #E5DDD3;
+  --color-border-light: #F0EBE3;
+
+  /* Status colors */
+  --color-status-live: #059669;
+  --color-status-cached: #6B7280;
+  --color-status-simulated: #D97706;
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Force minimum touch targets for mobile */
+button, a, [role="button"] {
+  min-height: 44px;
+}
+
+/* Number emphasis */
+.price-large {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-border-light) 25%, var(--color-border) 50%, var(--color-border-light) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

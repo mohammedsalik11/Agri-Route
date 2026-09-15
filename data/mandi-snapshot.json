@@ -1,0 +1,122 @@
+{
+  "tomato": {
+    "state": "Karnataka",
+    "district": "Mandya",
+    "market": "Mandya",
+    "commodity": "Tomato",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 900, "maxPrice": 2300, "modalPrice": 1600, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 880, "maxPrice": 2250, "modalPrice": 1550, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 850, "maxPrice": 2200, "modalPrice": 1500, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 820, "maxPrice": 2150, "modalPrice": 1450, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 800, "maxPrice": 2100, "modalPrice": 1400, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 750, "maxPrice": 2000, "modalPrice": 1350, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 700, "maxPrice": 1900, "modalPrice": 1300, "unit": "per_quintal" }
+    ]
+  },
+  "onion": {
+    "state": "Karnataka",
+    "district": "Bengaluru Urban",
+    "market": "Yeshwanthpur",
+    "commodity": "Onion",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 2200, "maxPrice": 3500, "modalPrice": 2800, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 2150, "maxPrice": 3450, "modalPrice": 2750, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 2100, "maxPrice": 3400, "modalPrice": 2700, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 2050, "maxPrice": 3350, "modalPrice": 2650, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 2000, "maxPrice": 3300, "modalPrice": 2600, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 2000, "maxPrice": 3200, "modalPrice": 2550, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 1900, "maxPrice": 3100, "modalPrice": 2500, "unit": "per_quintal" }
+    ]
+  },
+  "potato": {
+    "state": "Karnataka",
+    "district": "Hassan",
+    "market": "Hassan",
+    "commodity": "Potato",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 1800, "maxPrice": 2400, "modalPrice": 2100, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 1800, "maxPrice": 2400, "modalPrice": 2100, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 1750, "maxPrice": 2350, "modalPrice": 2050, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 1750, "maxPrice": 2350, "modalPrice": 2050, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 1700, "maxPrice": 2300, "modalPrice": 2000, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 1700, "maxPrice": 2300, "modalPrice": 2000, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 1650, "maxPrice": 2250, "modalPrice": 1950, "unit": "per_quintal" }
+    ]
+  },
+  "ragi": {
+    "state": "Karnataka",
+    "district": "Tumakuru",
+    "market": "Tumakuru",
+    "commodity": "Ragi",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 4100, "maxPrice": 4400, "modalPrice": 4250, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 4100, "maxPrice": 4400, "modalPrice": 4250, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 4100, "maxPrice": 4400, "modalPrice": 4250, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 4100, "maxPrice": 4400, "modalPrice": 4250, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 4100, "maxPrice": 4400, "modalPrice": 4250, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 4050, "maxPrice": 4350, "modalPrice": 4200, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 4050, "maxPrice": 4350, "modalPrice": 4200, "unit": "per_quintal" }
+    ]
+  },
+  "paddy": {
+    "state": "Karnataka",
+    "district": "Raichur",
+    "market": "Raichur",
+    "commodity": "Paddy",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 2300, "maxPrice": 2600, "modalPrice": 2450, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 2300, "maxPrice": 2600, "modalPrice": 2450, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 2300, "maxPrice": 2600, "modalPrice": 2450, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 2250, "maxPrice": 2550, "modalPrice": 2400, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 2250, "maxPrice": 2550, "modalPrice": 2400, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 2250, "maxPrice": 2550, "modalPrice": 2400, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 2200, "maxPrice": 2500, "modalPrice": 2350, "unit": "per_quintal" }
+    ]
+  },
+  "maize": {
+    "state": "Karnataka",
+    "district": "Davangere",
+    "market": "Davangere",
+    "commodity": "Maize",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 2100, "maxPrice": 2400, "modalPrice": 2250, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 2100, "maxPrice": 2400, "modalPrice": 2250, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 2100, "maxPrice": 2400, "modalPrice": 2250, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 2050, "maxPrice": 2350, "modalPrice": 2200, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 2050, "maxPrice": 2350, "modalPrice": 2200, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 2050, "maxPrice": 2350, "modalPrice": 2200, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 2000, "maxPrice": 2300, "modalPrice": 2150, "unit": "per_quintal" }
+    ]
+  },
+  "wheat": {
+    "state": "Karnataka",
+    "district": "Dharwad",
+    "market": "Hubballi",
+    "commodity": "Wheat",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 2600, "maxPrice": 3200, "modalPrice": 2900, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 2600, "maxPrice": 3200, "modalPrice": 2900, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 2550, "maxPrice": 3150, "modalPrice": 2850, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 2550, "maxPrice": 3150, "modalPrice": 2850, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 2500, "maxPrice": 3100, "modalPrice": 2800, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 2500, "maxPrice": 3100, "modalPrice": 2800, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 2450, "maxPrice": 3050, "modalPrice": 2750, "unit": "per_quintal" }
+    ]
+  },
+  "banana": {
+    "state": "Karnataka",
+    "district": "Mysuru",
+    "market": "Mysuru",
+    "commodity": "Banana",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 1500, "maxPrice": 2500, "modalPrice": 2000, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 1500, "maxPrice": 2500, "modalPrice": 2000, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 1450, "maxPrice": 2450, "modalPrice": 1950, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 1450, "maxPrice": 2450, "modalPrice": 1950, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 1400, "maxPrice": 2400, "modalPrice": 1900, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 1400, "maxPrice": 2400, "modalPrice": 1900, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 1350, "maxPrice": 2350, "modalPrice": 1850, "unit": "per_quintal" }
+    ]
+  }
+}
