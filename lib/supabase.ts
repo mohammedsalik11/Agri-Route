@@ -2,15 +2,24 @@
  * Supabase client for storage operations only.
  * Firestore data stays on Firebase Admin.
  */
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
+const isConfigured =
+  Boolean(supabaseUrl) &&
+  Boolean(supabaseServiceKey) &&
+  !supabaseUrl.includes('your-project-id') &&
+  !supabaseServiceKey.includes('your-service-role-key');
+
 // Server-side client with service role (full access to storage)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { persistSession: false },
-});
+// Initialized safely so module evaluation never throws if env vars are missing during build
+export const supabaseAdmin: SupabaseClient | null = isConfigured
+  ? createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false },
+    })
+  : null;
 
 export const STORAGE_BUCKET = 'produce-photos';
 
@@ -23,8 +32,8 @@ export async function uploadProducePhoto(
   mimeType: string,
   fileName: string
 ): Promise<string | null> {
-  if (!supabaseUrl || !supabaseServiceKey) {
-    console.warn('[Supabase] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY — skipping upload');
+  if (!supabaseAdmin) {
+    console.warn('[Supabase] Missing or unconfigured SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY — skipping photo upload');
     return null;
   }
 
