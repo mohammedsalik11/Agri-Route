@@ -140,12 +140,15 @@ export async function GET(request: NextRequest) {
       // Farmer's own listings
       const snapshot = await collections.listings
         .where('farmerId', '==', user.clerkUserId)
-        .orderBy('createdAt', 'desc')
-        .limit(50)
         .get();
+
+      const myListings = snapshot.docs
+        .map(d => d.data())
+        .sort((a: any, b: any) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+
       return NextResponse.json({
         ok: true,
-        data: snapshot.docs.map(d => d.data()),
+        data: myListings,
       });
     }
 
@@ -155,18 +158,18 @@ export async function GET(request: NextRequest) {
     const grade = searchParams.get('grade');
     const maxPrice = searchParams.get('maxPrice');
 
-    let listings = (
-      await collections.listings
-        .where('status', '==', 'available')
-        .orderBy('createdAt', 'desc')
-        .limit(50)
-        .get()
-    ).docs.map(d => d.data());
+    const snapshot = await collections.listings
+      .where('status', '==', 'available')
+      .get();
 
-    if (crop) listings = listings.filter(l => l.crop === crop.toLowerCase());
-    if (district) listings = listings.filter(l => l.district.toLowerCase() === district.toLowerCase());
-    if (grade) listings = listings.filter(l => l.qualityGrade === grade);
-    if (maxPrice) listings = listings.filter(l => l.askPricePerKg <= Number(maxPrice));
+    let listings = snapshot.docs
+      .map(d => d.data())
+      .sort((a: any, b: any) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+
+    if (crop) listings = listings.filter((l: any) => l.crop === crop.toLowerCase());
+    if (district) listings = listings.filter((l: any) => l.district?.toLowerCase() === district.toLowerCase());
+    if (grade) listings = listings.filter((l: any) => l.qualityGrade === grade);
+    if (maxPrice) listings = listings.filter((l: any) => l.askPricePerKg <= Number(maxPrice));
 
     return NextResponse.json({ ok: true, data: listings });
   } catch (error: unknown) {

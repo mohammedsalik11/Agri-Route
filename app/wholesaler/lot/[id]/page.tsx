@@ -13,9 +13,11 @@ import {
   MapPin,
   Sparkles,
   Loader2,
+  AlertCircle,
 } from 'lucide-react';
 
 interface MemberFarmer {
+  listingId?: string;
   farmerName: string;
   quantityKg: number;
   askPricePerKg: number;
@@ -29,22 +31,51 @@ export default function LotDetailPage() {
   const poolId = params?.id as string;
 
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [crop, setCrop] = useState('tomato');
+  const [district, setDistrict] = useState('Mandya');
+  const [qualityGrade, setQualityGrade] = useState('A');
+  const [members, setMembers] = useState<MemberFarmer[]>([]);
+  const [poolPricePaise, setPoolPricePaise] = useState(1460);
+  const [offerPrice, setOfferPrice] = useState('14.00');
+  const [message, setMessage] = useState('');
+  const [isNegotiating, setIsNegotiating] = useState(false);
+  const [offerStatusMsg, setOfferStatusMsg] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
-  // All 9 farmers composing the full 3,000 kg lot (§13.5, §15, §20)
-  const [members, setMembers] = useState<MemberFarmer[]>([
-    { farmerName: 'Lakshmamma', quantityKg: 600, askPricePerKg: 1400, qualityGrade: 'A' },
-    { farmerName: 'Rajamma', quantityKg: 350, askPricePerKg: 1400, qualityGrade: 'A' },
-    { farmerName: 'Nagaraju', quantityKg: 280, askPricePerKg: 1350, qualityGrade: 'A' },
-    { farmerName: 'Manjunath', quantityKg: 320, askPricePerKg: 1450, qualityGrade: 'A' },
-    { farmerName: 'Savithramma', quantityKg: 400, askPricePerKg: 1380, qualityGrade: 'A' },
-    { farmerName: 'Venkatesh', quantityKg: 250, askPricePerKg: 1420, qualityGrade: 'A' },
-    { farmerName: 'Shivamma', quantityKg: 300, askPricePerKg: 1390, qualityGrade: 'A' },
-    { farmerName: 'Basavaraj', quantityKg: 280, askPricePerKg: 1410, qualityGrade: 'A' },
-    { farmerName: 'Gangamma', quantityKg: 220, askPricePerKg: 1370, qualityGrade: 'A' },
-  ]);
+  useEffect(() => {
+    if (!poolId) return;
 
-  const totalKg = members.reduce((s, m) => s + m.quantityKg, 0); // 3,000 kg
-  const poolPricePaise = 1460; // ₹14.60
+    fetch(`/api/pools/${poolId}`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.ok && res.data) {
+          const p = res.data;
+          setCrop(p.crop || 'produce');
+          setDistrict(p.district || 'Karnataka');
+          setQualityGrade(p.qualityGrade || 'A');
+          setPoolPricePaise(p.poolPricePerKg || 1400);
+          setOfferPrice(((p.poolPricePerKg || 1400) / 100).toFixed(2));
+
+          if (Array.isArray(p.members) && p.members.length > 0) {
+            setMembers(p.members);
+          } else {
+            // Default breakdown if single farmer
+            setMembers([
+              {
+                farmerName: p.crop ? `${p.crop} Farmer Collective` : 'Farmer Collective',
+                quantityKg: p.currentKg || 3000,
+                askPricePerKg: p.poolPricePerKg || 1400,
+                qualityGrade: p.qualityGrade || 'A',
+              },
+            ]);
+          }
+        }
+      })
+      .catch((err) => console.error('Error fetching pool lot detail:', err))
+      .finally(() => setDataLoading(false));
+  }, [poolId]);
+
+  const totalKg = members.reduce((s, m) => s + m.quantityKg, 0);
   const subtotalPaise = totalKg * poolPricePaise;
   const platformFeePaise = Math.round(subtotalPaise * 0.03);
   const logisticsFeePaise = Math.round(subtotalPaise * 0.05);
@@ -58,23 +89,71 @@ export default function LotDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sourceType: 'pool',
-          sourceId: poolId || 'demo_pool_tomato',
+          sourceId: poolId,
         }),
       });
       const data = await res.json();
       if (data.ok && data.data?.order?.orderId) {
         router.push(`/wholesaler/checkout/${data.data.order.orderId}`);
       } else {
-        // Fallback demo order routing
-        router.push('/wholesaler/checkout/ord_mandya_9921');
+        alert(data.message || 'Failed to initialize order. Please try again.');
+        setLoading(false);
       }
     } catch {
-      router.push('/wholesaler/checkout/ord_mandya_9921');
+      alert('Network error. Failed to initialize order.');
+      setLoading(false);
     }
   };
 
+  const handleMakeOffer = async () => {
+    setIsNegotiating(true);
+    setOfferStatusMsg(null);
+    try {
+      const paise = Math.round(parseFloat(offerPrice) * 100);
+      if (isNaN(paise) || paise <= 0) {
+        setOfferStatusMsg({ msg: 'Please enter a valid offer price.', type: 'error' });
+        setIsNegotiating(false);
+        return;
+      }
+
+      const res = await fetch('/api/negotiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          poolId,
+          offerPricePerKgPaise: paise,
+          message,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setOfferStatusMsg({ msg: t('negotiate.offerSent'), type: 'success' });
+        setMessage('');
+      } else {
+        setOfferStatusMsg({ msg: data.message || 'Error making offer', type: 'error' });
+      }
+    } catch {
+      setOfferStatusMsg({ msg: 'Network error. Please try again.', type: 'error' });
+    } finally {
+      setIsNegotiating(false);
+    }
+  };
+
+  if (dataLoading) {
+    return (
+      <div className="min-h-screen bg-paper pb-24">
+        <Navbar />
+        <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+          <div className="animate-pulse bg-white rounded-2xl h-24 border border-border" />
+          <div className="animate-pulse bg-white rounded-2xl h-64 border border-border" />
+          <div className="animate-pulse bg-white rounded-2xl h-48 border border-border" />
+        </main>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-paper pb-16">
+    <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
@@ -82,33 +161,31 @@ export default function LotDetailPage() {
           <span className="text-xs font-bold text-earth uppercase tracking-wide">
             Pooled Wholesale Lot
           </span>
-          <h1 className="text-2xl font-bold text-ink mt-0.5">
-            Tomato Grade A · Mandya Centroid Truckload
+          <h1 className="text-2xl font-bold text-ink mt-0.5 capitalize">
+            {crop} Grade {qualityGrade} · {district} Truckload
           </h1>
           <p className="text-xs text-ink-muted">
-            3,000 kg total lot aggregated across 9 verified marginal farmers
+            {formatWeight(totalKg)} lot aggregated across {members.length} verified farmer{members.length > 1 ? 's' : ''}
           </p>
         </div>
 
-        {/* Pitch Highlight Banner (§20 Beat 2:45) */}
+        {/* Pitch Highlight Banner */}
         <div className="bg-gradient-to-r from-earth/15 via-field-green/15 to-earth/15 border border-earth/30 rounded-2xl p-4 flex items-start gap-3">
           <Sparkles className="w-5 h-5 text-earth shrink-0 mt-0.5" />
           <div className="text-xs space-y-1">
-            <p className="font-bold text-ink text-sm">
-              Complete Farm Traceability
-            </p>
+            <p className="font-bold text-ink text-sm">Complete Farm Traceability</p>
             <p className="text-ink-light">
-              For the first time in wholesale agricultural procurement, you can see every single smallholder who grew your lot and their individual contribution.
+              See every individual smallholder who grew your lot and their verified contribution with escrow release protection.
             </p>
           </div>
         </div>
 
-        {/* 9 Farmers Member Breakdown Table */}
+        {/* Members Breakdown Table */}
         <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-ink flex items-center gap-2">
               <Users className="w-4 h-4 text-earth" />
-              Member Farmer Breakdown ({members.length} Farmers)
+              Member Farmer Breakdown ({members.length} {members.length > 1 ? 'Farmers' : 'Farmer'})
             </h3>
             <span className="text-xs font-bold text-field-green">
               {formatWeight(totalKg)} Total
@@ -117,26 +194,20 @@ export default function LotDetailPage() {
 
           <div className="divide-y divide-border-light text-xs">
             {members.map((farmer, idx) => {
-              const sharePct = ((farmer.quantityKg / totalKg) * 100).toFixed(1);
-              const isLeadFarmer = farmer.farmerName === 'Lakshmamma';
+              const sharePct = totalKg > 0 ? ((farmer.quantityKg / totalKg) * 100).toFixed(1) : '100';
 
               return (
-                <div
-                  key={idx}
-                  className={`py-3 flex items-center justify-between transition-colors ${
-                    isLeadFarmer ? 'bg-emerald-50/60 px-2 rounded-lg font-semibold' : ''
-                  }`}
-                >
+                <div key={idx} className="py-3 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <span className="w-6 h-6 rounded-full bg-paper border border-border flex items-center justify-center font-bold text-[10px] text-ink-muted">
                       {idx + 1}
                     </span>
                     <div>
-                      <span className="text-ink block">
-                        {farmer.farmerName} {isLeadFarmer && '(Lead Contributor)'}
+                      <span className="text-ink font-semibold block capitalize">
+                        {farmer.farmerName}
                       </span>
                       <span className="text-[11px] text-ink-muted">
-                        Mandya APMC Hub · Grade {farmer.qualityGrade}
+                        {district} · Grade {farmer.qualityGrade}
                       </span>
                     </div>
                   </div>
@@ -145,7 +216,7 @@ export default function LotDetailPage() {
                     <span className="font-bold text-ink block">
                       {formatWeight(farmer.quantityKg)}
                     </span>
-                    <span className="text-[11px] text-field-green">
+                    <span className="text-[11px] text-field-green font-semibold">
                       {sharePct}% of lot
                     </span>
                   </div>
@@ -155,13 +226,78 @@ export default function LotDetailPage() {
           </div>
         </div>
 
-        {/* Cost & Fee Breakdown Card */}
+        {/* Make an Offer Section */}
+        <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-ink">{t('negotiate.title')}</h3>
+            <span className="text-xs text-ink-muted">
+              Listed at: <span className="font-bold text-ink">{formatCurrency(poolPricePaise)}/kg</span>
+            </span>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-ink-muted block mb-1">{t('negotiate.yourOffer')}</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted font-bold">₹</span>
+                <input
+                  type="number"
+                  step="0.10"
+                  value={offerPrice}
+                  onChange={(e) => setOfferPrice(e.target.value)}
+                  className="w-full bg-paper border border-border rounded-xl py-2.5 pl-8 pr-4 text-sm font-bold text-ink focus:outline-none focus:border-earth"
+                  placeholder="14.00"
+                />
+              </div>
+              <p className="text-[10px] text-ink-muted mt-1 flex justify-between">
+                <span>{t('negotiate.floorNote')}</span>
+                <span>{t('negotiate.ceilingNote')}</span>
+              </p>
+            </div>
+
+            <div>
+              <label className="text-xs text-ink-muted block mb-1">{t('negotiate.message')}</label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-full bg-paper border border-border rounded-xl p-3 text-sm text-ink focus:outline-none focus:border-earth resize-none"
+                rows={2}
+                placeholder="E.g. Ready to purchase immediately if price is matched."
+              />
+            </div>
+
+            {offerStatusMsg && (
+              <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                offerStatusMsg.type === 'success'
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                  : 'bg-red-50 text-red-800 border border-red-200'
+              }`}>
+                {offerStatusMsg.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                )}
+                <span>{offerStatusMsg.msg}</span>
+              </div>
+            )}
+
+            <button
+              onClick={handleMakeOffer}
+              disabled={isNegotiating}
+              className="w-full py-2.5 bg-paper border-2 border-earth text-earth font-bold text-xs rounded-xl hover:bg-earth hover:text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isNegotiating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              <span>{t('negotiate.submitOffer')}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Commercial Summary & Buy */}
         <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-3">
           <h3 className="text-sm font-bold text-ink">Commercial Summary</h3>
 
           <div className="space-y-2 text-xs">
             <div className="flex justify-between text-ink-muted">
-              <span>Lot Subtotal (3,000 kg @ ₹14.60/kg):</span>
+              <span>Lot Subtotal ({formatWeight(totalKg)} @ {formatCurrency(poolPricePaise)}/kg):</span>
               <span className="font-bold text-ink">{formatCurrency(subtotalPaise)}</span>
             </div>
             <div className="flex justify-between text-ink-muted">
@@ -178,10 +314,10 @@ export default function LotDetailPage() {
             </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-3">
             <button
               onClick={handleCreateOrder}
-              disabled={loading}
+              disabled={loading || totalKg === 0}
               className="w-full py-3.5 px-6 bg-earth text-white font-bold text-sm rounded-xl hover:bg-earth-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
             >
               {loading ? (

@@ -9,16 +9,14 @@ export async function GET() {
 
   try {
     // Get all completed orders where this farmer has payouts
-    const snapshot = await collections.orders
-      .orderBy('createdAt', 'desc')
-      .limit(100)
-      .get();
+    const snapshot = await collections.orders.get();
 
     const myOrders = snapshot.docs
       .map(d => d.data())
       .filter(o =>
         o.payout?.some((p: { farmerId: string }) => p.farmerId === user.clerkUserId)
-      );
+      )
+      .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
 
     let totalEarned = 0;
     let totalExtraVsFloor = 0;

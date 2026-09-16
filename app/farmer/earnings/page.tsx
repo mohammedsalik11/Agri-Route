@@ -1,29 +1,63 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { RupeeSplitBar } from '@/components/RupeeSplitBar';
-import { SimulatedBadge } from '@/components/SimulatedBadge';
 import { useT } from '@/lib/i18n/LanguageProvider';
-import { TrendingUp, ArrowUpRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, ArrowRight, ShieldCheck, CheckCircle2, Clock, ShoppingBag } from 'lucide-react';
+
+interface OrderEarning {
+  orderId: string;
+  crop: string;
+  quantityKg: number;
+  earned: number; // paise
+  escrowStatus: string;
+  date: string;
+}
+
+interface RupeeSplitData {
+  farmerPercent: number;
+  logisticsPercent: number;
+  platformPercent: number;
+  orderId: string;
+}
 
 export default function EarningsPage() {
   const { t, formatCurrency, formatWeight } = useT();
 
-  const [earningsData, setEarningsData] = useState({
-    totalEarned: 840000, // Rs 8,400 (600 kg @ Rs 14)
-    totalExtraVsFloor: 360000, // Rs 3,600 extra vs Rs 8/kg distress floor
-  });
+  const [loading, setLoading] = useState(true);
+  const [totalEarned, setTotalEarned] = useState(0);
+  const [totalExtraVsFloor, setTotalExtraVsFloor] = useState(0);
+  const [orders, setOrders] = useState<OrderEarning[]>([]);
+  const [rupeeSplit, setRupeeSplit] = useState<RupeeSplitData | null>(null);
+
+  useEffect(() => {
+    fetch('/api/earnings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((res) => {
+        if (res?.ok && res.data) {
+          setTotalEarned(res.data.totalEarned || 0);
+          setTotalExtraVsFloor(res.data.totalExtraVsFloor || 0);
+          setOrders(Array.isArray(res.data.orders) ? res.data.orders : []);
+          if (res.data.rupeeSplit) {
+            setRupeeSplit(res.data.rupeeSplit);
+          }
+        }
+      })
+      .catch((err) => console.error('Error fetching earnings:', err))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
-    <div className="min-h-screen bg-paper pb-16">
+    <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-ink">{t('earnings.title')}</h1>
           <p className="text-xs text-ink-muted mt-0.5">
-            Real-time financial transparency and disintermediation dividend
+            Real-time financial transparency and disintermediation dividend from database records
           </p>
         </div>
 
@@ -34,10 +68,12 @@ export default function EarningsPage() {
               {t('earnings.totalEarned')}
             </span>
             <p className="text-3xl font-extrabold text-field-green font-mono mt-1">
-              {formatCurrency(earningsData.totalEarned)}
+              {formatCurrency(totalEarned)}
             </p>
             <p className="text-[11px] text-ink-muted mt-1">
-              Across verified truck-scale wholesale settlements
+              {orders.length > 0
+                ? `Across ${orders.length} verified wholesale settlement${orders.length > 1 ? 's' : ''}`
+                : 'Across verified truck-scale wholesale settlements'}
             </p>
           </div>
 
@@ -47,7 +83,7 @@ export default function EarningsPage() {
               {t('earnings.extraEarned')}
             </span>
             <p className="text-3xl font-extrabold text-emerald-900 font-mono mt-1">
-              +{formatCurrency(earningsData.totalExtraVsFloor)}
+              +{formatCurrency(totalExtraVsFloor)}
             </p>
             <p className="text-[11px] text-emerald-700 mt-1">
               Extra earned above traditional APMC distress floor rates
@@ -57,10 +93,10 @@ export default function EarningsPage() {
 
         {/* Rupee Split Bar (Signature Component) */}
         <RupeeSplitBar
-          farmerPercent={92}
-          logisticsPercent={5}
-          platformPercent={3}
-          totalAmountPaise={earningsData.totalEarned}
+          farmerPercent={rupeeSplit?.farmerPercent || 92}
+          logisticsPercent={rupeeSplit?.logisticsPercent || 5}
+          platformPercent={rupeeSplit?.platformPercent || 3}
+          totalAmountPaise={totalEarned}
         />
 
         {/* Payout Settlements Ledger */}
@@ -69,29 +105,69 @@ export default function EarningsPage() {
             <h3 className="text-sm font-bold text-ink">
               Settlement Ledger &amp; Payout Records
             </h3>
-            <SimulatedBadge label="LEDGER ACTIVE" />
+            <span className="text-[11px] font-bold text-field-green bg-field-green/10 px-2.5 py-0.5 rounded-full">
+              LIVE LEDGER
+            </span>
           </div>
 
-          <div className="divide-y divide-border-light text-xs">
-            <div className="py-3 flex items-center justify-between">
-              <div>
-                <span className="font-bold text-ink block">
-                  Mandya Tomato Pool Lot (600 kg)
-                </span>
-                <span className="text-[11px] text-ink-muted">
-                  Order #ord_mandya_9921 · Paid by Suresh Traders
-                </span>
+          {loading ? (
+            <div className="space-y-3">
+              <div className="animate-pulse bg-paper rounded-xl h-14" />
+              <div className="animate-pulse bg-paper rounded-xl h-14" />
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="p-8 text-center space-y-2">
+              <div className="w-12 h-12 rounded-full bg-paper mx-auto flex items-center justify-center text-ink-muted">
+                <ShoppingBag className="w-6 h-6" />
               </div>
-              <div className="text-right">
-                <span className="font-bold text-field-green text-sm block">
-                  +₹8,400.00
-                </span>
-                <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">
-                  Escrow Held ✓
-                </span>
+              <p className="text-sm font-semibold text-ink">No settlements recorded yet</p>
+              <p className="text-xs text-ink-muted max-w-sm mx-auto">
+                When wholesale buyers purchase your pooled produce lots and verify handover via OTP, your proportional settlement payouts will appear here in real-time.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/farmer/list"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-field-green text-paper rounded-xl text-xs font-bold hover:bg-field-green-light transition-all"
+                >
+                  <span>{t('farmer.dashboard.listProduce')}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="divide-y divide-border-light text-xs">
+              {orders.map((order) => {
+                const isReleased = order.escrowStatus === 'RELEASED';
+                return (
+                  <div key={order.orderId} className="py-3 flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-ink block capitalize">
+                        {order.crop} Pool Lot ({formatWeight(order.quantityKg)})
+                      </span>
+                      <span className="text-[11px] text-ink-muted">
+                        Order #{order.orderId}
+                        {order.date ? ` · ${new Date(order.date).toLocaleDateString()}` : ''}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold text-field-green text-sm block">
+                        +{formatCurrency(order.earned)}
+                      </span>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                          isReleased
+                            ? 'text-emerald-800 bg-emerald-100'
+                            : 'text-amber-800 bg-amber-100'
+                        }`}
+                      >
+                        {isReleased ? 'Released ✓' : 'Escrow Held'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
     </div>

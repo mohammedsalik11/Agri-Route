@@ -3,7 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useT, useLanguage } from '@/lib/i18n/LanguageProvider';
-import { Sprout, Store, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Sprout, Store, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
+
+const DISTRICTS_KA = [
+  'Bagalkot', 'Ballari', 'Belagavi', 'Bengaluru Rural', 'Bengaluru Urban',
+  'Bidar', 'Chamarajanagara', 'Chikkaballapur', 'Chikkamagaluru', 'Chitradurga',
+  'Dakshina Kannada', 'Davangere', 'Dharwad', 'Gadag', 'Hassan',
+  'Haveri', 'Kalaburagi', 'Kodagu', 'Kolar', 'Koppal',
+  'Mandya', 'Mysuru', 'Raichur', 'Ramanagara', 'Shivamogga',
+  'Tumakuru', 'Udupi', 'Uttara Kannada', 'Vijayapura', 'Yadgir',
+];
+
+const CROP_OPTIONS = [
+  'Tomato', 'Onion', 'Potato', 'Ragi', 'Paddy', 'Maize', 'Wheat',
+  'Banana', 'Brinjal', 'Cabbage', 'Cauliflower', 'Groundnut',
+  'Soybean', 'Sugarcane', 'Cotton',
+];
 
 export default function OnboardingPage() {
   const { t } = useT();
@@ -13,56 +28,53 @@ export default function OnboardingPage() {
   const [role, setRole] = useState<'farmer' | 'wholesaler'>('farmer');
   const [name, setName] = useState('');
   const [idNumber, setIdNumber] = useState('');
-  const [district, setDistrict] = useState('Mandya');
+  const [district, setDistrict] = useState('');
   const [state, setState] = useState('Karnataka');
-  const [village, setVillage] = useState('Dudda');
-  const [landSizeAcres, setLandSizeAcres] = useState('1.5');
+  const [village, setVillage] = useState('');
+  const [landSizeAcres, setLandSizeAcres] = useState('');
   const [category, setCategory] = useState<'general' | 'sc' | 'st' | 'obc'>('general');
-  const [crops, setCrops] = useState('tomato, ragi');
+  const [selectedCrops, setSelectedCrops] = useState<string[]>([]);
   const [businessName, setBusinessName] = useState('');
   const [gstin, setGstin] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<1 | 2>(1); // Step 1: role select, Step 2: details
 
+  // Check if already onboarded in DB or read intended role from cookie
   useEffect(() => {
-    // Read intended role from cookie
+    fetch('/api/me')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.ok && data.data?.role) {
+          // User already completed onboarding — send directly to their dashboard
+          router.replace(data.data.role === 'farmer' ? '/farmer' : '/wholesaler');
+          return;
+        }
+      })
+      .catch(() => {});
+
     const cookies = document.cookie.split('; ');
     const roleCookie = cookies.find((c) => c.startsWith('intendedRole='));
     if (roleCookie) {
       const val = roleCookie.split('=')[1];
       if (val === 'wholesaler' || val === 'farmer') {
         setRole(val);
-        if (val === 'wholesaler') {
-          setIdNumber('WS-KA-2026-1183');
-          setName('Suresh Kumar');
-          setBusinessName('Suresh Traders');
-          setDistrict('Bengaluru Urban');
-        } else {
-          setIdNumber('KA-MAN-2026-004417');
-          setName('Lakshmamma');
-        }
+        setStep(2);
       }
-    } else {
-      setIdNumber('KA-MAN-2026-004417');
-      setName('Lakshmamma');
     }
-  }, []);
+  }, [router]);
 
-  const handleApplyDemoId = (demoId: string, demoName: string, demoRole: 'farmer' | 'wholesaler') => {
-    setRole(demoRole);
-    setIdNumber(demoId);
-    setName(demoName);
+  const toggleCrop = (crop: string) => {
+    setSelectedCrops((prev) =>
+      prev.includes(crop) ? prev.filter((c) => c !== crop) : [...prev, crop]
+    );
+  };
+
+  const handleRoleSelect = (r: 'farmer' | 'wholesaler') => {
+    setRole(r);
     setError(null);
-    if (demoRole === 'farmer') {
-      setDistrict('Mandya');
-      setVillage('Dudda');
-      setLandSizeAcres('1.5');
-      setCrops('tomato, ragi');
-    } else {
-      setDistrict('Bengaluru Urban');
-      setBusinessName('Suresh Traders');
-    }
+    setStep(2);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,302 +82,338 @@ export default function OnboardingPage() {
     setLoading(true);
     setError(null);
 
+    // Client-side validation before hitting the API
+    if (!name.trim()) {
+      setError('Please enter your full name.');
+      setLoading(false);
+      return;
+    }
+    if (!district) {
+      setError('Please select your district.');
+      setLoading(false);
+      return;
+    }
+    if (role === 'wholesaler' && !businessName.trim()) {
+      setError('Please enter your business name.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/onboarding/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           role,
-          name,
-          idNumber,
+          name: name.trim(),
+          idNumber: idNumber.trim().toUpperCase(),
           district,
           state,
-          village: role === 'farmer' ? village : undefined,
-          landSizeAcres: role === 'farmer' ? parseFloat(landSizeAcres) : undefined,
+          village: role === 'farmer' ? village.trim() : undefined,
+          landSizeAcres: role === 'farmer' ? parseFloat(landSizeAcres) || undefined : undefined,
           category: role === 'farmer' ? category : undefined,
-          primaryCrops: role === 'farmer' ? crops.split(',').map((c) => c.trim().toLowerCase()) : undefined,
-          businessName: role === 'wholesaler' ? businessName : undefined,
-          gstin: role === 'wholesaler' ? gstin : undefined,
+          primaryCrops: role === 'farmer' ? selectedCrops.map((c) => c.toLowerCase()) : undefined,
+          businessName: role === 'wholesaler' ? businessName.trim() : undefined,
+          gstin: role === 'wholesaler' ? gstin.trim() : undefined,
           language,
         }),
       });
 
-      const data = await res.json();
-      if (!data.ok) {
-        setError(data.message || 'Verification failed');
+      let data: { ok: boolean; message?: string; error?: string };
+      try {
+        data = await res.json();
+      } catch {
+        setError(`Server returned an unexpected response (HTTP ${res.status}). Please try again.`);
         setLoading(false);
         return;
       }
 
-      // Success -> Redirect to respective dashboard
-      if (role === 'farmer') {
-        router.push('/farmer');
-      } else {
-        router.push('/wholesaler');
+      if (!data.ok) {
+        // Show the exact server message so the user knows what went wrong
+        setError(data.message || `Something went wrong (${res.status}). Please check your details and try again.`);
+        setLoading(false);
+        return;
       }
-    } catch {
-      setError('Network error during verification');
+
+      // Onboarding succeeded — Clerk publicMetadata is updated on the server.
+      // Use a hard navigation (window.location) so the browser reloads the full
+      // session token. Next.js router.push() reuses the cached session which
+      // won't yet have the new `role` metadata, causing middleware to bounce back.
+      const destination = role === 'farmer' ? '/farmer' : '/wholesaler';
+      window.location.href = destination;
+
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Network error — please check your connection and try again.';
+      setError(msg);
       setLoading(false);
     }
   };
 
-  return (
-    <main className="min-h-screen bg-paper py-10 px-4">
-      <div className="max-w-xl mx-auto">
-        {/* Header */}
+  // Step 1: Role selection
+  if (step === 1) {
+    return (
+      <main className="min-h-screen bg-paper flex flex-col items-center justify-center px-6 py-12">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-field-green text-white text-2xl mb-3">
+          <div className="inline-flex w-16 h-16 rounded-2xl bg-field-green items-center justify-center text-2xl mb-4">
             🌾
           </div>
-          <h1 className="text-2xl font-bold text-ink">{t('onboarding.title')}</h1>
-          <p className="text-xs text-ink-muted mt-1">
-            Government Registry Verification &amp; Profile Setup
-          </p>
+          <h1 className="text-2xl font-bold text-ink">{t('role.title')}</h1>
+          <p className="text-xs text-ink-muted mt-1">{t('app.tagline')}</p>
         </div>
 
-        {/* Demo IDs Quick Fill */}
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
-          <p className="text-xs font-bold text-amber-900 mb-2 flex items-center gap-1.5">
-            <span>🔑</span> {t('onboarding.demoIds')} (Tap to populate):
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => handleApplyDemoId('KA-MAN-2026-004417', 'Lakshmamma', 'farmer')}
-              className="px-3 py-1.5 bg-white rounded-lg border border-amber-300 text-xs font-semibold text-field-green hover:bg-field-green/5 flex items-center gap-1"
-            >
-              <Sprout className="w-3.5 h-3.5" />
-              Lakshmamma (Farmer, Mandya)
-            </button>
-            <button
-              type="button"
-              onClick={() => handleApplyDemoId('WS-KA-2026-1183', 'Suresh Kumar', 'wholesaler')}
-              className="px-3 py-1.5 bg-white rounded-lg border border-amber-300 text-xs font-semibold text-earth hover:bg-earth/5 flex items-center gap-1"
-            >
-              <Store className="w-3.5 h-3.5" />
-              Suresh Traders (Wholesaler, BLR)
-            </button>
+        <div className="w-full max-w-sm space-y-4">
+          <button
+            onClick={() => handleRoleSelect('farmer')}
+            className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border hover:border-field-green hover:shadow-md transition-all active:scale-[0.98]"
+          >
+            <div className="w-12 h-12 rounded-xl bg-field-green/10 flex items-center justify-center">
+              <Sprout className="w-6 h-6 text-field-green" />
+            </div>
+            <div className="text-left">
+              <p className="font-bold text-ink text-base">{t('role.farmer')}</p>
+              <p className="text-xs text-ink-muted">{t('role.farmerDesc')}</p>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleRoleSelect('wholesaler')}
+            className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border hover:border-earth hover:shadow-md transition-all active:scale-[0.98]"
+          >
+            <div className="w-12 h-12 rounded-xl bg-earth/10 flex items-center justify-center">
+              <Store className="w-6 h-6 text-earth" />
+            </div>
+            <div className="text-left">
+              <p className="font-bold text-ink text-base">{t('role.wholesaler')}</p>
+              <p className="text-xs text-ink-muted">{t('role.wholesalerDesc')}</p>
+            </div>
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // Step 2: Profile form
+  return (
+    <main className="min-h-screen bg-paper py-8 px-4">
+      <div className="max-w-xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => { setStep(1); setError(null); }}
+            className="p-2 rounded-xl bg-white border border-border text-ink hover:bg-paper"
+          >
+            ←
+          </button>
+          <div>
+            <div className="flex items-center gap-2">
+              {role === 'farmer'
+                ? <Sprout className="w-4 h-4 text-field-green" />
+                : <Store className="w-4 h-4 text-earth" />
+              }
+              <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
+                {t(`role.${role}`)}
+              </span>
+            </div>
+            <h1 className="text-xl font-bold text-ink">{t('onboarding.title')}</h1>
           </div>
         </div>
 
-        {/* Form Container */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-border shadow-xs">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Role switch */}
-            <div className="grid grid-cols-2 gap-3 p-1 bg-paper rounded-xl border border-border mb-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setRole('farmer');
-                  setIdNumber('KA-MAN-2026-004417');
-                  setName('Lakshmamma');
-                }}
-                className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                  role === 'farmer'
-                    ? 'bg-field-green text-white shadow-xs'
-                    : 'text-ink-muted hover:text-ink'
-                }`}
-              >
-                <Sprout className="w-4 h-4" />
-                {t('role.farmer')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setRole('wholesaler');
-                  setIdNumber('WS-KA-2026-1183');
-                  setName('Suresh Kumar');
-                  setBusinessName('Suresh Traders');
-                }}
-                className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                  role === 'wholesaler'
-                    ? 'bg-earth text-white shadow-xs'
-                    : 'text-ink-muted hover:text-ink'
-                }`}
-              >
-                <Store className="w-4 h-4" />
-                {t('role.wholesaler')}
-              </button>
-            </div>
+        {/* Registry note */}
+        <div className="mb-5 p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2.5 text-xs">
+          <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+          <p className="text-blue-800">
+            {t('onboarding.verifyNote')}
+          </p>
+        </div>
 
-            {/* Error banner */}
-            {error && (
-              <div className="p-3 bg-alert-red/10 border border-alert-red/30 rounded-xl flex items-center gap-2 text-alert-red text-xs">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 text-xs">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
-            {/* Common fields */}
-            <div>
-              <label className="block text-xs font-semibold text-ink mb-1">
-                {t('onboarding.name')} *
-              </label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green outline-none"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-4">
 
-            {/* ID verification field */}
-            <div>
-              <label className="block text-xs font-semibold text-ink mb-1">
-                {role === 'farmer' ? t('onboarding.farmerId') : t('onboarding.wholesalerId')} *
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  value={idNumber}
-                  onChange={(e) => setIdNumber(e.target.value)}
-                  placeholder={role === 'farmer' ? 'KA-MAN-2026-004417' : 'WS-KA-2026-1183'}
-                  className="w-full px-3.5 py-2.5 bg-paper/50 border border-border rounded-xl text-sm font-mono focus:border-field-green outline-none"
-                />
-                <span className="absolute right-3 top-2.5 text-field-green">
-                  <CheckCircle className="w-5 h-5 opacity-80" />
-                </span>
-              </div>
-              <p className="text-[11px] text-ink-muted mt-1.5 italic leading-snug">
-                {t('onboarding.verifyNote')}
-              </p>
-            </div>
+          {/* Full Name */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1.5">
+              {t('onboarding.name')} *
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none transition-colors"
+              placeholder={role === 'farmer' ? t('onboarding.namePlaceholderFarmer') : t('onboarding.namePlaceholderWholesaler')}
+            />
+          </div>
 
-            {/* Farmer Specific Fields */}
-            {role === 'farmer' && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">
-                      {t('onboarding.district')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={district}
-                      onChange={(e) => setDistrict(e.target.value)}
-                      className="w-full px-3 py-2 bg-paper/50 border border-border rounded-xl text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">
-                      {t('onboarding.village')}
-                    </label>
-                    <input
-                      type="text"
-                      value={village}
-                      onChange={(e) => setVillage(e.target.value)}
-                      className="w-full px-3 py-2 bg-paper/50 border border-border rounded-xl text-xs"
-                    />
-                  </div>
+          {/* ID Number */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1.5">
+              {role === 'farmer' ? t('onboarding.farmerId') : t('onboarding.wholesalerId')} *
+            </label>
+            <input
+              type="text"
+              required
+              value={idNumber}
+              onChange={(e) => { setIdNumber(e.target.value); setError(null); }}
+              placeholder={role === 'farmer' ? 'KA-MAN-2026-004417' : 'WS-KA-2026-1183'}
+              className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm font-mono focus:border-field-green focus:outline-none transition-colors"
+            />
+            <p className="text-[11px] text-ink-muted mt-1.5">
+              {role === 'farmer'
+                ? 'Format: KA-XXX-YYYY-NNNNNN (e.g. KA-MAN-2026-004417)'
+                : 'Format: WS-KA-YYYY-NNNN (e.g. WS-KA-2026-1183)'}
+            </p>
+          </div>
+
+          {/* District */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1.5">
+              {t('onboarding.district')} *
+            </label>
+            <select
+              required
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none appearance-none"
+            >
+              <option value="">{t('onboarding.selectDistrict')}</option>
+              {DISTRICTS_KA.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Farmer-specific fields */}
+          {role === 'farmer' && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    {t('onboarding.village')}
+                  </label>
+                  <input
+                    type="text"
+                    value={village}
+                    onChange={(e) => setVillage(e.target.value)}
+                    className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none"
+                  />
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">
-                      {t('onboarding.landSize')}
-                    </label>
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    {t('onboarding.landSize')}
+                  </label>
+                  <div className="relative">
                     <input
                       type="number"
                       step="0.1"
+                      min="0.1"
                       value={landSizeAcres}
                       onChange={(e) => setLandSizeAcres(e.target.value)}
-                      className="w-full px-3 py-2 bg-paper/50 border border-border rounded-xl text-xs"
+                      className="w-full px-3 py-3 pr-12 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none"
                     />
+                    <span className="absolute right-3 top-3 text-xs text-ink-muted font-medium">
+                      {t('common.acres')}
+                    </span>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">
-                      {t('onboarding.category')}
-                    </label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value as 'general' | 'sc' | 'st' | 'obc')}
-                      className="w-full px-3 py-2 bg-paper/50 border border-border rounded-xl text-xs"
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-ink mb-1.5">
+                  {t('onboarding.category')}
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {(['general', 'obc', 'sc', 'st'] as const).map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setCategory(cat)}
+                      className={`py-2 px-2 rounded-xl border text-xs font-bold transition-all ${
+                        category === cat
+                          ? 'border-field-green bg-field-green text-white'
+                          : 'border-border bg-paper text-ink hover:bg-white'
+                      }`}
                     >
-                      <option value="general">General</option>
-                      <option value="obc">OBC</option>
-                      <option value="sc">SC</option>
-                      <option value="st">ST</option>
-                    </select>
-                  </div>
+                      {cat.toUpperCase()}
+                    </button>
+                  ))}
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-ink mb-1">
-                    {t('onboarding.crops')} (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={crops}
-                    onChange={(e) => setCrops(e.target.value)}
-                    placeholder="tomato, onion, ragi"
-                    className="w-full px-3 py-2 bg-paper/50 border border-border rounded-xl text-xs"
-                  />
+              <div>
+                <label className="block text-xs font-semibold text-ink mb-1.5">
+                  {t('onboarding.crops')}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {CROP_OPTIONS.map((crop) => {
+                    const selected = selectedCrops.includes(crop);
+                    return (
+                      <button
+                        key={crop}
+                        type="button"
+                        onClick={() => toggleCrop(crop)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                          selected
+                            ? 'bg-field-green text-white border-field-green'
+                            : 'bg-white text-ink border-border hover:border-field-green'
+                        }`}
+                      >
+                        {crop}
+                      </button>
+                    );
+                  })}
                 </div>
-              </>
+              </div>
+            </>
+          )}
+
+          {/* Wholesaler-specific fields */}
+          {role === 'wholesaler' && (
+            <>
+              <div>
+                <label className="block text-xs font-semibold text-ink mb-1.5">
+                  {t('onboarding.businessName')} *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-ink mb-1.5">
+                  {t('onboarding.gstin')}
+                </label>
+                <input
+                  type="text"
+                  value={gstin}
+                  onChange={(e) => setGstin(e.target.value)}
+                  placeholder="29AAAAA0000A1Z5"
+                  className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm font-mono focus:border-field-green focus:outline-none"
+                />
+              </div>
+            </>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 bg-field-green text-white font-bold text-sm rounded-xl hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 mt-2"
+          >
+            {loading ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> {t('onboarding.verifying')}</>
+            ) : (
+              <><CheckCircle className="w-4 h-4" /> {t('onboarding.verify')}</>
             )}
-
-            {/* Wholesaler Specific Fields */}
-            {role === 'wholesaler' && (
-              <>
-                <div>
-                  <label className="block text-xs font-semibold text-ink mb-1">
-                    {t('onboarding.businessName')} *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
-                    className="w-full px-3 py-2 bg-paper/50 border border-border rounded-xl text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-ink mb-1">
-                    {t('onboarding.gstin')}
-                  </label>
-                  <input
-                    type="text"
-                    value={gstin}
-                    onChange={(e) => setGstin(e.target.value)}
-                    placeholder="29AAAAA0000A1Z5"
-                    className="w-full px-3 py-2 bg-paper/50 border border-border rounded-xl text-xs font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-ink mb-1">
-                    {t('onboarding.district')} *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
-                    className="w-full px-3 py-2 bg-paper/50 border border-border rounded-xl text-xs"
-                  />
-                </div>
-              </>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-4 bg-field-green text-white font-bold text-sm rounded-xl hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-6 shadow-xs disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{t('onboarding.verifying')}</span>
-                </>
-              ) : (
-                <span>{t('onboarding.verify')}</span>
-              )}
-            </button>
-          </form>
-        </div>
+          </button>
+        </form>
       </div>
     </main>
   );

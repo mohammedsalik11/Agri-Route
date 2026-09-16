@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.3",
+    "@supabase/supabase-js": "^2.116.0",
     "firebase-admin": "^14.4.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.46.0",

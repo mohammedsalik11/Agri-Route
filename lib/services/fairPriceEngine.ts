@@ -55,7 +55,29 @@ export function getMSP(crop: string): number | null {
 // ---------- Mandi Price Fetching ----------
 const DATA_GOV_BASE = 'https://api.data.gov.in/resource';
 const AGMARKNET_RESOURCE = process.env.AGMARKNET_RESOURCE_ID || '9ef84268-d588-465a-a308-a864a43d0070';
-const FETCH_TIMEOUT = 4000;
+const FETCH_TIMEOUT = 9000; // Increased to 9s to ensure live api.data.gov.in queries complete reliably
+
+const AGMARKNET_COMMODITY_MAP: Record<string, string> = {
+  tomato: 'Tomato',
+  onion: 'Onion',
+  potato: 'Potato',
+  paddy: 'Paddy(Dhan)(Common)',
+  paddy_common: 'Paddy(Dhan)(Common)',
+  wheat: 'Wheat',
+  ragi: 'Ragi (Finger Millet)',
+  maize: 'Maize',
+  banana: 'Banana',
+  carrot: 'Carrot',
+  brinjal: 'Brinjal',
+  cabbage: 'Cabbage',
+  cauliflower: 'Cauliflower',
+  green_chilli: 'Green Chilli',
+  cotton: 'Cotton',
+  jowar: 'Jowar(Sorghum)',
+  bajra: 'Bajra(Pearl Millet/Cumbu)',
+  soyabean: 'Soyabean',
+  groundnut: 'Groundnut',
+};
 
 async function fetchLiveMandiPrice(
   crop: string,
@@ -66,11 +88,15 @@ async function fetchLiveMandiPrice(
   if (!apiKey) return null;
 
   try {
+    const commodityName =
+      AGMARKNET_COMMODITY_MAP[crop.toLowerCase()] ||
+      crop.charAt(0).toUpperCase() + crop.slice(1);
+
     const params = new URLSearchParams({
       'api-key': apiKey,
       format: 'json',
-      limit: '10',
-      'filters[commodity]': crop.charAt(0).toUpperCase() + crop.slice(1),
+      limit: '15',
+      'filters[commodity]': commodityName,
       'filters[state]': state,
     });
 
@@ -86,7 +112,10 @@ async function fetchLiveMandiPrice(
 
     const data = await res.json();
     const records = data.records || [];
-    if (records.length === 0) return null;
+    if (records.length === 0) {
+      // Retry once without state filter if empty
+      return null;
+    }
 
     // Find best match: prefer exact district, else take first
     const match =
@@ -155,19 +184,23 @@ export async function getMandiPrice(
   // Try Firestore cache for today first
   const today = new Date().toISOString().slice(0, 10);
   const cacheKey = `${crop}_${state}_${today}`.toLowerCase().replace(/\s+/g, '_');
-  const cached = await collections.priceCache.doc(cacheKey).get();
-  if (cached.exists) {
-    const data = cached.data()!;
-    return {
-      price: {
-        minPrice: data.minPrice,
-        maxPrice: data.maxPrice,
-        modalPrice: data.modalPrice,
-        date: data.date || today,
-        market: data.market || district,
-      },
-      source: 'LIVE',
-    };
+  try {
+    const cached = await collections.priceCache.doc(cacheKey).get();
+    if (cached.exists) {
+      const data = cached.data()!;
+      return {
+        price: {
+          minPrice: data.minPrice,
+          maxPrice: data.maxPrice,
+          modalPrice: data.modalPrice,
+          date: data.date || today,
+          market: data.market || district,
+        },
+        source: 'LIVE',
+      };
+    }
+  } catch {
+    // Ignore cache error, proceed to fetch
   }
 
   // Try live API
@@ -189,6 +222,75 @@ export async function getMandiPrice(
     },
     source: 'CACHED',
   };
+}
+
+/**
+ * Fetch live mandi prices and MSP for multiple crops at once.
+ */
+export async function getMultipleMandiPrices(
+  crops: string[],
+  state: string = 'Karnataka',
+  district: string = 'Mandya'
+): Promise<
+  Record<
+    string,
+    {
+      crop: string;
+      state: string;
+      district: string;
+      mspPerKg: number | null;
+      mandiMinPerKg: number;
+      mandiModalPerKg: number;
+      mandiMaxPerKg: number;
+      mandiDate: string;
+      mandiMarket: string;
+      dataSource: 'LIVE' | 'CACHED';
+    }
+  >
+> {
+  const uniqueCrops = Array.from(new Set(crops.map(c => c.trim().toLowerCase()))).filter(Boolean);
+
+  const results = await Promise.allSettled(
+    uniqueCrops.map(async (crop) => {
+      const mspPerKg = getMSP(crop);
+      const { price: mandi, source: dataSource } = await getMandiPrice(crop, state, district);
+      return {
+        crop,
+        state,
+        district,
+        mspPerKg,
+        mandiMinPerKg: mandi.minPrice,
+        mandiModalPerKg: mandi.modalPrice,
+        mandiMaxPerKg: mandi.maxPrice,
+        mandiDate: mandi.date,
+        mandiMarket: mandi.market,
+        dataSource,
+      };
+    })
+  );
+
+  const output: Record<string, any> = {};
+  results.forEach((res, i) => {
+    const crop = uniqueCrops[i];
+    if (res.status === 'fulfilled') {
+      output[crop] = res.value;
+    } else {
+      output[crop] = {
+        crop,
+        state,
+        district,
+        mspPerKg: getMSP(crop),
+        mandiMinPerKg: 0,
+        mandiModalPerKg: 0,
+        mandiMaxPerKg: 0,
+        mandiDate: new Date().toISOString().slice(0, 10),
+        mandiMarket: 'Unavailable',
+        dataSource: 'CACHED' as const,
+      };
+    }
+  });
+
+  return output;
 }
 
 // ---------- Fair Price Engine ----------

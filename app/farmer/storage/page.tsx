@@ -43,30 +43,45 @@ export default function ColdStoragePage() {
   const [facilities, setFacilities] = useState<StorageFacility[]>([]);
   const [selectedFacility, setSelectedFacility] = useState<StorageFacility | null>(null);
   const [bookingDays, setBookingDays] = useState('4');
-  const [quantityKg, setQuantityKg] = useState('600');
+  const [quantityKg, setQuantityKg] = useState('500');
   const [booked, setBooked] = useState(false);
-
-  // 7-day trend data for Tomato (Mandya APMC)
-  const trendData = [
-    { day: '09 Sep', price: 11.5 },
-    { day: '10 Sep', price: 12.0 },
-    { day: '11 Sep', price: 12.8 },
-    { day: '12 Sep', price: 13.0 },
-    { day: '13 Sep', price: 13.5 },
-    { day: '14 Sep', price: 14.0 },
-    { day: '15 Sep', price: 14.6 },
-  ];
+  const [trendData, setTrendData] = useState<{ day: string; price: number }[]>([]);
+  const [farmerCrop, setFarmerCrop] = useState('tomato');
+  const [farmerDistrict, setFarmerDistrict] = useState('Mandya');
 
   useEffect(() => {
-    fetch('/api/storage?district=Mandya&crop=tomato')
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.ok && res.data) {
-          setFacilities(res.data);
-          if (res.data.length > 0) setSelectedFacility(res.data[0]);
+    async function initStorage() {
+      try {
+        const meRes = await fetch('/api/me').then((r) => (r.ok ? r.json() : null));
+        const district = meRes?.data?.district || 'Mandya';
+        const crop = meRes?.data?.primaryCrops?.[0] || 'tomato';
+        setFarmerDistrict(district);
+        setFarmerCrop(crop);
+
+        const [storageRes, trendRes] = await Promise.all([
+          fetch(`/api/storage?district=${district}&crop=${crop}`).then((r) => (r.ok ? r.json() : null)),
+          fetch(`/api/prices/trend?crop=${crop}&days=7`).then((r) => (r.ok ? r.json() : null)),
+        ]);
+
+        if (storageRes?.ok && Array.isArray(storageRes.data)) {
+          setFacilities(storageRes.data);
+          if (storageRes.data.length > 0) setSelectedFacility(storageRes.data[0]);
         }
-      })
-      .catch(() => {});
+
+        if (trendRes?.ok && Array.isArray(trendRes.data)) {
+          setTrendData(
+            trendRes.data.map((item: any) => ({
+              day: item.date ? item.date.slice(5) : 'Day',
+              price: item.modalPrice ? item.modalPrice / 100 : 14.0,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error('Error initializing storage page:', err);
+      }
+    }
+
+    initStorage();
   }, []);
 
   const days = parseInt(bookingDays) || 4;
@@ -120,8 +135,8 @@ export default function ColdStoragePage() {
               <p className="text-2xl font-black font-mono text-white">
                 +₹{(totalGainPaise / 100).toFixed(0)} Net Gain
               </p>
-              <p className="text-xs text-emerald-100 mt-1 leading-relaxed">
-                Mandya tomato mandi prices have risen 26% over the last 7 days. At ₹0.15/kg/day storage cost, holding for 4 days yields a projected extra earning of <span className="font-bold underline text-white">₹{(totalGainPaise / 100).toFixed(0)}</span> after deducting storage fees.
+              <p className="text-xs text-emerald-100 mt-1 leading-relaxed capitalize">
+                {farmerDistrict} {farmerCrop} mandi prices are trending upwards over the last 7 days. At ₹{(ratePerKgDayPaise / 100).toFixed(2)}/kg/day storage cost, holding for {days} days yields a projected net gain of <span className="font-bold underline text-white">₹{(totalGainPaise / 100).toFixed(0)}</span> after deducting storage fees.
               </p>
             </div>
 

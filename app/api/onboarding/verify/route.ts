@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     if (role === 'farmer') {
       if (!FARMER_ID_REGEX.test(idNumber)) {
         return NextResponse.json(
-          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Farmer ID format. Expected: KA-XXX-YYYY-ZZZZZZ' },
+          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Farmer ID format. Expected: KA-XXX-YYYY-NNNNNN (e.g. KA-MAN-2026-004417)' },
           { status: 400 }
         );
       }
@@ -56,25 +56,29 @@ export async function POST(request: Request) {
       );
       if (!registryMatch) {
         return NextResponse.json(
-          { ok: false, error: 'NOT_FOUND', message: 'Farmer ID not found in registry' },
+          { ok: false, error: 'NOT_FOUND', message: 'Farmer ID not found in registry. Please check the ID on your Kisan ID card.' },
           { status: 404 }
         );
       }
 
-      // Check if already claimed
-      const existing = await collections.users
-        .where('farmerId', '==', idNumber)
-        .get();
-      if (!existing.empty) {
-        return NextResponse.json(
-          { ok: false, error: 'ALREADY_REGISTERED', message: 'This Farmer ID is already registered' },
-          { status: 409 }
-        );
+      // Check if already claimed (non-fatal if Firestore query fails, e.g. during setup)
+      try {
+        const existing = await collections.users
+          .where('farmerId', '==', idNumber)
+          .get();
+        if (!existing.empty) {
+          return NextResponse.json(
+            { ok: false, error: 'ALREADY_REGISTERED', message: 'This Farmer ID is already registered to another account' },
+            { status: 409 }
+          );
+        }
+      } catch (queryErr) {
+        console.warn('Duplicate farmer check failed (non-fatal):', queryErr);
       }
     } else {
       if (!WHOLESALER_ID_REGEX.test(idNumber)) {
         return NextResponse.json(
-          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Wholesaler ID format. Expected: WS-KA-YYYY-XXXX' },
+          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Wholesaler ID format. Expected: WS-KA-YYYY-XXXX (e.g. WS-KA-2026-1183)' },
           { status: 400 }
         );
       }
@@ -84,19 +88,24 @@ export async function POST(request: Request) {
       );
       if (!registryMatch) {
         return NextResponse.json(
-          { ok: false, error: 'NOT_FOUND', message: 'Wholesaler ID not found in registry' },
+          { ok: false, error: 'NOT_FOUND', message: 'Wholesaler ID not found in registry. Please check the ID on your APMC trader licence.' },
           { status: 404 }
         );
       }
 
-      const existing = await collections.users
-        .where('wholesalerId', '==', idNumber)
-        .get();
-      if (!existing.empty) {
-        return NextResponse.json(
-          { ok: false, error: 'ALREADY_REGISTERED', message: 'This Wholesaler ID is already registered' },
-          { status: 409 }
-        );
+      // Check if already claimed
+      try {
+        const existing = await collections.users
+          .where('wholesalerId', '==', idNumber)
+          .get();
+        if (!existing.empty) {
+          return NextResponse.json(
+            { ok: false, error: 'ALREADY_REGISTERED', message: 'This Wholesaler ID is already registered to another account' },
+            { status: 409 }
+          );
+        }
+      } catch (queryErr) {
+        console.warn('Duplicate wholesaler check failed (non-fatal):', queryErr);
       }
     }
 
@@ -130,16 +139,29 @@ export async function POST(request: Request) {
     await collections.users.doc(userId).set(userProfile);
 
     // Update Clerk metadata
-    const client = await clerkClient();
-    await client.users.updateUser(userId, {
-      publicMetadata: { role, onboarded: true },
+    try {
+      const client = await clerkClient();
+      await client.users.updateUser(userId, {
+        publicMetadata: { role, onboarded: true },
+      });
+    } catch (clerkErr) {
+      console.warn('Clerk metadata update warning:', clerkErr);
+    }
+
+    const response = NextResponse.json({ ok: true, data: userProfile });
+    response.cookies.set('userRole', role, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365,
+      httpOnly: false,
+      sameSite: 'lax',
     });
 
-    return NextResponse.json({ ok: true, data: userProfile });
+    return response;
   } catch (error: unknown) {
     console.error('Onboarding error:', error);
+    const msg = error instanceof Error ? error.message : 'Verification failed';
     return NextResponse.json(
-      { ok: false, error: 'INTERNAL_ERROR', message: 'Verification failed' },
+      { ok: false, error: 'INTERNAL_ERROR', message: msg },
       { status: 500 }
     );
   }

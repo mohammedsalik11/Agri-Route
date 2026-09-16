@@ -1,27 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkFairPrice, getMandiPrice, getMSP } from '@/lib/services/fairPriceEngine';
+import { getMandiPrice, getMSP, getMultipleMandiPrices } from '@/lib/services/fairPriceEngine';
+
+const DEFAULT_CROPS = ['tomato', 'onion', 'potato', 'paddy', 'wheat', 'ragi', 'banana', 'maize'];
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const crop = searchParams.get('crop');
+    const cropsParam = searchParams.get('crops');
     const state = searchParams.get('state') || 'Karnataka';
     const district = searchParams.get('district') || 'Mandya';
 
-    if (!crop) {
-      return NextResponse.json(
-        { ok: false, error: 'MISSING_PARAM', message: 'crop is required' },
-        { status: 400 }
-      );
+    // Multi-crop query
+    if (cropsParam || (!crop && !cropsParam)) {
+      const cropList = cropsParam
+        ? cropsParam.split(',').map(c => c.trim()).filter(Boolean)
+        : DEFAULT_CROPS;
+
+      const prices = await getMultipleMandiPrices(cropList, state, district);
+
+      return NextResponse.json({
+        ok: true,
+        data: {
+          state,
+          district,
+          crops: prices,
+        },
+      });
     }
 
-    const mspPerKg = getMSP(crop);
-    const { price: mandi, source: dataSource } = await getMandiPrice(crop, state, district);
+    // Single crop query
+    const mspPerKg = getMSP(crop!);
+    const { price: mandi, source: dataSource } = await getMandiPrice(crop!, state, district);
 
     return NextResponse.json({
       ok: true,
       data: {
-        crop,
+        crop: crop!,
         state,
         district,
         mspPerKg,

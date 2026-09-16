@@ -373,22 +373,25 @@ export async function getPools(filters: {
   crop?: string;
   status?: string;
 }): Promise<Pool[]> {
-  let query = collections.pools.orderBy('createdAt', 'desc').limit(50);
+  try {
+    const snapshot = await collections.pools.get();
+    let pools = snapshot.docs.map(d => d.data() as Pool);
 
-  // Note: Firestore doesn't support multiple inequality filters,
-  // so we filter in-memory for optional fields
-  const snapshot = await query.get();
-  let pools = snapshot.docs.map(d => d.data() as Pool);
+    if (filters.district) {
+      pools = pools.filter(p => p.district?.toLowerCase() === filters.district!.toLowerCase());
+    }
+    if (filters.crop) {
+      pools = pools.filter(p => p.crop?.toLowerCase() === filters.crop!.toLowerCase());
+    }
+    if (filters.status) {
+      pools = pools.filter(p => p.status === filters.status);
+    }
 
-  if (filters.district) {
-    pools = pools.filter(p => p.district.toLowerCase() === filters.district!.toLowerCase());
-  }
-  if (filters.crop) {
-    pools = pools.filter(p => p.crop.toLowerCase() === filters.crop!.toLowerCase());
-  }
-  if (filters.status) {
-    pools = pools.filter(p => p.status === filters.status);
-  }
+    pools.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
 
-  return pools;
+    return pools;
+  } catch (err) {
+    console.error('getPools error:', err);
+    return [];
+  }
 }

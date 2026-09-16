@@ -110,29 +110,24 @@ export async function GET() {
   const user = result.user;
 
   try {
-    let snapshot;
+    let orders: any[] = [];
     if (user.role === 'wholesaler') {
-      snapshot = await collections.orders
+      const snapshot = await collections.orders
         .where('buyerId', '==', user.clerkUserId)
-        .orderBy('createdAt', 'desc')
-        .limit(50)
         .get();
+      orders = snapshot.docs.map(d => d.data());
     } else {
       // For farmers, find orders containing their payouts
-      snapshot = await collections.orders
-        .orderBy('createdAt', 'desc')
-        .limit(100)
-        .get();
+      const snapshot = await collections.orders.get();
+      orders = snapshot.docs
+        .map(d => d.data())
+        .filter(o =>
+          o.payout?.some((p: { farmerId: string }) => p.farmerId === user.clerkUserId)
+        );
     }
 
-    let orders = snapshot.docs.map(d => d.data());
-
-    // Filter for farmer's orders (orders where they have a payout entry)
-    if (user.role === 'farmer') {
-      orders = orders.filter(o =>
-        o.payout?.some((p: { farmerId: string }) => p.farmerId === user.clerkUserId)
-      );
-    }
+    // Sort descending by createdAt
+    orders.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
 
     return NextResponse.json({ ok: true, data: orders });
   } catch (error: unknown) {
