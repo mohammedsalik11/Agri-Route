@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { EscrowTimeline, EscrowStep } from '@/components/EscrowTimeline';
+import { LogisticsTracker } from '@/components/LogisticsTracker';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { ShieldCheck, CheckCircle2, RefreshCw, AlertCircle } from 'lucide-react';
 
@@ -161,6 +162,8 @@ export default function FarmerOrdersPage() {
                   isFarmer={true}
                   onGenerateOtp={() => handleGenerateOtp(order.orderId)}
                 />
+
+                <LogisticsTracker orderId={order.orderId} isFarmer={true} />
 
                 {/* Payout Receipt Card if Released */}
                 {order.escrow.status === 'RELEASED' && (

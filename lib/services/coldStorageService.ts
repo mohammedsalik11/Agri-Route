@@ -25,7 +25,7 @@ export interface StorageBooking {
   facilityId: string;
   facilityName: string;
   farmerId: string;
-  listingId: string;
+  listingId?: string | null;
   crop: string;
   quantityKg: number;
   startDate: string;
@@ -33,6 +33,7 @@ export interface StorageBooking {
   days: number;
   totalCost: number; // paise
   status: 'confirmed' | 'active' | 'completed' | 'cancelled';
+  contactPhone?: string;
   createdAt: string;
 }
 
@@ -82,6 +83,23 @@ export async function getAvailableStorages(filters?: {
   return storages.filter(s => s.availableCapacityKg > 0);
 }
 
+/**
+ * Get all storage bookings for a specific farmer.
+ */
+export async function getFarmerBookings(farmerId: string): Promise<StorageBooking[]> {
+  try {
+    const snap = await collections.storageBookings
+      .where('farmerId', '==', farmerId)
+      .get();
+
+    const bookings = snap.docs.map(d => d.data() as StorageBooking);
+    return bookings.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+  } catch (err) {
+    console.error('getFarmerBookings error:', err);
+    return [];
+  }
+}
+
 // ---------- Booking ----------
 
 /**
@@ -90,7 +108,7 @@ export async function getAvailableStorages(filters?: {
 export async function bookStorage(input: {
   facilityId: string;
   farmerId: string;
-  listingId: string;
+  listingId?: string;
   crop: string;
   quantityKg: number;
   days: number;
@@ -107,7 +125,7 @@ export async function bookStorage(input: {
   }
 
   if (input.quantityKg > availableKg) {
-    throw new Error('Insufficient storage capacity');
+    throw new Error(`Insufficient storage capacity. Only ${availableKg} kg available.`);
   }
 
   const totalCost = input.quantityKg * facility.pricePerKgPerDay * input.days;
@@ -123,7 +141,7 @@ export async function bookStorage(input: {
     facilityId: input.facilityId,
     facilityName: facility.name,
     farmerId: input.farmerId,
-    listingId: input.listingId,
+    listingId: input.listingId || null,
     crop: input.crop,
     quantityKg: input.quantityKg,
     startDate: startDate.toISOString(),
@@ -131,6 +149,7 @@ export async function bookStorage(input: {
     days: input.days,
     totalCost,
     status: 'confirmed',
+    contactPhone: facility.contactPhone,
     createdAt: new Date().toISOString(),
   };
 
@@ -141,13 +160,19 @@ export async function bookStorage(input: {
     { merge: true }
   );
 
-  // Save booking
+  // Save booking in Firestore
   await collections.storageBookings.doc(bookingId).set(booking);
 
-  // Update listing status
-  await collections.listings.doc(input.listingId).update({
-    status: 'in_storage',
-  });
+  // Update listing status if listingId provided
+  if (input.listingId) {
+    try {
+      await collections.listings.doc(input.listingId).update({
+        status: 'in_storage',
+      });
+    } catch (err) {
+      console.warn('Could not update listing status on storage booking:', err);
+    }
+  }
 
   return booking;
 }

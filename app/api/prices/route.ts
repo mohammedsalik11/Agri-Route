@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
         mandiMaxPerKg: mandi.maxPrice,
         mandiDate: mandi.date,
         mandiMarket: mandi.market,
+        varieties: mandi.varieties || [],
         dataSource,
       },
     });

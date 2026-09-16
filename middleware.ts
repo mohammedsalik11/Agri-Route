@@ -16,6 +16,7 @@ const isPublicRoute = createRouteMatcher([
 
 const isFarmerRoute = createRouteMatcher(['/farmer(.*)']);
 const isWholesalerRoute = createRouteMatcher(['/wholesaler(.*)']);
+const isDriverRoute = createRouteMatcher(['/driver(.*)']);
 
 export default clerkMiddleware(async (auth, request) => {
   const pathname = request.nextUrl.pathname;
@@ -66,17 +67,23 @@ export default clerkMiddleware(async (auth, request) => {
     }
 
     // Role-based route enforcement
-    if (role === 'farmer' && isWholesalerRoute(request)) {
+    if (role === 'farmer' && (isWholesalerRoute(request) || isDriverRoute(request))) {
       return NextResponse.redirect(new URL('/farmer', request.url));
     }
 
-    if (role === 'wholesaler' && isFarmerRoute(request)) {
+    if (role === 'wholesaler' && (isFarmerRoute(request) || isDriverRoute(request))) {
       return NextResponse.redirect(new URL('/wholesaler', request.url));
+    }
+
+    if (role === 'logistics_driver' && (isFarmerRoute(request) || isWholesalerRoute(request))) {
+      return NextResponse.redirect(new URL('/driver', request.url));
     }
 
     // Redirect onboarded users away from onboarding
     if (role && pathname === '/onboarding') {
-      const destination = role === 'farmer' ? '/farmer' : '/wholesaler';
+      let destination = '/farmer';
+      if (role === 'wholesaler') destination = '/wholesaler';
+      if (role === 'logistics_driver') destination = '/driver';
       return NextResponse.redirect(new URL(destination, request.url));
     }
   }

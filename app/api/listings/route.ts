@@ -4,6 +4,7 @@ import { collections } from '@/lib/firebase-admin';
 import { checkFairPrice } from '@/lib/services/fairPriceEngine';
 import { attachToPool } from '@/lib/services/poolingService';
 import { sendNotification } from '@/lib/services/notificationService';
+import { createLogisticsJobForListing } from '@/lib/services/logisticsService';
 
 // POST /api/listings — Create a new listing (farmer only)
 export async function POST(request: NextRequest) {
@@ -90,6 +91,22 @@ export async function POST(request: NextRequest) {
       lat: lat || 12.52,
       lng: lng || 76.89,
       availableUntil: availableUntil || new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
+    });
+
+    // Auto-create available Logistics Job for driver marketplace
+    await createLogisticsJobForListing({
+      listingId,
+      farmerId: user.clerkUserId,
+      farmerName: user.name,
+      crop: crop.toLowerCase(),
+      variety: variety || undefined,
+      qualityGrade: qualityGrade || 'B',
+      quantityKg: Number(quantityKg),
+      askPricePerKg: Number(askPricePerKg),
+      pickupDistrict: user.district,
+      pickupState: user.state,
+      pickupAddress: `${user.village ? user.village + ', ' : ''}${user.district} Farm Gate`,
+      deliveryDistrict: 'Bengaluru Urban',
     });
 
     // Send notification

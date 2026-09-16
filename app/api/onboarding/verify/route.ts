@@ -3,9 +3,11 @@ import { auth, clerkClient } from '@clerk/nextjs/server';
 import { collections } from '@/lib/firebase-admin';
 import farmerRegistry from '@/data/farmer-registry.json';
 import wholesalerRegistry from '@/data/wholesaler-registry.json';
+import driverRegistry from '@/data/driver-registry.json';
 
 const FARMER_ID_REGEX = /^KA-[A-Z]{3}-\d{4}-\d{6}$/;
 const WHOLESALER_ID_REGEX = /^WS-KA-\d{4}-\d{4}$/;
+const DRIVER_ID_REGEX = /^DRV-KA-\d{4}-\d{4}$/;
 
 export async function POST(request: Request) {
   try {
@@ -26,22 +28,25 @@ export async function POST(request: Request) {
       state,
       village,
       landSizeAcres,
-      category,
       primaryCrops,
       businessName,
       gstin,
+      vehicleType,
+      vehicleNumber,
+      vehicleCapacityKg,
+      isRefrigerated,
       language,
     } = body;
 
     // Validate role
-    if (!['farmer', 'wholesaler'].includes(role)) {
+    if (!['farmer', 'wholesaler', 'logistics_driver'].includes(role)) {
       return NextResponse.json(
-        { ok: false, error: 'INVALID_ROLE', message: 'Role must be farmer or wholesaler' },
+        { ok: false, error: 'INVALID_ROLE', message: 'Role must be farmer, wholesaler, or logistics_driver' },
         { status: 400 }
       );
     }
 
-    // Validate ID format
+    // Validate ID format & registry
     if (role === 'farmer') {
       if (!FARMER_ID_REGEX.test(idNumber)) {
         return NextResponse.json(
@@ -61,7 +66,7 @@ export async function POST(request: Request) {
         );
       }
 
-      // Check if already claimed (non-fatal if Firestore query fails, e.g. during setup)
+      // Check if already claimed
       try {
         const existing = await collections.users
           .where('farmerId', '==', idNumber)
@@ -75,7 +80,7 @@ export async function POST(request: Request) {
       } catch (queryErr) {
         console.warn('Duplicate farmer check failed (non-fatal):', queryErr);
       }
-    } else {
+    } else if (role === 'wholesaler') {
       if (!WHOLESALER_ID_REGEX.test(idNumber)) {
         return NextResponse.json(
           { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Wholesaler ID format. Expected: WS-KA-YYYY-XXXX (e.g. WS-KA-2026-1183)' },
@@ -107,6 +112,38 @@ export async function POST(request: Request) {
       } catch (queryErr) {
         console.warn('Duplicate wholesaler check failed (non-fatal):', queryErr);
       }
+    } else if (role === 'logistics_driver') {
+      if (!DRIVER_ID_REGEX.test(idNumber)) {
+        return NextResponse.json(
+          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Driver ID format. Expected: DRV-KA-YYYY-XXXX (e.g. DRV-KA-2026-1042)' },
+          { status: 400 }
+        );
+      }
+
+      const registryMatch = (driverRegistry as Array<{ driverId: string }>).find(
+        d => d.driverId === idNumber
+      );
+      if (!registryMatch) {
+        return NextResponse.json(
+          { ok: false, error: 'NOT_FOUND', message: 'Driver ID not found in registry. Please check your commercial driver badge or transport permit.' },
+          { status: 404 }
+        );
+      }
+
+      // Check if already claimed
+      try {
+        const existing = await collections.users
+          .where('driverId', '==', idNumber)
+          .get();
+        if (!existing.empty) {
+          return NextResponse.json(
+            { ok: false, error: 'ALREADY_REGISTERED', message: 'This Driver ID is already registered to another account' },
+            { status: 409 }
+          );
+        }
+      } catch (queryErr) {
+        console.warn('Duplicate driver check failed (non-fatal):', queryErr);
+      }
     }
 
     // Create user profile
@@ -126,13 +163,20 @@ export async function POST(request: Request) {
             farmerId: idNumber,
             village: village || '',
             landSizeAcres: landSizeAcres ? Number(landSizeAcres) : undefined,
-            category: category || 'general',
             primaryCrops: primaryCrops || [],
           }
-        : {
+        : role === 'wholesaler'
+        ? {
             wholesalerId: idNumber,
             businessName: businessName || '',
             gstin: gstin || '',
+          }
+        : {
+            driverId: idNumber,
+            vehicleType: vehicleType || 'truck',
+            vehicleNumber: vehicleNumber || 'KA-11-E-4281',
+            vehicleCapacityKg: Number(vehicleCapacityKg) || 3000,
+            isRefrigerated: Boolean(isRefrigerated),
           }),
     };
 

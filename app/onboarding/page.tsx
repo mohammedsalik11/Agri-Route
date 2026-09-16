@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useT, useLanguage } from '@/lib/i18n/LanguageProvider';
-import { Sprout, Store, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
+import { Sprout, Store, Truck, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
 
 const DISTRICTS_KA = [
   'Bagalkot', 'Ballari', 'Belagavi', 'Bengaluru Rural', 'Bengaluru Urban',
@@ -25,17 +25,21 @@ export default function OnboardingPage() {
   const { language } = useLanguage();
   const router = useRouter();
 
-  const [role, setRole] = useState<'farmer' | 'wholesaler'>('farmer');
+  const [role, setRole] = useState<'farmer' | 'wholesaler' | 'logistics_driver'>('farmer');
   const [name, setName] = useState('');
   const [idNumber, setIdNumber] = useState('');
   const [district, setDistrict] = useState('');
   const [state, setState] = useState('Karnataka');
   const [village, setVillage] = useState('');
   const [landSizeAcres, setLandSizeAcres] = useState('');
-  const [category, setCategory] = useState<'general' | 'sc' | 'st' | 'obc'>('general');
   const [selectedCrops, setSelectedCrops] = useState<string[]>([]);
   const [businessName, setBusinessName] = useState('');
   const [gstin, setGstin] = useState('');
+  // Driver fields
+  const [vehicleType, setVehicleType] = useState<'truck' | 'mini_truck' | 'pickup' | 'tractor'>('truck');
+  const [vehicleNumber, setVehicleNumber] = useState('');
+  const [vehicleCapacityKg, setVehicleCapacityKg] = useState('3000');
+  const [isRefrigerated, setIsRefrigerated] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +52,10 @@ export default function OnboardingPage() {
       .then((data) => {
         if (data?.ok && data.data?.role) {
           // User already completed onboarding — send directly to their dashboard
-          router.replace(data.data.role === 'farmer' ? '/farmer' : '/wholesaler');
+          let dest = '/farmer';
+          if (data.data.role === 'wholesaler') dest = '/wholesaler';
+          if (data.data.role === 'logistics_driver') dest = '/driver';
+          router.replace(dest);
           return;
         }
       })
@@ -58,7 +65,7 @@ export default function OnboardingPage() {
     const roleCookie = cookies.find((c) => c.startsWith('intendedRole='));
     if (roleCookie) {
       const val = roleCookie.split('=')[1];
-      if (val === 'wholesaler' || val === 'farmer') {
+      if (val === 'wholesaler' || val === 'farmer' || val === 'logistics_driver') {
         setRole(val);
         setStep(2);
       }
@@ -71,7 +78,7 @@ export default function OnboardingPage() {
     );
   };
 
-  const handleRoleSelect = (r: 'farmer' | 'wholesaler') => {
+  const handleRoleSelect = (r: 'farmer' | 'wholesaler' | 'logistics_driver') => {
     setRole(r);
     setError(null);
     setStep(2);
@@ -98,6 +105,11 @@ export default function OnboardingPage() {
       setLoading(false);
       return;
     }
+    if (role === 'logistics_driver' && !vehicleNumber.trim()) {
+      setError('Please enter your vehicle registration number.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/onboarding/verify', {
@@ -111,10 +123,13 @@ export default function OnboardingPage() {
           state,
           village: role === 'farmer' ? village.trim() : undefined,
           landSizeAcres: role === 'farmer' ? parseFloat(landSizeAcres) || undefined : undefined,
-          category: role === 'farmer' ? category : undefined,
           primaryCrops: role === 'farmer' ? selectedCrops.map((c) => c.toLowerCase()) : undefined,
           businessName: role === 'wholesaler' ? businessName.trim() : undefined,
           gstin: role === 'wholesaler' ? gstin.trim() : undefined,
+          vehicleType: role === 'logistics_driver' ? vehicleType : undefined,
+          vehicleNumber: role === 'logistics_driver' ? vehicleNumber.trim().toUpperCase() : undefined,
+          vehicleCapacityKg: role === 'logistics_driver' ? Number(vehicleCapacityKg) || 3000 : undefined,
+          isRefrigerated: role === 'logistics_driver' ? isRefrigerated : undefined,
           language,
         }),
       });
@@ -136,10 +151,9 @@ export default function OnboardingPage() {
       }
 
       // Onboarding succeeded — Clerk publicMetadata is updated on the server.
-      // Use a hard navigation (window.location) so the browser reloads the full
-      // session token. Next.js router.push() reuses the cached session which
-      // won't yet have the new `role` metadata, causing middleware to bounce back.
-      const destination = role === 'farmer' ? '/farmer' : '/wholesaler';
+      let destination = '/farmer';
+      if (role === 'wholesaler') destination = '/wholesaler';
+      if (role === 'logistics_driver') destination = '/driver';
       window.location.href = destination;
 
     } catch (err: unknown) {
@@ -187,6 +201,19 @@ export default function OnboardingPage() {
               <p className="text-xs text-ink-muted">{t('role.wholesalerDesc')}</p>
             </div>
           </button>
+
+          <button
+            onClick={() => handleRoleSelect('logistics_driver')}
+            className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border hover:border-blue-600 hover:shadow-md transition-all active:scale-[0.98]"
+          >
+            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Truck className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="text-left">
+              <p className="font-bold text-ink text-base">{t('role.driver') || 'Logistics Driver'}</p>
+              <p className="text-xs text-ink-muted">{t('role.driverDesc') || 'Deliver produce and earn per trip'}</p>
+            </div>
+          </button>
         </div>
       </main>
     );
@@ -206,12 +233,11 @@ export default function OnboardingPage() {
           </button>
           <div>
             <div className="flex items-center gap-2">
-              {role === 'farmer'
-                ? <Sprout className="w-4 h-4 text-field-green" />
-                : <Store className="w-4 h-4 text-earth" />
-              }
+              {role === 'farmer' && <Sprout className="w-4 h-4 text-field-green" />}
+              {role === 'wholesaler' && <Store className="w-4 h-4 text-earth" />}
+              {role === 'logistics_driver' && <Truck className="w-4 h-4 text-blue-600" />}
               <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
-                {t(`role.${role}`)}
+                {role === 'logistics_driver' ? (t('role.driver') || 'Logistics Driver') : t(`role.${role}`)}
               </span>
             </div>
             <h1 className="text-xl font-bold text-ink">{t('onboarding.title')}</h1>
@@ -246,27 +272,45 @@ export default function OnboardingPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none transition-colors"
-              placeholder={role === 'farmer' ? t('onboarding.namePlaceholderFarmer') : t('onboarding.namePlaceholderWholesaler')}
+              placeholder={
+                role === 'farmer'
+                  ? t('onboarding.namePlaceholderFarmer')
+                  : role === 'wholesaler'
+                  ? t('onboarding.namePlaceholderWholesaler')
+                  : 'Driver / Transporter Name'
+              }
             />
           </div>
 
           {/* ID Number */}
           <div>
             <label className="block text-xs font-semibold text-ink mb-1.5">
-              {role === 'farmer' ? t('onboarding.farmerId') : t('onboarding.wholesalerId')} *
+              {role === 'farmer'
+                ? t('onboarding.farmerId')
+                : role === 'wholesaler'
+                ? t('onboarding.wholesalerId')
+                : 'Driver ID / Licence Number'} *
             </label>
             <input
               type="text"
               required
               value={idNumber}
               onChange={(e) => { setIdNumber(e.target.value); setError(null); }}
-              placeholder={role === 'farmer' ? 'KA-MAN-2026-004417' : 'WS-KA-2026-1183'}
+              placeholder={
+                role === 'farmer'
+                  ? 'KA-MAN-2026-004417'
+                  : role === 'wholesaler'
+                  ? 'WS-KA-2026-1183'
+                  : 'DRV-KA-2026-1042'
+              }
               className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm font-mono focus:border-field-green focus:outline-none transition-colors"
             />
             <p className="text-[11px] text-ink-muted mt-1.5">
               {role === 'farmer'
                 ? 'Format: KA-XXX-YYYY-NNNNNN (e.g. KA-MAN-2026-004417)'
-                : 'Format: WS-KA-YYYY-NNNN (e.g. WS-KA-2026-1183)'}
+                : role === 'wholesaler'
+                ? 'Format: WS-KA-YYYY-NNNN (e.g. WS-KA-2026-1183)'
+                : 'Format: DRV-KA-YYYY-NNNN (e.g. DRV-KA-2026-1042)'}
             </p>
           </div>
 
@@ -287,6 +331,71 @@ export default function OnboardingPage() {
               ))}
             </select>
           </div>
+
+          {/* Driver-specific fields */}
+          {role === 'logistics_driver' && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    Vehicle Type *
+                  </label>
+                  <select
+                    value={vehicleType}
+                    onChange={(e) => setVehicleType(e.target.value as any)}
+                    className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-blue-600 focus:outline-none"
+                  >
+                    <option value="truck">Truck (Heavy / Multi-axle)</option>
+                    <option value="mini_truck">Mini Truck (e.g. Tata Ace / Bolero)</option>
+                    <option value="pickup">Pickup Van</option>
+                    <option value="tractor">Tractor Trailer</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    Vehicle Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={vehicleNumber}
+                    onChange={(e) => setVehicleNumber(e.target.value)}
+                    placeholder="KA-11-E-4281"
+                    className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm font-mono focus:border-blue-600 focus:outline-none uppercase"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    Vehicle Max Load (kg) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="500"
+                    max="30000"
+                    step="100"
+                    value={vehicleCapacityKg}
+                    onChange={(e) => setVehicleCapacityKg(e.target.value)}
+                    className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-blue-600 focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col justify-end">
+                  <label className="flex items-center gap-2 px-3 py-3 bg-paper/50 border border-border rounded-xl cursor-pointer hover:border-blue-500 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={isRefrigerated}
+                      onChange={(e) => setIsRefrigerated(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 rounded"
+                    />
+                    <span className="text-xs font-semibold text-ink">Refrigerated (Cold Chain)</span>
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Farmer-specific fields */}
           {role === 'farmer' && (
@@ -320,28 +429,6 @@ export default function OnboardingPage() {
                       {t('common.acres')}
                     </span>
                   </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  {t('onboarding.category')}
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {(['general', 'obc', 'sc', 'st'] as const).map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setCategory(cat)}
-                      className={`py-2 px-2 rounded-xl border text-xs font-bold transition-all ${
-                        category === cat
-                          ? 'border-field-green bg-field-green text-white'
-                          : 'border-border bg-paper text-ink hover:bg-white'
-                      }`}
-                    >
-                      {cat.toUpperCase()}
-                    </button>
-                  ))}
                 </div>
               </div>
 

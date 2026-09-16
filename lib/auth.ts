@@ -4,7 +4,7 @@ import { collections } from './firebase-admin';
 
 export interface UserProfile {
   clerkUserId: string;
-  role: 'farmer' | 'wholesaler';
+  role: 'farmer' | 'wholesaler' | 'logistics_driver';
   name: string;
   phone: string;
   language: 'en' | 'hi' | 'kn';
@@ -14,13 +14,18 @@ export interface UserProfile {
   district: string;
   state: string;
   landSizeAcres?: number;
-  category?: 'general' | 'sc' | 'st' | 'obc';
   primaryCrops?: string[];
   // wholesaler only
   wholesalerId?: string;
   businessName?: string;
   gstin?: string;
-  // both
+  // logistics driver only
+  driverId?: string;
+  vehicleType?: 'truck' | 'mini_truck' | 'pickup' | 'tractor';
+  vehicleNumber?: string;
+  vehicleCapacityKg?: number;
+  isRefrigerated?: boolean;
+  // all
   verificationStatus: 'verified' | 'pending' | 'failed';
   verificationSource: 'seeded-registry';
   createdAt: string;
@@ -58,7 +63,7 @@ export async function requireAuth(): Promise<
  * Auth + role guard. Returns the user profile or a 403 response.
  */
 export async function requireRole(
-  requiredRole: 'farmer' | 'wholesaler'
+  requiredRole: 'farmer' | 'wholesaler' | 'logistics_driver'
 ): Promise<
   { user: UserProfile; error?: never } | { user?: never; error: NextResponse }
 > {

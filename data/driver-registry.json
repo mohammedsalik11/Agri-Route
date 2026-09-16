@@ -1,0 +1,17 @@
+[
+  { "driverId": "DRV-KA-2026-1042", "name": "Ramesh Gowda", "district": "Mandya", "state": "Karnataka", "vehicleType": "truck", "vehicleCapacityKg": 5000, "vehicleNumber": "KA-11-E-4281", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-2189", "name": "Manjunath K", "district": "Mandya", "state": "Karnataka", "vehicleType": "mini_truck", "vehicleCapacityKg": 2500, "vehicleNumber": "KA-11-TR-9021", "isRefrigerated": true },
+  { "driverId": "DRV-KA-2026-3351", "name": "Siddaraju N", "district": "Mysuru", "state": "Karnataka", "vehicleType": "truck", "vehicleCapacityKg": 6000, "vehicleNumber": "KA-09-MA-1144", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-4490", "name": "Praveen Kumar", "district": "Mysuru", "state": "Karnataka", "vehicleType": "pickup", "vehicleCapacityKg": 1500, "vehicleNumber": "KA-09-P-7723", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-5512", "name": "Basavaraj Patil", "district": "Belagavi", "state": "Karnataka", "vehicleType": "truck", "vehicleCapacityKg": 8000, "vehicleNumber": "KA-22-B-3319", "isRefrigerated": true },
+  { "driverId": "DRV-KA-2026-6623", "name": "Anand Hiremath", "district": "Dharwad", "state": "Karnataka", "vehicleType": "mini_truck", "vehicleCapacityKg": 2000, "vehicleNumber": "KA-25-C-8802", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-7734", "name": "Venkatesh Rao", "district": "Kolar", "state": "Karnataka", "vehicleType": "truck", "vehicleCapacityKg": 4500, "vehicleNumber": "KA-07-K-6612", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-8845", "name": "Shivanna H", "district": "Hassan", "state": "Karnataka", "vehicleType": "tractor", "vehicleCapacityKg": 3500, "vehicleNumber": "KA-13-T-4590", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-9956", "name": "Kiran Kumar", "district": "Bengaluru Rural", "state": "Karnataka", "vehicleType": "pickup", "vehicleCapacityKg": 1200, "vehicleNumber": "KA-53-A-1029", "isRefrigerated": true },
+  { "driverId": "DRV-KA-2026-1067", "name": "Naveen Reddy", "district": "Tumakuru", "state": "Karnataka", "vehicleType": "truck", "vehicleCapacityKg": 7000, "vehicleNumber": "KA-06-N-5541", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-2178", "name": "Jagadeeshappa", "district": "Shivamogga", "state": "Karnataka", "vehicleType": "mini_truck", "vehicleCapacityKg": 2200, "vehicleNumber": "KA-14-J-3378", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-3289", "name": "Girish B", "district": "Chamarajanagara", "state": "Karnataka", "vehicleType": "pickup", "vehicleCapacityKg": 1500, "vehicleNumber": "KA-10-G-9981", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-4390", "name": "Mahadevaswamy", "district": "Mandya", "state": "Karnataka", "vehicleType": "truck", "vehicleCapacityKg": 3000, "vehicleNumber": "KA-11-M-6622", "isRefrigerated": false },
+  { "driverId": "DRV-KA-2026-5401", "name": "Chethan Gowda", "district": "Ramanagara", "state": "Karnataka", "vehicleType": "truck", "vehicleCapacityKg": 5000, "vehicleNumber": "KA-42-C-1980", "isRefrigerated": true },
+  { "driverId": "DRV-KA-2026-6512", "name": "Chandra Shekar", "district": "Bengaluru Urban", "state": "Karnataka", "vehicleType": "mini_truck", "vehicleCapacityKg": 2000, "vehicleNumber": "KA-01-CS-7812", "isRefrigerated": false }
+]

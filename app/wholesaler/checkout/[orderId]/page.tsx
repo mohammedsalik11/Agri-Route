@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { useT } from '@/lib/i18n/LanguageProvider';
-import { ShieldCheck, Lock, CheckCircle2, Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Lock, CheckCircle2, Loader2, ArrowLeft, AlertCircle, CreditCard } from 'lucide-react';
 
 interface OrderData {
   orderId: string;
@@ -17,8 +17,22 @@ interface OrderData {
   total: number;
   escrow: {
     status: string;
+    razorpayOrderId?: string;
   };
 }
+
+const loadRazorpayScript = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve(false);
+    if ((window as any).Razorpay) return resolve(true);
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export default function CheckoutPage() {
   const { t, formatCurrency, formatWeight } = useT();
@@ -27,8 +41,13 @@ export default function CheckoutPage() {
   const orderId = params?.orderId as string;
 
   const [order, setOrder] = useState<OrderData | null>(null);
+  const [razorpayOrderId, setRazorpayOrderId] = useState<string | null>(null);
+  const [razorpayKeyId, setRazorpayKeyId] = useState<string>('');
+  const [buyerName, setBuyerName] = useState('Wholesaler');
+
   const [dataLoading, setDataLoading] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -38,13 +57,21 @@ export default function CheckoutPage() {
       return;
     }
 
-    fetch(`/api/orders/${orderId}`)
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.ok && res.data) {
-          setOrder(res.data);
+    Promise.all([
+      fetch(`/api/orders/${orderId}`).then((r) => r.json()),
+      fetch('/api/me').then((r) => (r.ok ? r.json() : null)),
+    ])
+      .then(([orderRes, meRes]) => {
+        if (orderRes.ok && orderRes.data) {
+          setOrder(orderRes.data);
+          setRazorpayOrderId(orderRes.razorpayOrderId || orderRes.data.escrow?.razorpayOrderId || null);
+          setRazorpayKeyId(orderRes.razorpayKeyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '');
         } else {
-          setErrorMsg(res.message || 'Order not found');
+          setErrorMsg(orderRes.message || 'Order not found');
+        }
+
+        if (meRes?.data?.name) {
+          setBuyerName(meRes.data.businessName || meRes.data.name);
         }
       })
       .catch((err) => {
@@ -54,33 +81,85 @@ export default function CheckoutPage() {
       .finally(() => setDataLoading(false));
   }, [orderId]);
 
-  const handlePayTest = async () => {
+  const handlePay = async () => {
     if (!order) return;
     setLoading(true);
+    setErrorMsg(null);
+
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      setErrorMsg('Could not load Razorpay payment SDK. Please check your network connection.');
+      setLoading(false);
+      return;
+    }
+
+    const key = razorpayKeyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TcMROzxDSVjlR7';
+    const rzpOrderId = razorpayOrderId || order.escrow?.razorpayOrderId;
+
+    // If order already paid or in hold
+    if (order.escrow?.status === 'PAYMENT_HELD' || order.escrow?.status === 'RELEASED') {
+      router.push('/wholesaler/orders');
+      return;
+    }
+
+    const options = {
+      key,
+      amount: order.total,
+      currency: 'INR',
+      name: 'Agri Route Escrow',
+      description: `Escrow Hold Deposit · Order #${order.orderId}`,
+      order_id: rzpOrderId || undefined,
+      handler: async function (response: any) {
+        try {
+          setVerifying(true);
+          const confirmRes = await fetch(`/api/orders/${order.orderId}?action=confirm-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const confirmData = await confirmRes.json();
+          if (confirmData.ok) {
+            setSuccess(true);
+            setTimeout(() => {
+              router.push('/wholesaler/orders');
+            }, 1500);
+          } else {
+            setErrorMsg(confirmData.message || 'Payment signature verification failed.');
+          }
+        } catch {
+          setErrorMsg('Network error verifying payment.');
+        } finally {
+          setVerifying(false);
+          setLoading(false);
+        }
+      },
+      prefill: {
+        name: buyerName,
+      },
+      theme: {
+        color: '#1b4332',
+      },
+      modal: {
+        ondismiss: function () {
+          setLoading(false);
+        },
+      },
+    };
 
     try {
-      const res = await fetch(`/api/orders/${order.orderId}?action=confirm-payment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          razorpay_order_id: `rzp_ord_${Date.now()}`,
-          razorpay_payment_id: `pay_${Date.now()}`,
-          razorpay_signature: 'verified_escrow_deposit',
-        }),
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any) {
+        setErrorMsg(response.error?.description || 'Payment was cancelled or declined.');
+        setLoading(false);
       });
-
-      const data = await res.json();
-      if (data.ok) {
-        setSuccess(true);
-        setTimeout(() => {
-          router.push('/wholesaler/orders');
-        }, 1500);
-      } else {
-        setErrorMsg(data.message || 'Payment deposit failed');
-      }
-    } catch {
-      setErrorMsg('Network error. Failed to process escrow deposit.');
-    } finally {
+      rzp.open();
+    } catch (err) {
+      console.error('Razorpay invocation error:', err);
+      setErrorMsg('Failed to open Razorpay payment modal.');
       setLoading(false);
     }
   };
@@ -141,6 +220,13 @@ export default function CheckoutPage() {
           </p>
         </div>
 
+        {errorMsg && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
         {/* Escrow Explainer Card */}
         <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5 space-y-3">
           <div className="flex items-center justify-between">
@@ -149,11 +235,11 @@ export default function CheckoutPage() {
               Agri Route Escrow Protection
             </span>
             <span className="text-[10px] font-bold text-emerald-800 bg-emerald-200/60 px-2 py-0.5 rounded-full">
-              SECURE
+              RAZORPAY SECURED
             </span>
           </div>
           <p className="text-xs text-emerald-900 leading-relaxed font-medium">
-            Your money is <span className="font-bold underline">HELD, not transferred</span> to the farmers. Funds remain securely locked in the escrow ledger and will only be disbursed after physical produce inspection and entry of the 6-digit handover OTP.
+            Your money is <span className="font-bold underline">HELD in escrow, not transferred</span> to the farmers immediately. Funds remain securely locked in the ledger and will only be disbursed after physical produce inspection and entry of the 6-digit handover OTP.
           </p>
         </div>
 
@@ -178,12 +264,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Test Rails Credentials banner */}
-          <div className="p-3 bg-paper rounded-xl border border-border text-[11px] text-ink-muted space-y-1">
-            <p className="font-bold text-ink">Escrow Gateway Test Mode:</p>
-            <p>Direct escrow deposit simulation enabled with full transaction ledger tracking.</p>
-          </div>
-
           {success ? (
             <div className="p-4 bg-emerald-600 text-white rounded-xl text-center space-y-1 shadow-sm">
               <CheckCircle2 className="w-6 h-6 mx-auto animate-bounce" />
@@ -192,19 +272,24 @@ export default function CheckoutPage() {
             </div>
           ) : (
             <button
-              onClick={handlePayTest}
-              disabled={loading}
+              onClick={handlePay}
+              disabled={loading || verifying}
               className="w-full py-4 px-6 bg-earth text-white font-bold text-sm rounded-xl hover:bg-earth-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
             >
-              {loading ? (
+              {verifying ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Holding funds in escrow...</span>
+                  <span>Verifying Escrow Signature...</span>
+                </>
+              ) : loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Opening Razorpay Gateway...</span>
                 </>
               ) : (
                 <>
-                  <Lock className="w-4 h-4" />
-                  <span>Deposit {formatCurrency(orderTotalPaise)} to Escrow</span>
+                  <CreditCard className="w-4 h-4" />
+                  <span>Pay {formatCurrency(orderTotalPaise)} via Razorpay</span>
                 </>
               )}
             </button>

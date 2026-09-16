@@ -3,12 +3,21 @@ import mspData from '../../data/msp.json';
 import mandiSnapshot from '../../data/mandi-snapshot.json';
 
 // ---------- Types ----------
+export interface VarietyPrice {
+  variety: string;
+  minPrice: number;   // paise/kg
+  maxPrice: number;   // paise/kg
+  modalPrice: number; // paise/kg
+  market: string;
+}
+
 export interface MandiPrice {
   minPrice: number;    // paise/kg
   maxPrice: number;    // paise/kg
   modalPrice: number;  // paise/kg
   date: string;
   market: string;
+  varieties?: VarietyPrice[];  // top varieties by modal price
 }
 
 export interface FairPriceResult {
@@ -117,6 +126,27 @@ async function fetchLiveMandiPrice(
       return null;
     }
 
+    // Collect top varieties by modal price (dedup by variety name)
+    const varietyMap = new Map<string, VarietyPrice>();
+    for (const r of records) {
+      const variety = r.variety || r.Variety || r.grade || r.Grade || 'Standard';
+      const rMin = quintalToPaisePerKg(Number(r.min_price || r.Min_Price || r.min_x0020_price || 0));
+      const rMax = quintalToPaisePerKg(Number(r.max_price || r.Max_Price || r.max_x0020_price || 0));
+      const rModal = quintalToPaisePerKg(Number(r.modal_price || r.Modal_Price || r.modal_x0020_price || 0));
+      if (rModal > 0 && !varietyMap.has(variety)) {
+        varietyMap.set(variety, {
+          variety,
+          minPrice: rMin,
+          maxPrice: rMax,
+          modalPrice: rModal,
+          market: r.market || r.Market || district,
+        });
+      }
+    }
+    const varieties = Array.from(varietyMap.values())
+      .sort((a, b) => b.modalPrice - a.modalPrice)
+      .slice(0, 5);
+
     // Find best match: prefer exact district, else take first
     const match =
       records.find(
@@ -134,6 +164,7 @@ async function fetchLiveMandiPrice(
       modalPrice: quintalToPaisePerKg(modalPrice),
       date: match.arrival_date || match.Arrival_Date || new Date().toISOString().slice(0, 10),
       market: match.market || match.Market || district,
+      varieties: varieties.length > 0 ? varieties : undefined,
     };
 
     // Cache in Firestore
@@ -264,6 +295,7 @@ export async function getMultipleMandiPrices(
         mandiMaxPerKg: mandi.maxPrice,
         mandiDate: mandi.date,
         mandiMarket: mandi.market,
+        varieties: mandi.varieties || [],
         dataSource,
       };
     })

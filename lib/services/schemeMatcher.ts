@@ -11,7 +11,6 @@ export interface Scheme {
     states: string[] | 'ALL';
     crops: string[] | 'ALL';
     maxLandAcres: number | null;
-    socialCategories: string[] | 'ALL';
   };
   applyUrl: string;
   lastDate: string | null;
@@ -63,15 +62,6 @@ export function matchSchemes(user: UserProfile): MatchedScheme[] {
       if (scheme.eligibility.maxLandAcres !== null && user.landSizeAcres) {
         if (user.landSizeAcres <= scheme.eligibility.maxLandAcres) {
           reasons.push(`For farms up to ${scheme.eligibility.maxLandAcres} acres`);
-        } else {
-          matched = false;
-        }
-      }
-
-      // Social category check
-      if (scheme.eligibility.socialCategories !== 'ALL' && user.category) {
-        if (scheme.eligibility.socialCategories.includes(user.category)) {
-          reasons.push(`For ${user.category.toUpperCase()} category`);
         } else {
           matched = false;
         }

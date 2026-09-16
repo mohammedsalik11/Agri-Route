@@ -15,7 +15,8 @@ export const Navbar: React.FC = () => {
 
   const isFarmer = pathname.startsWith('/farmer');
   const isWholesaler = pathname.startsWith('/wholesaler');
-  const homeLink = isFarmer ? '/farmer' : isWholesaler ? '/wholesaler' : '/';
+  const isDriver = pathname.startsWith('/driver');
+  const homeLink = isFarmer ? '/farmer' : isWholesaler ? '/wholesaler' : isDriver ? '/driver' : '/';
 
   const langLabels: Record<Language, string> = {
     en: 'English',
@@ -58,6 +59,13 @@ export const Navbar: React.FC = () => {
                 <Link href="/wholesaler/storage" className={`hover:text-earth transition-colors ${pathname === '/wholesaler/storage' ? 'text-earth font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.coldStorage')}</Link>
                 <Link href="/wholesaler/orders" className={`hover:text-earth transition-colors ${pathname === '/wholesaler/orders' ? 'text-earth font-bold' : 'text-ink-muted'}`}>{t('wholesaler.orders')}</Link>
                 <Link href="/wholesaler/negotiations" className={`hover:text-earth transition-colors ${pathname === '/wholesaler/negotiations' ? 'text-earth font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.negotiationInbox')}</Link>
+              </>
+            )}
+            {isDriver && (
+              <>
+                <Link href="/driver" className={`hover:text-blue-600 transition-colors ${pathname === '/driver' ? 'text-blue-600 font-bold' : 'text-ink-muted'}`}>Driver Hub</Link>
+                <Link href="/driver#active-trips" className="hover:text-blue-600 transition-colors text-ink-muted">Active Trips</Link>
+                <Link href="/driver#jobs" className="hover:text-blue-600 transition-colors text-ink-muted">Available Loads</Link>
               </>
             )}
           </nav>
@@ -135,6 +143,17 @@ export const Navbar: React.FC = () => {
             <Link href="/wholesaler/negotiations" className={`flex flex-col items-center gap-1 w-full ${pathname === '/wholesaler/negotiations' ? 'text-earth font-bold' : 'text-ink-muted'}`}>
               <MessageSquare className="w-5 h-5" />
               <span>Chat</span>
+            </Link>
+          </div>
+        ) : isDriver ? (
+          <div className="flex items-center justify-around px-2 py-2 text-[10px] font-medium h-16">
+            <Link href="/driver" className={`flex flex-col items-center gap-1 w-full ${pathname === '/driver' ? 'text-blue-600 font-bold' : 'text-ink-muted'}`}>
+              <List className="w-5 h-5" />
+              <span>Loads</span>
+            </Link>
+            <Link href="/driver#active-trips" className="flex flex-col items-center gap-1 w-full text-ink-muted hover:text-blue-600">
+              <ShoppingBag className="w-5 h-5" />
+              <span>My Trips</span>
             </Link>
           </div>
         ) : null}

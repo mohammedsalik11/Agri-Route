@@ -14,7 +14,10 @@ export async function POST() {
       'listings',
       'pools',
       'orders',
+      'logisticsJobs',
+      'negotiations',
       'storageBookings',
+      'verificationBookings',
       'notifications',
       'priceCache',
     ];

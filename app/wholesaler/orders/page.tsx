@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { EscrowTimeline, EscrowStep } from '@/components/EscrowTimeline';
+import { LogisticsTracker } from '@/components/LogisticsTracker';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { ShieldCheck, CheckCircle2, RefreshCw, AlertCircle, ArrowRight } from 'lucide-react';
 
@@ -184,6 +185,8 @@ export default function WholesalerOrdersPage() {
                 onConfirmDelivery={(otp) => handleConfirmDelivery(order.orderId, otp)}
                 onRaiseDispute={(reason) => handleRaiseDispute(order.orderId, reason)}
               />
+
+              <LogisticsTracker orderId={order.orderId} isFarmer={false} />
             </div>
           ))
         )}

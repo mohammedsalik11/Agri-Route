@@ -45,5 +45,7 @@ export const collections = {
   schemes: db.collection('schemes'),
   notifications: db.collection('notifications'),
   priceCache: db.collection('priceCache'),
+  verificationBookings: db.collection('verificationBookings'),
+  logisticsJobs: db.collection('logisticsJobs'),
 } as const;
 

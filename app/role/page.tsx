@@ -2,13 +2,13 @@
 
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { useRouter } from 'next/navigation';
-import { Sprout, Store } from 'lucide-react';
+import { Sprout, Store, Truck } from 'lucide-react';
 
 export default function RoleSelectPage() {
   const { t } = useT();
   const router = useRouter();
 
-  const selectRole = (role: 'farmer' | 'wholesaler') => {
+  const selectRole = (role: 'farmer' | 'wholesaler' | 'logistics_driver') => {
     document.cookie = `intendedRole=${role};path=/;max-age=${60 * 60 * 24}`;
     router.push('/sign-up');
   };
@@ -48,6 +48,22 @@ export default function RoleSelectPage() {
           <div className="text-left">
             <p className="text-lg font-semibold text-ink">{t('role.wholesaler')}</p>
             <p className="text-sm text-ink-muted">{t('role.wholesalerDesc')}</p>
+          </div>
+        </button>
+
+        {/* Logistics Driver */}
+        <button
+          onClick={() => selectRole('logistics_driver')}
+          className="w-full flex items-center gap-4 px-6 py-6 bg-white rounded-2xl border-2 border-border
+                     hover:border-blue-600 hover:shadow-lg transition-all
+                     active:scale-[0.98] touch-manipulation"
+        >
+          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-blue-50">
+            <Truck className="w-7 h-7 text-blue-600" />
+          </div>
+          <div className="text-left">
+            <p className="text-lg font-semibold text-ink">{t('role.driver') || 'Logistics Driver'}</p>
+            <p className="text-sm text-ink-muted">{t('role.driverDesc') || 'Deliver produce and earn per trip'}</p>
           </div>
         </button>
       </div>

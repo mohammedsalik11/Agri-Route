@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { useT } from '@/lib/i18n/LanguageProvider';
+import { useCart } from '@/lib/context/CartContext';
 import {
   Users,
   ShieldCheck,
@@ -14,6 +15,9 @@ import {
   Sparkles,
   Loader2,
   AlertCircle,
+  ShoppingCart,
+  Plus,
+  Check,
 } from 'lucide-react';
 
 interface MemberFarmer {
@@ -26,6 +30,7 @@ interface MemberFarmer {
 
 export default function LotDetailPage() {
   const { t, formatCurrency, formatWeight } = useT();
+  const { addItem, hasItem } = useCart();
   const router = useRouter();
   const params = useParams();
   const poolId = params?.id as string;
@@ -314,11 +319,44 @@ export default function LotDetailPage() {
             </div>
           </div>
 
-          <div className="pt-3">
+          <div className="pt-3 flex gap-2">
+            <button
+              onClick={() => {
+                addItem({
+                  sourceType: 'pool',
+                  sourceId: poolId,
+                  crop,
+                  qualityGrade,
+                  district,
+                  quantityKg: totalKg,
+                  pricePerKgPaise: poolPricePaise,
+                  farmerCount: members.length,
+                });
+              }}
+              disabled={hasItem(poolId) || totalKg === 0}
+              className={`flex-1 py-3.5 px-4 font-bold text-sm rounded-xl border flex items-center justify-center gap-1.5 transition-all ${
+                hasItem(poolId)
+                  ? 'bg-field-green/10 text-field-green border-field-green/30'
+                  : 'bg-paper text-ink border-border hover:bg-earth/5 hover:border-earth'
+              }`}
+            >
+              {hasItem(poolId) ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>In Cart</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  <span>Add to Cart</span>
+                </>
+              )}
+            </button>
+
             <button
               onClick={handleCreateOrder}
               disabled={loading || totalKg === 0}
-              className="w-full py-3.5 px-6 bg-earth text-white font-bold text-sm rounded-xl hover:bg-earth-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+              className="flex-[2] py-3.5 px-6 bg-earth text-white font-bold text-sm rounded-xl hover:bg-earth-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -327,7 +365,7 @@ export default function LotDetailPage() {
                 </>
               ) : (
                 <>
-                  <span>Purchase Full Lot via Escrow</span>
+                  <span>Purchase Full Lot</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

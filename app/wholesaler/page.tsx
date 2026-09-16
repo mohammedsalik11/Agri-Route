@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
+import { CartDrawer } from '@/components/CartDrawer';
+import { useCart } from '@/lib/context/CartContext';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import {
   Truck,
@@ -10,9 +12,12 @@ import {
   ChevronRight,
   Sparkles,
   ShoppingBag,
+  ShoppingCart,
   MapPin,
   RefreshCw,
   Warehouse,
+  Plus,
+  Check,
 } from 'lucide-react';
 
 interface PoolLot {
@@ -44,6 +49,8 @@ interface IndividualListing {
 
 export default function WholesalerBrowsePage() {
   const { t, formatCurrency, formatWeight } = useT();
+  const { count, addItem, hasItem } = useCart();
+  const [cartOpen, setCartOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'pools' | 'individual'>('pools');
   const [pools, setPools] = useState<PoolLot[]>([]);
@@ -91,6 +98,7 @@ export default function WholesalerBrowsePage() {
 
   return (
     <div className="min-h-screen bg-paper pb-24">
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
@@ -108,6 +116,19 @@ export default function WholesalerBrowsePage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {/* Cart badge */}
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative p-2.5 bg-earth/10 text-earth rounded-xl hover:bg-earth/20 transition-colors"
+              aria-label={`Cart (${count} items)`}
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {count > 0 && (
+                <span className="absolute -top-1 -right-1 w-4.5 h-4.5 min-w-[18px] bg-earth text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5">
+                  {count}
+                </span>
+              )}
+            </button>
             <Link
               href="/wholesaler/storage"
               className="px-3.5 py-2 bg-white text-ink border border-border rounded-xl text-xs font-bold hover:bg-paper transition-all flex items-center gap-1.5"
@@ -146,26 +167,32 @@ export default function WholesalerBrowsePage() {
 
             <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
               {Object.entries(liveRates).map(([cropKey, info]: [string, any]) => (
-                <div
+                <Link
                   key={cropKey}
-                  className="bg-paper px-3 py-2 rounded-xl border border-border/80 shrink-0 min-w-[120px]"
+                  href={`/wholesaler/produce/${cropKey}`}
+                  className="bg-paper hover:bg-earth/5 hover:border-earth/60 hover:shadow-xs px-3.5 py-2.5 rounded-xl border border-border/80 shrink-0 min-w-[130px] transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between text-[11px] text-ink-muted">
-                    <span className="capitalize font-semibold text-ink flex items-center gap-1">
+                    <span className="capitalize font-bold text-ink group-hover:text-earth flex items-center gap-1 transition-colors">
                       <span>{getCropEmoji(cropKey)}</span>
                       <span>{cropKey}</span>
                     </span>
-                    <span className="text-[9px] font-bold text-earth">
+                    <span className="text-[9px] font-bold text-earth bg-earth/10 px-1.5 py-0.5 rounded-md">
                       {info.dataSource || 'LIVE'}
                     </span>
                   </div>
-                  <div className="mt-1 flex items-baseline gap-1">
-                    <span className="font-extrabold text-sm text-ink font-mono">
-                      ₹{((info.mandiModalPerKg || 0) / 100).toFixed(1)}
+                  <div className="mt-1 flex items-baseline justify-between">
+                    <div>
+                      <span className="font-extrabold text-sm text-ink font-mono group-hover:text-earth transition-colors">
+                        ₹{((info.mandiModalPerKg || 0) / 100).toFixed(1)}
+                      </span>
+                      <span className="text-[10px] text-ink-muted">/kg</span>
+                    </div>
+                    <span className="text-[9px] font-bold text-earth opacity-0 group-hover:opacity-100 transition-opacity">
+                      View Lots →
                     </span>
-                    <span className="text-[10px] text-ink-muted">/kg</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -285,7 +312,7 @@ export default function WholesalerBrowsePage() {
                       </div>
                     </div>
 
-                    <div className="mt-5 pt-3 border-t border-border-light flex items-center justify-between">
+                    <div className="mt-5 pt-3 border-t border-border-light flex items-center justify-between gap-2">
                       <div>
                         <span className="text-[10px] text-ink-muted block uppercase font-bold">
                           {t('wholesaler.lot.lotTotal')}
@@ -295,13 +322,42 @@ export default function WholesalerBrowsePage() {
                         </span>
                       </div>
 
-                      <Link
-                        href={`/wholesaler/lot/${pool.poolId}`}
-                        className="px-4 py-2.5 bg-earth text-white font-bold text-xs rounded-xl hover:bg-earth-light transition-all flex items-center gap-1.5 shadow-xs"
-                      >
-                        <span>{t('wholesaler.lot.viewBreakdown')}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => {
+                            addItem({
+                              sourceType: 'pool',
+                              sourceId: pool.poolId,
+                              crop: pool.crop,
+                              qualityGrade: pool.qualityGrade,
+                              district: pool.district,
+                              quantityKg: pool.currentKg,
+                              pricePerKgPaise: pool.poolPricePerKg,
+                              farmerCount: pool.farmerCount,
+                            });
+                            setCartOpen(true);
+                          }}
+                          disabled={hasItem(pool.poolId)}
+                          className={`px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-all ${
+                            hasItem(pool.poolId)
+                              ? 'bg-field-green/10 text-field-green border border-field-green/30 cursor-default'
+                              : 'bg-paper text-ink border border-border hover:bg-earth/5 hover:border-earth/30'
+                          }`}
+                        >
+                          {hasItem(pool.poolId) ? (
+                            <><Check className="w-3.5 h-3.5" /> In Cart</>
+                          ) : (
+                            <><Plus className="w-3.5 h-3.5" /> Add to Cart</>
+                          )}
+                        </button>
+                        <Link
+                          href={`/wholesaler/lot/${pool.poolId}`}
+                          className="px-4 py-2.5 bg-earth text-white font-bold text-xs rounded-xl hover:bg-earth-light transition-all flex items-center gap-1.5 shadow-xs"
+                        >
+                          <span>{t('wholesaler.lot.viewBreakdown')}</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 );
@@ -395,7 +451,32 @@ export default function WholesalerBrowsePage() {
                           <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                       ) : (
-                        <span className="text-xs text-ink-muted italic">Available directly</span>
+                        <button
+                          onClick={() => {
+                            addItem({
+                              sourceType: 'listing',
+                              sourceId: l.listingId,
+                              crop: l.crop,
+                              qualityGrade: l.qualityGrade,
+                              district: l.district,
+                              quantityKg: l.quantityKg,
+                              pricePerKgPaise: l.askPricePerKg,
+                            });
+                            setCartOpen(true);
+                          }}
+                          disabled={hasItem(l.listingId)}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition-all ${
+                            hasItem(l.listingId)
+                              ? 'bg-field-green/10 text-field-green border border-field-green/30 cursor-default'
+                              : 'bg-earth text-white hover:bg-earth-light shadow-xs'
+                          }`}
+                        >
+                          {hasItem(l.listingId) ? (
+                            <><Check className="w-3.5 h-3.5" /> In Cart</>
+                          ) : (
+                            <><Plus className="w-3.5 h-3.5" /> Add to Cart</>
+                          )}
+                        </button>
                       )}
                     </div>
                   </div>

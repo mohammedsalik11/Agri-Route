@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { WholesalerProviders } from './WholesalerProviders';
 
 export default async function WholesalerLayout({
   children,
@@ -26,5 +27,5 @@ export default async function WholesalerLayout({
     redirect('/farmer');
   }
 
-  return <>{children}</>;
+  return <WholesalerProviders>{children}</WholesalerProviders>;
 }

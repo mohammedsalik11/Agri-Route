@@ -1,19 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth';
-import { getAvailableStorages, bookStorage, getHoldVsSellAdvice } from '@/lib/services/coldStorageService';
+import { getAvailableStorages, bookStorage, getFarmerBookings } from '@/lib/services/coldStorageService';
 
-// GET /api/storage — List available cold storages
+// GET /api/storage — List available cold storages or farmer's bookings
 export async function GET(request: NextRequest) {
   const result = await requireRole('farmer');
   if (result.error) return result.error;
 
   const { searchParams } = new URL(request.url);
+  const mine = searchParams.get('mine') === 'true';
   const crop = searchParams.get('crop') || undefined;
   const district = searchParams.get('district') || undefined;
 
   try {
-    const storages = await getAvailableStorages({ crop, district });
-    return NextResponse.json({ ok: true, data: storages });
+    if (mine) {
+      const bookings = await getFarmerBookings(result.user.clerkUserId);
+      return NextResponse.json({ ok: true, data: bookings });
+    }
+
+    const [storages, bookings] = await Promise.all([
+      getAvailableStorages({ crop, district }),
+      getFarmerBookings(result.user.clerkUserId),
+    ]);
+
+    return NextResponse.json({
+      ok: true,
+      data: storages,
+      bookings,
+    });
   } catch (error: unknown) {
     console.error('Get storage error:', error);
     return NextResponse.json(
@@ -32,9 +46,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { facilityId, listingId, crop, quantityKg, days } = body;
 
-    if (!facilityId || !listingId || !crop || !quantityKg || !days) {
+    if (!facilityId || !crop || !quantityKg || !days) {
       return NextResponse.json(
-        { ok: false, error: 'MISSING_FIELDS', message: 'facilityId, listingId, crop, quantityKg, days required' },
+        { ok: false, error: 'MISSING_FIELDS', message: 'facilityId, crop, quantityKg, days required' },
         { status: 400 }
       );
     }
@@ -42,8 +56,8 @@ export async function POST(request: NextRequest) {
     const booking = await bookStorage({
       facilityId,
       farmerId: result.user.clerkUserId,
-      listingId,
-      crop,
+      listingId: listingId || undefined,
+      crop: String(crop).toLowerCase(),
       quantityKg: Number(quantityKg),
       days: Number(days),
     });

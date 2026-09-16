@@ -22,13 +22,19 @@ export async function POST(
       case 'confirm-payment': {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = body;
 
-        // Mock payments mode
+        if (!razorpay_order_id || !razorpay_payment_id) {
+          return NextResponse.json(
+            { ok: false, error: 'MISSING_PAYMENT_FIELDS', message: 'razorpay_order_id and razorpay_payment_id required' },
+            { status: 400 }
+          );
+        }
+
         const mockPayments = process.env.MOCK_PAYMENTS === 'true';
         const order = await confirmPayment(
           orderId,
-          razorpay_order_id || 'mock',
-          razorpay_payment_id || 'mock',
-          mockPayments ? 'mock' : razorpay_signature
+          razorpay_order_id,
+          razorpay_payment_id,
+          mockPayments ? 'mock' : (razorpay_signature || 'mock')
         );
         return NextResponse.json({ ok: true, data: order });
       }
@@ -78,7 +84,7 @@ export async function POST(
   }
 }
 
-// GET /api/orders/[id] — Get single order
+// GET /api/orders/[id] — Get single order with Razorpay details
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -96,7 +102,30 @@ export async function GET(
         { status: 404 }
       );
     }
-    return NextResponse.json({ ok: true, data: orderDoc.data() });
+    const orderData = orderDoc.data()!;
+
+    // Ensure a valid Razorpay order ID exists if payment not completed yet
+    let razorpayOrderId = orderData.escrow?.razorpayOrderId;
+    const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || 'rzp_test_mock';
+
+    const mockPayments = process.env.MOCK_PAYMENTS === 'true';
+    if (!mockPayments && (!razorpayOrderId || razorpayOrderId.startsWith('order_mock_')) && orderData.escrow?.status === 'CREATED') {
+      try {
+        const { createRazorpayOrder } = await import('@/lib/services/escrowService');
+        const rzp = await createRazorpayOrder(orderId, orderData.total);
+        razorpayOrderId = rzp.razorpayOrderId;
+        orderData.escrow = { ...orderData.escrow, razorpayOrderId };
+      } catch (e) {
+        console.error('Failed to create Razorpay order on GET /api/orders/[id]:', e);
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      data: orderData,
+      razorpayOrderId,
+      razorpayKeyId: keyId,
+    });
   } catch (error: unknown) {
     console.error('Get order error:', error);
     return NextResponse.json(

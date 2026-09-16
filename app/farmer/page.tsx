@@ -24,7 +24,6 @@ interface UserProfile {
   village?: string;
   primaryCrops?: string[];
   clerkUserId: string;
-  category?: string;
 }
 
 interface StatsData {
@@ -209,13 +208,22 @@ export default function FarmerDashboard() {
               </p>
             )}
           </div>
-          <Link
-            href="/farmer/list"
-            className="px-4 py-2.5 bg-field-green text-paper rounded-xl text-xs font-bold hover:bg-field-green-light flex items-center gap-1.5 shadow-xs transition-all"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>{t('farmer.dashboard.listProduce')}</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/farmer/verification"
+              className="px-3.5 py-2.5 bg-paper text-field-green border border-field-green/30 rounded-xl text-xs font-bold hover:bg-field-green/10 flex items-center gap-1.5 shadow-xs transition-all"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Verify Crop</span>
+            </Link>
+            <Link
+              href="/farmer/list"
+              className="px-4 py-2.5 bg-field-green text-paper rounded-xl text-xs font-bold hover:bg-field-green-light flex items-center gap-1.5 shadow-xs transition-all"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>{t('farmer.dashboard.listProduce')}</span>
+            </Link>
+          </div>
         </div>
 
         {/* Hero Rate Highlight Card */}
@@ -264,15 +272,11 @@ export default function FarmerDashboard() {
               {Object.entries(multiCropRates).map(([cropKey, info]: [string, any]) => {
                 const isSelected = rateData.crop.toLowerCase() === cropKey.toLowerCase();
                 const emojis: Record<string, string> = {
-                  tomato: '🍅',
-                  onion: '🧅',
-                  potato: '🥔',
-                  paddy: '🌾',
-                  wheat: '🌾',
-                  ragi: '🌱',
-                  maize: '🌽',
-                  banana: '🍌',
+                  tomato: '🍅', onion: '🧅', potato: '🥔', paddy: '🌾',
+                  wheat: '🌾', ragi: '🌱', maize: '🌽', banana: '🍌',
                 };
+                const agmarknetUrl = `https://agmarknet.gov.in/SearchCmmMkt.aspx?Tx_Commodity=0&Tx_State=0&Tx_District=0&Tx_Market=0&DateFrom=&DateTo=&Fr_Date=&To_Date=&Tx_Comm=&Tx_State1=&Tx_District1=&Tx_Market1=&Tx_Comm1=${encodeURIComponent(cropKey)}`;
+                const varietyCount = Array.isArray(info.varieties) ? info.varieties.length : 0;
 
                 return (
                   <button
@@ -298,11 +302,18 @@ export default function FarmerDashboard() {
                         <span>{emojis[cropKey] || '📦'}</span>
                         <span>{cropKey}</span>
                       </span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                        info.dataSource === 'LIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                      }`}>
-                        {info.dataSource || 'LIVE'}
-                      </span>
+                      <div className="flex items-center gap-1">
+                        {varietyCount > 0 && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                            {varietyCount}v
+                          </span>
+                        )}
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                          info.dataSource === 'LIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {info.dataSource || 'LIVE'}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="mt-2">
@@ -314,6 +325,16 @@ export default function FarmerDashboard() {
                         ₹{((info.mandiMinPerKg || 0) / 100).toFixed(0)} - ₹{((info.mandiMaxPerKg || 0) / 100).toFixed(0)}
                       </span>
                     </div>
+
+                    <a
+                      href={agmarknetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-1.5 text-[9px] text-field-green font-semibold hover:underline"
+                    >
+                      View on Agmarknet ↗
+                    </a>
                   </button>
                 );
               })}

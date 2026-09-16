@@ -8,8 +8,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://pmkisan.gov.in",
     "lastDate": null,
@@ -24,8 +23,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://pmfby.gov.in",
     "lastDate": "2026-12-31",
@@ -40,8 +38,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": null,
     "lastDate": null,
@@ -56,8 +53,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://pmkusum.mnre.gov.in",
     "lastDate": null,
@@ -72,8 +68,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://agriinfra.dac.gov.in",
     "lastDate": null,
@@ -88,8 +83,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://pgsindia-ncof.gov.in/pkvy",
     "lastDate": null,
@@ -104,8 +98,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://agrimachinery.nic.in",
     "lastDate": null,
@@ -120,8 +113,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://soilhealth.dac.gov.in",
     "lastDate": null,
@@ -136,8 +128,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://enam.gov.in",
     "lastDate": null,
@@ -152,8 +143,7 @@
     "eligibility": {
       "states": "ALL",
       "crops": "ALL",
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "maxLandAcres": null
     },
     "applyUrl": "https://rkvy.nic.in",
     "lastDate": null,
@@ -167,9 +157,12 @@
     "category": "input",
     "eligibility": {
       "states": "ALL",
-      "crops": ["wheat", "paddy", "pulses"],
-      "maxLandAcres": null,
-      "socialCategories": "ALL"
+      "crops": [
+        "wheat",
+        "paddy",
+        "pulses"
+      ],
+      "maxLandAcres": null
     },
     "applyUrl": "https://nfsm.gov.in",
     "lastDate": null,
@@ -182,10 +175,11 @@
     "benefit": "Financial assistance for farm ponds and micro-irrigation",
     "category": "income",
     "eligibility": {
-      "states": ["Karnataka"],
+      "states": [
+        "Karnataka"
+      ],
       "crops": "ALL",
-      "maxLandAcres": 5.0,
-      "socialCategories": "ALL"
+      "maxLandAcres": 5
     },
     "applyUrl": "https://raitamitra.karnataka.gov.in",
     "lastDate": null,

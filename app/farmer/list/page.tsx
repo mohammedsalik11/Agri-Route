@@ -4,8 +4,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { FairPriceGauge } from '@/components/FairPriceGauge';
+import { CameraCapture } from '@/components/CameraCapture';
 import { useT } from '@/lib/i18n/LanguageProvider';
-import { Camera, Sparkles, AlertCircle, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { Sparkles, AlertCircle, ArrowRight, Loader2, CheckCircle2, CheckCircle, Image as ImageIcon } from 'lucide-react';
 
 const CROPS = [
   { key: 'tomato', emoji: '🍅', name: 'Tomato' },
@@ -50,8 +51,13 @@ export default function CreateListingPage() {
     date: 'Today',
   });
 
+  const [varieties, setVarieties] = useState<Array<{ variety: string; modalPrice: number }>>([]);
+  const [selectedVariety, setSelectedVariety] = useState('');
+
   // Fetch prices on crop selection
   useEffect(() => {
+    setVarieties([]);
+    setSelectedVariety('');
     fetch(`/api/prices?crop=${selectedCrop}&district=Mandya`)
       .then((res) => res.json())
       .then((res) => {
@@ -64,6 +70,12 @@ export default function CreateListingPage() {
             dataSource: res.data.dataSource || 'CACHED',
             date: res.data.mandiDate || 'Today',
           });
+          if (Array.isArray(res.data.varieties) && res.data.varieties.length > 0) {
+            setVarieties(res.data.varieties.map((v: { variety: string; modalPrice: number }) => ({
+              variety: v.variety,
+              modalPrice: v.modalPrice,
+            })));
+          }
         }
       })
       .catch(() => {});
@@ -88,38 +100,29 @@ export default function CreateListingPage() {
   const extraEarningVsFloor =
     askPricePaise < floorPaise ? (floorPaise - askPricePaise) * qty : 0;
 
-  // Handle Photo Upload & AI grading
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  // Handle camera capture & AI grading
+  const handleCameraCapture = async (base64: string, mimeType: string) => {
     setAnalyzingPhoto(true);
     setAiNotes(null);
-
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = (reader.result as string).split(',')[1];
-      try {
-        const res = await fetch('/api/grade', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ photoBase64: base64, mimeType: file.type }),
-        });
-        const data = await res.json();
-        if (data.ok && data.data) {
-          setQualityGrade(data.data.grade);
-          setGradeSource('ai');
-          setAiNotes(
-            `${data.data.notes} (Confidence: ${(data.data.confidence * 100).toFixed(0)}%)`
-          );
-        }
-      } catch {
-        setQualityGrade('A');
-      } finally {
-        setAnalyzingPhoto(false);
+    try {
+      const res = await fetch('/api/grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoBase64: base64, mimeType }),
+      });
+      const data = await res.json();
+      if (data.ok && data.data) {
+        setQualityGrade(data.data.grade);
+        setGradeSource('ai');
+        setAiNotes(
+          `${data.data.notes} (Confidence: ${(data.data.confidence * 100).toFixed(0)}%)`
+        );
       }
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setQualityGrade('A');
+    } finally {
+      setAnalyzingPhoto(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,6 +136,7 @@ export default function CreateListingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           crop: selectedCrop,
+          variety: selectedVariety || undefined,
           quantityKg: qty,
           askPricePerKg: askPricePaise,
           qualityGrade,
@@ -204,6 +208,48 @@ export default function CreateListingPage() {
             </div>
           </div>
 
+          {/* Variety Selector — shown only when Agmarknet returns varieties */}
+          {varieties.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 border border-border space-y-3">
+              <label className="text-xs font-bold text-ink uppercase tracking-wider block">
+                1b. Select Variety{' '}
+                <span className="normal-case font-normal text-ink-muted ml-1">
+                  (from live Agmarknet data)
+                </span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedVariety('')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                    selectedVariety === ''
+                      ? 'bg-field-green text-white border-field-green'
+                      : 'bg-paper text-ink border-border hover:border-field-green'
+                  }`}
+                >
+                  Any / Unspecified
+                </button>
+                {varieties.map((v) => (
+                  <button
+                    key={v.variety}
+                    type="button"
+                    onClick={() => setSelectedVariety(v.variety)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                      selectedVariety === v.variety
+                        ? 'bg-field-green text-white border-field-green'
+                        : 'bg-paper text-ink border-border hover:border-field-green'
+                    }`}
+                  >
+                    {v.variety}
+                    <span className="ml-1 text-[10px] opacity-70">
+                      ₹{(v.modalPrice / 100).toFixed(1)}/kg
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* AI Quality Grading & Camera */}
           <div className="bg-white rounded-2xl p-5 border border-border space-y-3">
             <div className="flex items-center justify-between">
@@ -216,37 +262,34 @@ export default function CreateListingPage() {
               </span>
             </div>
 
-            <div className="border-2 border-dashed border-border rounded-xl p-4 text-center hover:border-field-green/50 transition-colors bg-paper/40">
-              <input
-                type="file"
-                accept="image/*"
-                id="photoInput"
-                className="hidden"
-                onChange={handlePhotoUpload}
+            {analyzingPhoto ? (
+              <div className="flex flex-col items-center justify-center py-6 gap-3">
+                <Loader2 className="w-8 h-8 animate-spin text-field-green" />
+                <p className="text-xs font-semibold text-field-green">
+                  Analyzing produce with Gemini Vision…
+                </p>
+              </div>
+            ) : gradeSource === 'ai' && aiNotes ? (
+              <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div className="text-xs">
+                  <p className="font-bold text-emerald-800">AI Grade: {qualityGrade} verified</p>
+                  <p className="text-emerald-700 mt-0.5">{aiNotes}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setGradeSource('self-declared'); setAiNotes(null); }}
+                  className="ml-auto text-[10px] text-ink-muted hover:text-ink underline"
+                >
+                  Retake
+                </button>
+              </div>
+            ) : (
+              <CameraCapture
+                onCapture={handleCameraCapture}
+                disabled={analyzingPhoto}
               />
-              <label
-                htmlFor="photoInput"
-                className="cursor-pointer flex flex-col items-center gap-2"
-              >
-                <div className="w-12 h-12 rounded-full bg-field-green/10 text-field-green flex items-center justify-center">
-                  {analyzingPhoto ? (
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  ) : (
-                    <Camera className="w-6 h-6" />
-                  )}
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-field-green block">
-                    {analyzingPhoto
-                      ? 'Analyzing Produce with Gemini...'
-                      : 'Take Photo or Upload'}
-                  </span>
-                  <span className="text-[11px] text-ink-muted">
-                    Automated defect detection &amp; grade classification
-                  </span>
-                </div>
-              </label>
-            </div>
+            )}
 
             {/* Quality Grade Selector */}
             <div className="pt-2">
