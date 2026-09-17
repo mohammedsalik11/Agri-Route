@@ -57,30 +57,60 @@ export async function getAvailableStorages(filters?: {
   crop?: string;
   district?: string;
 }): Promise<ColdStorage[]> {
-  let storages = coldStoragesData as ColdStorage[];
+  const allStorages = [...(coldStoragesData as ColdStorage[])];
+  let storages = allStorages;
 
   if (filters?.crop) {
-    storages = storages.filter(s =>
-      s.suitableCrops.includes(filters.crop!.toLowerCase())
+    const cropLower = filters.crop.toLowerCase().trim();
+    const matchingCrop = storages.filter(s =>
+      s.suitableCrops.some(c => {
+        const cLower = c.toLowerCase();
+        return (
+          cLower === cropLower ||
+          cLower.includes(cropLower) ||
+          cropLower.includes(cLower) ||
+          cLower === 'vegetables' ||
+          cLower === 'fruits' ||
+          cLower === 'all'
+        );
+      })
     );
+    if (matchingCrop.length > 0) {
+      storages = matchingCrop;
+    }
   }
 
-  if (filters?.district) {
-    storages = storages.filter(
-      s => s.district.toLowerCase() === filters.district!.toLowerCase()
+  if (filters?.district && filters.district !== 'ALL') {
+    const districtLower = filters.district.toLowerCase().trim();
+    const exactDistrict = storages.filter(
+      s => s.district.toLowerCase().trim() === districtLower
     );
+    const otherDistricts = storages.filter(
+      s => s.district.toLowerCase().trim() !== districtLower
+    );
+
+    // Put exact district match first, followed by other state facilities
+    if (exactDistrict.length > 0) {
+      storages = [...exactDistrict, ...otherDistricts];
+    }
   }
 
   // Merge with Firestore for real-time capacity updates
   for (const storage of storages) {
-    const doc = await collections.coldStorages.doc(storage.facilityId).get();
-    if (doc.exists) {
-      const data = doc.data()!;
-      storage.availableCapacityKg = data.availableCapacityKg ?? storage.availableCapacityKg;
+    try {
+      const doc = await collections.coldStorages.doc(storage.facilityId).get();
+      if (doc.exists) {
+        const data = doc.data()!;
+        storage.availableCapacityKg = data.availableCapacityKg ?? storage.availableCapacityKg;
+      }
+    } catch {
+      // Keep static available capacity
     }
   }
 
-  return storages.filter(s => s.availableCapacityKg > 0);
+  const result = storages.filter(s => s.availableCapacityKg > 0);
+  // Guarantee fallback to all storages if filter was overly restrictive
+  return result.length > 0 ? result : (coldStoragesData as ColdStorage[]);
 }
 
 /**
