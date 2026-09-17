@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="earth_green">#1B4332</color>
+    <color name="earth_green_dark">#0F241C</color>
+    <color name="earth_accent">#40916C</color>
+    <color name="paper_bg">#FBF7F0</color>
+    <color name="ink_text">#1D242B</color>
+    <color name="white">#FFFFFF</color>
+</resources>

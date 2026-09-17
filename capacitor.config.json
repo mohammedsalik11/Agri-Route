@@ -1,0 +1,14 @@
+{
+  "appId": "in.gov.agriroute.app",
+  "appName": "Agri Route",
+  "webDir": ".next",
+  "server": {
+    "url": "https://agri-route-red.vercel.app",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}
