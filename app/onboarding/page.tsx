@@ -154,6 +154,21 @@ export default function OnboardingPage() {
       let destination = '/farmer';
       if (role === 'wholesaler') destination = '/wholesaler';
       if (role === 'logistics_driver') destination = '/driver';
+
+      const isAndroidSource = typeof window !== 'undefined' && (
+        window.location.search.includes('source=android') ||
+        window.navigator.userAgent.includes('Android')
+      );
+
+      if (isAndroidSource) {
+        const appLink = `agriroute://auth-callback?role=${encodeURIComponent(role)}&name=${encodeURIComponent(name)}&district=${encodeURIComponent(district)}&idNumber=${encodeURIComponent(idNumber)}`;
+        window.location.href = appLink;
+        setTimeout(() => {
+          window.location.href = destination;
+        }, 1000);
+        return;
+      }
+
       window.location.href = destination;
 
     } catch (err: unknown) {

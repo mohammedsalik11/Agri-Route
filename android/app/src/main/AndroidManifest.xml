@@ -45,6 +45,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -52,12 +53,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Deep linking for app URLs -->
+            <!-- Custom URI Scheme for Clerk Auth callback: agriroute://* -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="agriroute" />
+            </intent-filter>
+
+            <!-- App Links for web domain -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="agri-route-red.vercel.app" />
+                <data android:scheme="https" android:host="agri-route-red.vercel.app" android:pathPrefix="/auth-callback" />
+                <data android:scheme="https" android:host="agri-route-red.vercel.app" android:pathPrefix="/onboarding" />
+                <data android:scheme="https" android:host="agri-route-red.vercel.app" android:pathPrefix="/role" />
+                <data android:scheme="https" android:host="agri-route-red.vercel.app" android:pathPrefix="/farmer" />
+                <data android:scheme="https" android:host="agri-route-red.vercel.app" android:pathPrefix="/wholesaler" />
+                <data android:scheme="https" android:host="agri-route-red.vercel.app" android:pathPrefix="/driver" />
             </intent-filter>
         </activity>
 
