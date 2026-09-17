@@ -33,7 +33,8 @@ export default function LotDetailPage() {
   const { addItem, hasItem } = useCart();
   const router = useRouter();
   const params = useParams();
-  const poolId = params?.id as string;
+  const rawPoolId = (params?.id as string) || '';
+  const poolId = rawPoolId ? decodeURIComponent(rawPoolId) : '';
 
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);

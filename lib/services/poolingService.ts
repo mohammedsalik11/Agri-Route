@@ -51,7 +51,9 @@ function getPoolKey(crop: string, grade: string, district: string, availableUnti
   const startOfYear = new Date(date.getFullYear(), 0, 1);
   const dayOfYear = Math.floor((date.getTime() - startOfYear.getTime()) / 86400000);
   const isoWeek = Math.ceil((dayOfYear + startOfYear.getDay() + 1) / 7);
-  return `${crop.toLowerCase()}__${grade}__${district.toLowerCase()}__W${isoWeek}`;
+  const safeCrop = (crop || 'produce').toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const safeDistrict = (district || 'district').toLowerCase().replace(/[^a-z0-9]/g, '_');
+  return `${safeCrop}__${grade}__${safeDistrict}__W${isoWeek}`;
 }
 
 /**
@@ -199,12 +201,26 @@ export async function attachToPool(listing: {
   return { poolId, pool };
 }
 
+async function findPoolDoc(poolId: string) {
+  const candidateIds = Array.from(new Set([poolId, decodeURIComponent(poolId || '')]));
+  for (const cid of candidateIds) {
+    const doc = await collections.pools.doc(cid).get();
+    if (doc.exists) return doc;
+  }
+  for (const cid of candidateIds) {
+    const snap = await collections.pools.where('poolId', '==', cid).limit(1).get();
+    if (!snap.empty) return snap.docs[0];
+  }
+  return null;
+}
+
 /**
  * Manually join an existing listing to an existing pool.
  */
 export async function joinPool(poolId: string, listingId: string): Promise<Pool> {
-  const poolDoc = await collections.pools.doc(poolId).get();
-  if (!poolDoc.exists) throw new Error('Pool not found');
+  const poolDoc = await findPoolDoc(poolId);
+  if (!poolDoc || !poolDoc.exists) throw new Error('Pool not found');
+  const actualPoolId = poolDoc.id;
   const pool = poolDoc.data() as Pool;
   if (pool.status !== 'open') throw new Error('Pool is not accepting new listings');
 
@@ -241,8 +257,8 @@ export async function joinPool(poolId: string, listingId: string): Promise<Pool>
     status: newStatus as Pool['status'],
   };
 
-  await collections.pools.doc(poolId).update(updatedPool);
-  await collections.listings.doc(listingId).update({ poolId, status: 'pooled' });
+  await collections.pools.doc(actualPoolId).update(updatedPool);
+  await collections.listings.doc(listingId).update({ poolId: actualPoolId, status: 'pooled' });
 
   return { ...pool, ...updatedPool } as Pool;
 }
@@ -251,8 +267,9 @@ export async function joinPool(poolId: string, listingId: string): Promise<Pool>
  * Remove a listing from a pool (only while pool is 'open').
  */
 export async function leavePool(poolId: string, listingId: string): Promise<Pool> {
-  const poolDoc = await collections.pools.doc(poolId).get();
-  if (!poolDoc.exists) throw new Error('Pool not found');
+  const poolDoc = await findPoolDoc(poolId);
+  if (!poolDoc || !poolDoc.exists) throw new Error('Pool not found');
+  const actualPoolId = poolDoc.id;
   const pool = poolDoc.data() as Pool;
   if (pool.status !== 'open') throw new Error('Cannot leave a pool that is not open');
 
@@ -265,7 +282,7 @@ export async function leavePool(poolId: string, listingId: string): Promise<Pool
 
   if (newListingIds.length === 0) {
     // Pool is empty — expire it
-    await collections.pools.doc(poolId).update({ status: 'expired', listingIds: [], currentKg: 0, farmerCount: 0 });
+    await collections.pools.doc(actualPoolId).update({ status: 'expired', listingIds: [], currentKg: 0, farmerCount: 0 });
     await collections.listings.doc(listingId).update({ poolId: null, status: 'available' });
     return { ...pool, status: 'expired', listingIds: [], currentKg: 0, farmerCount: 0 };
   }
@@ -291,7 +308,7 @@ export async function leavePool(poolId: string, listingId: string): Promise<Pool
     centroid,
   };
 
-  await collections.pools.doc(poolId).update(updatedPool);
+  await collections.pools.doc(actualPoolId).update(updatedPool);
   await collections.listings.doc(listingId).update({ poolId: null, status: 'available' });
 
   return { ...pool, ...updatedPool } as Pool;
@@ -301,15 +318,16 @@ export async function leavePool(poolId: string, listingId: string): Promise<Pool
  * Lock a pool when an order is placed.
  */
 export async function lockPool(poolId: string): Promise<void> {
-  const poolDoc = await collections.pools.doc(poolId).get();
-  if (!poolDoc.exists) throw new Error('Pool not found');
+  const poolDoc = await findPoolDoc(poolId);
+  if (!poolDoc || !poolDoc.exists) throw new Error('Pool not found');
+  const actualPoolId = poolDoc.id;
   const pool = poolDoc.data() as Pool;
 
-  await collections.pools.doc(poolId).update({ status: 'locked' });
+  await collections.pools.doc(actualPoolId).update({ status: 'locked' });
 
   // Lock all member listings
   const batch = collections.listings.firestore.batch();
-  for (const listingId of pool.listingIds) {
+  for (const listingId of (pool.listingIds || [])) {
     batch.update(collections.listings.doc(listingId), { status: 'locked' });
   }
   await batch.commit();
@@ -319,13 +337,15 @@ export async function lockPool(poolId: string): Promise<void> {
  * Mark pool as sold after escrow release.
  */
 export async function markPoolSold(poolId: string): Promise<void> {
-  await collections.pools.doc(poolId).update({ status: 'sold' });
-
-  const poolDoc = await collections.pools.doc(poolId).get();
+  const poolDoc = await findPoolDoc(poolId);
+  if (!poolDoc || !poolDoc.exists) return;
+  const actualPoolId = poolDoc.id;
   const pool = poolDoc.data() as Pool;
 
+  await collections.pools.doc(actualPoolId).update({ status: 'sold' });
+
   const batch = collections.listings.firestore.batch();
-  for (const listingId of pool.listingIds) {
+  for (const listingId of (pool.listingIds || [])) {
     batch.update(collections.listings.doc(listingId), { status: 'sold' });
   }
   await batch.commit();

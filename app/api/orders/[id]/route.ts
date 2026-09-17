@@ -92,16 +92,35 @@ export async function GET(
   const result = await requireAnyRole();
   if (result.error) return result.error;
 
-  const { id: orderId } = await params;
+  const { id: rawOrderId } = await params;
 
   try {
-    const orderDoc = await collections.orders.doc(orderId).get();
-    if (!orderDoc.exists) {
+    const candidateIds = Array.from(new Set([rawOrderId, decodeURIComponent(rawOrderId || '')]));
+    let orderDoc = null;
+    for (const cid of candidateIds) {
+      const doc = await collections.orders.doc(cid).get();
+      if (doc.exists) {
+        orderDoc = doc;
+        break;
+      }
+    }
+    if (!orderDoc) {
+      for (const cid of candidateIds) {
+        const snap = await collections.orders.where('orderId', '==', cid).limit(1).get();
+        if (!snap.empty) {
+          orderDoc = snap.docs[0];
+          break;
+        }
+      }
+    }
+
+    if (!orderDoc || !orderDoc.exists) {
       return NextResponse.json(
         { ok: false, error: 'NOT_FOUND', message: 'Order not found' },
         { status: 404 }
       );
     }
+    const orderId = orderDoc.id;
     const orderData = orderDoc.data()!;
 
     // Ensure a valid Razorpay order ID exists if payment not completed yet

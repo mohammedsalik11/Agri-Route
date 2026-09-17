@@ -9,11 +9,29 @@ export async function GET(
   const result = await requireAnyRole();
   if (result.error) return result.error;
 
-  const { id } = await params;
+  const { id: rawId } = await params;
 
   try {
-    const poolDoc = await collections.pools.doc(id).get();
-    if (!poolDoc.exists) {
+    const candidateIds = Array.from(new Set([rawId, decodeURIComponent(rawId || '')]));
+    let poolDoc = null;
+    for (const cid of candidateIds) {
+      const doc = await collections.pools.doc(cid).get();
+      if (doc.exists) {
+        poolDoc = doc;
+        break;
+      }
+    }
+    if (!poolDoc) {
+      for (const cid of candidateIds) {
+        const snap = await collections.pools.where('poolId', '==', cid).limit(1).get();
+        if (!snap.empty) {
+          poolDoc = snap.docs[0];
+          break;
+        }
+      }
+    }
+
+    if (!poolDoc || !poolDoc.exists) {
       return NextResponse.json(
         { ok: false, error: 'NOT_FOUND', message: 'Pool not found' },
         { status: 404 }

@@ -38,7 +38,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, message: 'Missing fields' }, { status: 400 });
     }
 
-    const poolDoc = await collections.pools.doc(poolId).get();
+    const candidateIds = Array.from(new Set([poolId, decodeURIComponent(poolId || '')]));
+    let poolDoc = null;
+    for (const cid of candidateIds) {
+      const doc = await collections.pools.doc(cid).get();
+      if (doc.exists) {
+        poolDoc = doc;
+        break;
+      }
+    }
+    if (!poolDoc) {
+      for (const cid of candidateIds) {
+        const snap = await collections.pools.where('poolId', '==', cid).limit(1).get();
+        if (!snap.empty) {
+          poolDoc = snap.docs[0];
+          break;
+        }
+      }
+    }
+
     let crop = 'tomato'; // Default fallback
     let district = 'Mandya';
     let state = 'Karnataka';
@@ -46,7 +64,7 @@ export async function POST(req: Request) {
     let farmerId = 'all_farmers';
     let farmerIds: string[] = [];
 
-    if (poolDoc.exists) {
+    if (poolDoc && poolDoc.exists) {
       const poolData = poolDoc.data()!;
       crop = poolData.crop || crop;
       district = poolData.district || district;

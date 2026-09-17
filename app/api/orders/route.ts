@@ -40,17 +40,36 @@ export async function POST(request: NextRequest) {
       let farmerPayouts: Array<{ farmerId: string; farmerName: string; quantityKg: number }>;
 
       if (sourceType === 'pool') {
-        const poolDoc = await collections.pools.doc(sourceId).get();
-        if (!poolDoc.exists) {
+        const candidateIds = Array.from(new Set([sourceId, decodeURIComponent(sourceId || '')]));
+        let poolDoc = null;
+        for (const cid of candidateIds) {
+          const doc = await collections.pools.doc(cid).get();
+          if (doc.exists) {
+            poolDoc = doc;
+            break;
+          }
+        }
+        if (!poolDoc) {
+          for (const cid of candidateIds) {
+            const snap = await collections.pools.where('poolId', '==', cid).limit(1).get();
+            if (!snap.empty) {
+              poolDoc = snap.docs[0];
+              break;
+            }
+          }
+        }
+
+        if (!poolDoc || !poolDoc.exists) {
           return NextResponse.json({ ok: false, error: 'NOT_FOUND', message: `Pool ${sourceId} not found` }, { status: 404 });
         }
+        const resolvedPoolId = poolDoc.id;
         const pool = poolDoc.data()!;
 
         // If the pool was already locked, check if this buyer has an active unpaid order for it to resume checkout
         if (pool.status === 'locked') {
           const existingOrderSnap = await collections.orders
             .where('buyerId', '==', user.clerkUserId)
-            .where('source.id', '==', sourceId)
+            .where('source.id', 'in', [resolvedPoolId, ...candidateIds])
             .where('escrow.status', '==', 'CREATED')
             .limit(1)
             .get();
@@ -72,7 +91,7 @@ export async function POST(request: NextRequest) {
         pickupDistrict = pool.district || 'Mandya';
 
         const listingDocs = await Promise.all(
-          pool.listingIds.map((id: string) => collections.listings.doc(id).get())
+          (pool.listingIds || []).map((id: string) => collections.listings.doc(id).get())
         );
         farmerPayouts = listingDocs
           .filter((d) => d.exists)
@@ -81,19 +100,38 @@ export async function POST(request: NextRequest) {
             return { farmerId: data.farmerId, farmerName: data.farmerName, quantityKg: data.quantityKg };
           });
 
-        await lockPool(sourceId);
+        await lockPool(resolvedPoolId);
       } else {
-        const listingDoc = await collections.listings.doc(sourceId).get();
-        if (!listingDoc.exists) {
+        const candidateIds = Array.from(new Set([sourceId, decodeURIComponent(sourceId || '')]));
+        let listingDoc = null;
+        for (const cid of candidateIds) {
+          const doc = await collections.listings.doc(cid).get();
+          if (doc.exists) {
+            listingDoc = doc;
+            break;
+          }
+        }
+        if (!listingDoc) {
+          for (const cid of candidateIds) {
+            const snap = await collections.listings.where('listingId', '==', cid).limit(1).get();
+            if (!snap.empty) {
+              listingDoc = snap.docs[0];
+              break;
+            }
+          }
+        }
+
+        if (!listingDoc || !listingDoc.exists) {
           return NextResponse.json({ ok: false, error: 'NOT_FOUND', message: `Listing ${sourceId} not found` }, { status: 404 });
         }
+        const resolvedListingId = listingDoc.id;
         const listing = listingDoc.data()!;
 
         // If listing was already locked, check if this buyer has an active unpaid order for it to resume checkout
         if (listing.status === 'locked') {
           const existingOrderSnap = await collections.orders
             .where('buyerId', '==', user.clerkUserId)
-            .where('source.id', '==', sourceId)
+            .where('source.id', 'in', [resolvedListingId, ...candidateIds])
             .where('escrow.status', '==', 'CREATED')
             .limit(1)
             .get();
@@ -115,7 +153,7 @@ export async function POST(request: NextRequest) {
         pickupDistrict = listing.district || 'Mandya';
         farmerPayouts = [{ farmerId: listing.farmerId, farmerName: listing.farmerName, quantityKg: listing.quantityKg }];
 
-        await collections.listings.doc(sourceId).update({ status: 'locked' });
+        await collections.listings.doc(resolvedListingId).update({ status: 'locked' });
       }
 
       const order = await createOrder({
