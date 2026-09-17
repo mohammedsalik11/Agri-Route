@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { useT } from '@/lib/i18n/LanguageProvider';
-import { ShieldCheck, Lock, CheckCircle2, Loader2, ArrowLeft, AlertCircle, CreditCard } from 'lucide-react';
+import { ShieldCheck, Lock, CheckCircle2, Loader2, ArrowLeft, AlertCircle, CreditCard, Zap } from 'lucide-react';
 
 interface OrderData {
   orderId: string;
@@ -81,20 +81,42 @@ export default function CheckoutPage() {
       .finally(() => setDataLoading(false));
   }, [orderId]);
 
+  const handleSimulatedPay = async () => {
+    if (!order) return;
+    setVerifying(true);
+    setErrorMsg(null);
+
+    try {
+      const confirmRes = await fetch(`/api/orders/${order.orderId}?action=confirm-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: razorpayOrderId || `order_mock_${Date.now()}`,
+          razorpay_payment_id: `pay_mock_${Date.now()}`,
+          razorpay_signature: 'mock',
+        }),
+      });
+
+      const confirmData = await confirmRes.json();
+      if (confirmData.ok) {
+        setSuccess(true);
+        setTimeout(() => {
+          router.push('/wholesaler/orders');
+        }, 1500);
+      } else {
+        setErrorMsg(confirmData.message || 'Simulated payment failed.');
+      }
+    } catch {
+      setErrorMsg('Network error confirming payment.');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   const handlePay = async () => {
     if (!order) return;
     setLoading(true);
     setErrorMsg(null);
-
-    const scriptLoaded = await loadRazorpayScript();
-    if (!scriptLoaded) {
-      setErrorMsg('Could not load Razorpay payment SDK. Please check your network connection.');
-      setLoading(false);
-      return;
-    }
-
-    const key = razorpayKeyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TcMROzxDSVjlR7';
-    const rzpOrderId = razorpayOrderId || order.escrow?.razorpayOrderId;
 
     // If order already paid or in hold
     if (order.escrow?.status === 'PAYMENT_HELD' || order.escrow?.status === 'RELEASED') {
@@ -102,13 +124,26 @@ export default function CheckoutPage() {
       return;
     }
 
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      setErrorMsg('Could not load Razorpay SDK. You can use the Simulated Payment button below.');
+      setLoading(false);
+      return;
+    }
+
+    const key = razorpayKeyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TcMROzxDSVjlR7';
+    const rzpOrderId = razorpayOrderId || order.escrow?.razorpayOrderId;
+
+    // Only pass order_id to Razorpay if it is a real Razorpay server-created order ID (not mock)
+    const isRealRzpOrderId = rzpOrderId && !rzpOrderId.startsWith('order_mock_');
+
     const options = {
       key,
       amount: order.total,
       currency: 'INR',
       name: 'Agri Route Escrow',
       description: `Escrow Hold Deposit · Order #${order.orderId}`,
-      order_id: rzpOrderId || undefined,
+      order_id: isRealRzpOrderId ? rzpOrderId : undefined,
       handler: async function (response: any) {
         try {
           setVerifying(true);
@@ -116,9 +151,9 @@ export default function CheckoutPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
+              razorpay_order_id: response.razorpay_order_id || rzpOrderId || `order_mock_${Date.now()}`,
               razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
+              razorpay_signature: response.razorpay_signature || 'mock',
             }),
           });
           const confirmData = await confirmRes.json();
@@ -153,13 +188,13 @@ export default function CheckoutPage() {
     try {
       const rzp = new (window as any).Razorpay(options);
       rzp.on('payment.failed', function (response: any) {
-        setErrorMsg(response.error?.description || 'Payment was cancelled or declined.');
+        setErrorMsg(response.error?.description || 'Payment was cancelled or test mode encountered an issue. You can complete the demo using Simulated Payment.');
         setLoading(false);
       });
       rzp.open();
     } catch (err) {
       console.error('Razorpay invocation error:', err);
-      setErrorMsg('Failed to open Razorpay payment modal.');
+      setErrorMsg('Failed to open Razorpay modal. Please use the Simulated Payment button.');
       setLoading(false);
     }
   };
@@ -271,28 +306,40 @@ export default function CheckoutPage() {
               <p className="text-xs opacity-90">Redirecting to your active shipments...</p>
             </div>
           ) : (
-            <button
-              onClick={handlePay}
-              disabled={loading || verifying}
-              className="w-full py-4 px-6 bg-earth text-white font-bold text-sm rounded-xl hover:bg-earth-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
-            >
-              {verifying ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Verifying Escrow Signature...</span>
-                </>
-              ) : loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Opening Razorpay Gateway...</span>
-                </>
-              ) : (
-                <>
-                  <CreditCard className="w-4 h-4" />
-                  <span>Pay {formatCurrency(orderTotalPaise)} via Razorpay</span>
-                </>
-              )}
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={handlePay}
+                disabled={loading || verifying}
+                className="w-full py-4 px-6 bg-earth text-white font-bold text-sm rounded-xl hover:bg-earth-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                {verifying ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Securing Escrow Deposit...</span>
+                  </>
+                ) : loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Opening Razorpay Gateway...</span>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4" />
+                    <span>Pay {formatCurrency(orderTotalPaise)} via Razorpay</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSimulatedPay}
+                disabled={loading || verifying}
+                className="w-full py-3 px-4 bg-paper hover:bg-paper-dark border border-earth/30 text-earth font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                <span>Simulate Escrow Hold (Demo / Sandbox Mode)</span>
+              </button>
+            </div>
           )}
         </div>
       </main>

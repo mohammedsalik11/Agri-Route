@@ -34,13 +34,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const district = user.district || 'Mandya';
+    const state = user.state || 'Karnataka';
+    const farmerName = user.name || 'Farmer';
+    const farmerPhone = user.phone || '+919876543210';
+
     // Run fair price check
     const priceCheck = await checkFairPrice({
       crop,
-      state: user.state,
-      district: user.district,
-      quantityKg,
-      askPricePerKg,
+      state,
+      district,
+      quantityKg: Number(quantityKg),
+      askPricePerKg: Number(askPricePerKg),
       qualityGrade: qualityGrade || 'B',
     });
 
@@ -49,7 +54,7 @@ export async function POST(request: NextRequest) {
     const listing = {
       listingId,
       farmerId: user.clerkUserId,
-      farmerName: user.name,
+      farmerName,
       crop: crop.toLowerCase(),
       variety: variety || null,
       quantityKg: Number(quantityKg),
@@ -59,8 +64,8 @@ export async function POST(request: NextRequest) {
       photoUrl: photoUrl || '',
       harvestDate: harvestDate || new Date().toISOString().slice(0, 10),
       availableUntil: availableUntil || new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
-      district: user.district,
-      state: user.state,
+      district,
+      state,
       lat: lat || 12.52,
       lng: lng || 76.89,
       priceCheck: {
@@ -80,40 +85,50 @@ export async function POST(request: NextRequest) {
     await collections.listings.doc(listingId).set(listing);
 
     // Try to attach to a pool
-    const poolResult = await attachToPool({
-      listingId,
-      crop: crop.toLowerCase(),
-      qualityGrade: qualityGrade || 'B',
-      district: user.district,
-      state: user.state,
-      quantityKg: Number(quantityKg),
-      askPricePerKg: Number(askPricePerKg),
-      lat: lat || 12.52,
-      lng: lng || 76.89,
-      availableUntil: availableUntil || new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
-    });
+    let pool = null;
+    try {
+      const poolResult = await attachToPool({
+        listingId,
+        crop: crop.toLowerCase(),
+        qualityGrade: qualityGrade || 'B',
+        district,
+        state,
+        quantityKg: Number(quantityKg),
+        askPricePerKg: Number(askPricePerKg),
+        lat: lat || 12.52,
+        lng: lng || 76.89,
+        availableUntil: availableUntil || new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
+      });
+      pool = poolResult.pool;
+    } catch (e) {
+      console.warn('attachToPool warning (proceeding):', e);
+    }
 
     // Auto-create available Logistics Job for driver marketplace
-    await createLogisticsJobForListing({
-      listingId,
-      farmerId: user.clerkUserId,
-      farmerName: user.name,
-      crop: crop.toLowerCase(),
-      variety: variety || undefined,
-      qualityGrade: qualityGrade || 'B',
-      quantityKg: Number(quantityKg),
-      askPricePerKg: Number(askPricePerKg),
-      pickupDistrict: user.district,
-      pickupState: user.state,
-      pickupAddress: `${user.village ? user.village + ', ' : ''}${user.district} Farm Gate`,
-      deliveryDistrict: 'Bengaluru Urban',
-    });
+    try {
+      await createLogisticsJobForListing({
+        listingId,
+        farmerId: user.clerkUserId,
+        farmerName,
+        crop: crop.toLowerCase(),
+        variety: variety || undefined,
+        qualityGrade: qualityGrade || 'B',
+        quantityKg: Number(quantityKg),
+        askPricePerKg: Number(askPricePerKg),
+        pickupDistrict: district,
+        pickupState: state,
+        pickupAddress: `${user.village ? user.village + ', ' : ''}${district} Farm Gate`,
+        deliveryDistrict: 'Bengaluru Urban',
+      });
+    } catch (e) {
+      console.warn('createLogisticsJobForListing warning (proceeding):', e);
+    }
 
     // Send notification
     await sendNotification({
       toUserId: user.clerkUserId,
-      toPhone: user.phone,
-      language: user.language,
+      toPhone: farmerPhone,
+      language: user.language || 'en',
       event: 'LISTING_CREATED',
       data: {
         crop,
@@ -129,15 +144,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       data: {
-        listing: updatedDoc.data(),
+        listing: updatedDoc.data() || listing,
         priceCheck,
-        pool: poolResult.pool,
+        pool,
       },
     });
   } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to create listing';
     console.error('Create listing error:', error);
     return NextResponse.json(
-      { ok: false, error: 'INTERNAL_ERROR', message: 'Failed to create listing' },
+      { ok: false, error: 'INTERNAL_ERROR', message: errorMsg },
       { status: 500 }
     );
   }

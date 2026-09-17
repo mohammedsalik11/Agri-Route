@@ -40,12 +40,14 @@ export default function LotDetailPage() {
   const [crop, setCrop] = useState('tomato');
   const [district, setDistrict] = useState('Mandya');
   const [qualityGrade, setQualityGrade] = useState('A');
+  const [poolStatus, setPoolStatus] = useState<string>('open');
   const [members, setMembers] = useState<MemberFarmer[]>([]);
   const [poolPricePaise, setPoolPricePaise] = useState(1460);
   const [offerPrice, setOfferPrice] = useState('14.00');
   const [message, setMessage] = useState('');
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [offerStatusMsg, setOfferStatusMsg] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [buyErrorMsg, setBuyErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!poolId) return;
@@ -58,6 +60,7 @@ export default function LotDetailPage() {
           setCrop(p.crop || 'produce');
           setDistrict(p.district || 'Karnataka');
           setQualityGrade(p.qualityGrade || 'A');
+          setPoolStatus(p.status || 'open');
           setPoolPricePaise(p.poolPricePerKg || 1400);
           setOfferPrice(((p.poolPricePerKg || 1400) / 100).toFixed(2));
 
@@ -88,6 +91,7 @@ export default function LotDetailPage() {
 
   const handleCreateOrder = async () => {
     setLoading(true);
+    setBuyErrorMsg(null);
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -98,14 +102,15 @@ export default function LotDetailPage() {
         }),
       });
       const data = await res.json();
-      if (data.ok && data.data?.order?.orderId) {
-        router.push(`/wholesaler/checkout/${data.data.order.orderId}`);
+      const targetOrderId = data.data?.order?.orderId || data.data?.orders?.[0]?.orderId;
+      if (data.ok && targetOrderId) {
+        router.push(`/wholesaler/checkout/${targetOrderId}`);
       } else {
-        alert(data.message || 'Failed to initialize order. Please try again.');
+        setBuyErrorMsg(data.message || 'Failed to initialize order. Please try again.');
         setLoading(false);
       }
     } catch {
-      alert('Network error. Failed to initialize order.');
+      setBuyErrorMsg('Network error. Failed to initialize order.');
       setLoading(false);
     }
   };
@@ -318,6 +323,13 @@ export default function LotDetailPage() {
               <span className="text-earth text-base">{formatCurrency(totalOrderPaise)}</span>
             </div>
           </div>
+
+          {buyErrorMsg && (
+            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{buyErrorMsg}</span>
+            </div>
+          )}
 
           <div className="pt-3 flex gap-2">
             <button

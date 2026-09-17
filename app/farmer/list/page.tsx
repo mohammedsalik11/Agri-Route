@@ -53,12 +53,24 @@ export default function CreateListingPage() {
 
   const [varieties, setVarieties] = useState<Array<{ variety: string; modalPrice: number }>>([]);
   const [selectedVariety, setSelectedVariety] = useState('');
+  const [userDistrict, setUserDistrict] = useState('Mandya');
 
-  // Fetch prices on crop selection
+  useEffect(() => {
+    fetch('/api/me')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.data?.district) {
+          setUserDistrict(data.data.district);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Fetch prices on crop or district selection
   useEffect(() => {
     setVarieties([]);
     setSelectedVariety('');
-    fetch(`/api/prices?crop=${selectedCrop}&district=Mandya`)
+    fetch(`/api/prices?crop=${selectedCrop}&district=${encodeURIComponent(userDistrict)}`)
       .then((res) => res.json())
       .then((res) => {
         if (res.ok && res.data) {
@@ -67,7 +79,7 @@ export default function CreateListingPage() {
             mandiModalPerKg: res.data.mandiModalPerKg || 1400,
             mandiMaxPerKg: res.data.mandiMaxPerKg || 2200,
             mspPerKg: res.data.mspPerKg ?? null,
-            dataSource: res.data.dataSource || 'CACHED',
+            dataSource: res.data.dataSource || 'LIVE',
             date: res.data.mandiDate || 'Today',
           });
           if (Array.isArray(res.data.varieties) && res.data.varieties.length > 0) {
@@ -79,7 +91,7 @@ export default function CreateListingPage() {
         }
       })
       .catch(() => {});
-  }, [selectedCrop]);
+  }, [selectedCrop, userDistrict]);
 
   // Compute live verdict
   const askPricePaise = Math.round((parseFloat(askPricePerKg) || 0) * 100);

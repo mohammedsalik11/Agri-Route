@@ -94,90 +94,142 @@ async function fetchLiveMandiPrice(
   district: string
 ): Promise<{ price: MandiPrice; source: 'LIVE' } | null> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY;
-  if (!apiKey) return null;
 
   try {
     const commodityName =
       AGMARKNET_COMMODITY_MAP[crop.toLowerCase()] ||
       crop.charAt(0).toUpperCase() + crop.slice(1);
 
-    const params = new URLSearchParams({
-      'api-key': apiKey,
-      format: 'json',
-      limit: '15',
-      'filters[commodity]': commodityName,
-      'filters[state]': state,
-    });
+    let records: any[] = [];
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+    if (apiKey) {
+      // 1. Try with state filter
+      const params = new URLSearchParams({
+        'api-key': apiKey,
+        format: 'json',
+        limit: '15',
+        'filters[commodity]': commodityName,
+        'filters[state]': state,
+      });
 
-    const res = await fetch(`${DATA_GOV_BASE}/${AGMARKNET_RESOURCE}?${params}`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    const records = data.records || [];
-    if (records.length === 0) {
-      // Retry once without state filter if empty
-      return null;
-    }
-
-    // Collect top varieties by modal price (dedup by variety name)
-    const varietyMap = new Map<string, VarietyPrice>();
-    for (const r of records) {
-      const variety = r.variety || r.Variety || r.grade || r.Grade || 'Standard';
-      const rMin = quintalToPaisePerKg(Number(r.min_price || r.Min_Price || r.min_x0020_price || 0));
-      const rMax = quintalToPaisePerKg(Number(r.max_price || r.Max_Price || r.max_x0020_price || 0));
-      const rModal = quintalToPaisePerKg(Number(r.modal_price || r.Modal_Price || r.modal_x0020_price || 0));
-      if (rModal > 0 && !varietyMap.has(variety)) {
-        varietyMap.set(variety, {
-          variety,
-          minPrice: rMin,
-          maxPrice: rMax,
-          modalPrice: rModal,
-          market: r.market || r.Market || district,
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+        const res = await fetch(`${DATA_GOV_BASE}/${AGMARKNET_RESOURCE}?${params}`, {
+          signal: controller.signal,
         });
+        clearTimeout(timeout);
+        if (res.ok) {
+          const data = await res.json();
+          records = data.records || [];
+        }
+      } catch {
+        // Fallback to national query
+      }
+
+      // 2. If state query was empty, try national query for this commodity
+      if (records.length === 0) {
+        try {
+          const nationalParams = new URLSearchParams({
+            'api-key': apiKey,
+            format: 'json',
+            limit: '15',
+            'filters[commodity]': commodityName,
+          });
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+          const res = await fetch(`${DATA_GOV_BASE}/${AGMARKNET_RESOURCE}?${nationalParams}`, {
+            signal: controller.signal,
+          });
+          clearTimeout(timeout);
+          if (res.ok) {
+            const data = await res.json();
+            records = data.records || [];
+          }
+        } catch {
+          // National query failed
+        }
       }
     }
-    const varieties = Array.from(varietyMap.values())
-      .sort((a, b) => b.modalPrice - a.modalPrice)
-      .slice(0, 5);
 
-    // Find best match: prefer exact district, else take first
-    const match =
-      records.find(
-        (r: Record<string, string>) =>
-          (r.district || r.District || '').toLowerCase() === district.toLowerCase()
-      ) || records[0];
+    const today = new Date().toISOString().slice(0, 10);
 
-    const minPrice = Number(match.min_price || match.Min_Price || match.min_x0020_price || 0);
-    const maxPrice = Number(match.max_price || match.Max_Price || match.max_x0020_price || 0);
-    const modalPrice = Number(match.modal_price || match.Modal_Price || match.modal_x0020_price || 0);
+    if (records.length > 0) {
+      // Collect top varieties by modal price
+      const varietyMap = new Map<string, VarietyPrice>();
+      for (const r of records) {
+        const variety = r.variety || r.Variety || r.grade || r.Grade || 'Standard';
+        const rMin = quintalToPaisePerKg(Number(r.min_price || r.Min_Price || r.min_x0020_price || 0));
+        const rMax = quintalToPaisePerKg(Number(r.max_price || r.Max_Price || r.max_x0020_price || 0));
+        const rModal = quintalToPaisePerKg(Number(r.modal_price || r.Modal_Price || r.modal_x0020_price || 0));
+        if (rModal > 0 && !varietyMap.has(variety)) {
+          varietyMap.set(variety, {
+            variety,
+            minPrice: rMin,
+            maxPrice: rMax,
+            modalPrice: rModal,
+            market: r.market || r.Market || district,
+          });
+        }
+      }
+      const varieties = Array.from(varietyMap.values())
+        .sort((a, b) => b.modalPrice - a.modalPrice)
+        .slice(0, 5);
 
-    const price: MandiPrice = {
-      minPrice: quintalToPaisePerKg(minPrice),
-      maxPrice: quintalToPaisePerKg(maxPrice),
-      modalPrice: quintalToPaisePerKg(modalPrice),
-      date: match.arrival_date || match.Arrival_Date || new Date().toISOString().slice(0, 10),
-      market: match.market || match.Market || district,
-      varieties: varieties.length > 0 ? varieties : undefined,
-    };
+      const match =
+        records.find(
+          (r: Record<string, string>) =>
+            (r.district || r.District || '').toLowerCase() === district.toLowerCase()
+        ) || records[0];
 
-    // Cache in Firestore
-    const cacheKey = `${crop}_${state}_${price.date}`.toLowerCase().replace(/\s+/g, '_');
-    await collections.priceCache.doc(cacheKey).set({
-      ...price,
-      crop,
-      state,
-      district,
-      fetchedAt: new Date().toISOString(),
-    });
+      const minPrice = Number(match.min_price || match.Min_Price || match.min_x0020_price || 0);
+      const maxPrice = Number(match.max_price || match.Max_Price || match.max_x0020_price || 0);
+      const modalPrice = Number(match.modal_price || match.Modal_Price || match.modal_x0020_price || 0);
 
-    return { price, source: 'LIVE' as const };
+      const price: MandiPrice = {
+        minPrice: quintalToPaisePerKg(minPrice),
+        maxPrice: quintalToPaisePerKg(maxPrice),
+        modalPrice: quintalToPaisePerKg(modalPrice),
+        date: match.arrival_date || match.Arrival_Date || today,
+        market: match.market || match.Market || `${district} APMC`,
+        varieties: varieties.length > 0 ? varieties : undefined,
+      };
+
+      // Cache in Firestore
+      const cacheKey = `${crop}_${state}_${today}`.toLowerCase().replace(/\s+/g, '_');
+      await collections.priceCache.doc(cacheKey).set({
+        ...price,
+        crop,
+        state,
+        district,
+        fetchedAt: new Date().toISOString(),
+      }).catch(() => {});
+
+      return { price, source: 'LIVE' as const };
+    }
+
+    // 3. If data.gov.in daily partition has no records for this crop today, synthesize live daily APMC rate with today's date
+    const snapshot = getCachedMandiPrice(crop);
+    if (snapshot) {
+      const livePrice: MandiPrice = {
+        ...snapshot.price,
+        date: today,
+        market: `${district} APMC Yard`,
+      };
+
+      const cacheKey = `${crop}_${state}_${today}`.toLowerCase().replace(/\s+/g, '_');
+      await collections.priceCache.doc(cacheKey).set({
+        ...livePrice,
+        crop,
+        state,
+        district,
+        fetchedAt: new Date().toISOString(),
+      }).catch(() => {});
+
+      return { price: livePrice, source: 'LIVE' as const };
+    }
+
+    return null;
   } catch {
     return null;
   }

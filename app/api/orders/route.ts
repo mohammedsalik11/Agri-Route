@@ -45,6 +45,23 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ ok: false, error: 'NOT_FOUND', message: `Pool ${sourceId} not found` }, { status: 404 });
         }
         const pool = poolDoc.data()!;
+
+        // If the pool was already locked, check if this buyer has an active unpaid order for it to resume checkout
+        if (pool.status === 'locked') {
+          const existingOrderSnap = await collections.orders
+            .where('buyerId', '==', user.clerkUserId)
+            .where('source.id', '==', sourceId)
+            .where('escrow.status', '==', 'CREATED')
+            .limit(1)
+            .get();
+
+          if (!existingOrderSnap.empty) {
+            const existingOrder = existingOrderSnap.docs[0].data();
+            createdOrders.push(existingOrder);
+            continue;
+          }
+        }
+
         if (pool.status !== 'ready' && pool.status !== 'open') {
           return NextResponse.json({ ok: false, error: 'POOL_NOT_AVAILABLE', message: `Pool ${sourceId} is not available` }, { status: 400 });
         }
@@ -71,6 +88,23 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ ok: false, error: 'NOT_FOUND', message: `Listing ${sourceId} not found` }, { status: 404 });
         }
         const listing = listingDoc.data()!;
+
+        // If listing was already locked, check if this buyer has an active unpaid order for it to resume checkout
+        if (listing.status === 'locked') {
+          const existingOrderSnap = await collections.orders
+            .where('buyerId', '==', user.clerkUserId)
+            .where('source.id', '==', sourceId)
+            .where('escrow.status', '==', 'CREATED')
+            .limit(1)
+            .get();
+
+          if (!existingOrderSnap.empty) {
+            const existingOrder = existingOrderSnap.docs[0].data();
+            createdOrders.push(existingOrder);
+            continue;
+          }
+        }
+
         if (listing.status !== 'available') {
           return NextResponse.json({ ok: false, error: 'LISTING_NOT_AVAILABLE', message: `Listing ${sourceId} is not available` }, { status: 400 });
         }
