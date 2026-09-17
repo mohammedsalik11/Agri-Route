@@ -528,11 +528,13 @@ export default function CreateListingPage() {
               3. Quantity &amp; Price
             </label>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
               <div>
-                <label className="text-xs font-semibold text-ink block mb-1">
-                  Quantity (kg)
-                </label>
+                <div className="flex items-center justify-between h-5 mb-1.5">
+                  <label className="text-xs font-semibold text-ink">
+                    Quantity (kg)
+                  </label>
+                </div>
                 <div className="relative">
                   <input
                     type="number"
@@ -550,14 +552,14 @@ export default function CreateListingPage() {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-ink block">
+                <div className="flex items-center justify-between h-5 mb-1.5">
+                  <label className="text-xs font-semibold text-ink">
                     Your Ask Price (₹ per kg)
                   </label>
                   <button
                     type="button"
                     onClick={() => setAskPricePerKg((activeVarietyPrice / 100).toFixed(1))}
-                    className="text-[11px] font-bold text-field-green hover:underline"
+                    className="text-[11px] font-bold text-field-green hover:underline leading-none"
                   >
                     Use Mandi (₹{(activeVarietyPrice / 100).toFixed(1)})
                   </button>
