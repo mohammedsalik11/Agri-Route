@@ -18,6 +18,7 @@ import {
   ShoppingCart,
   Plus,
   Check,
+  MessageSquare,
 } from 'lucide-react';
 
 interface MemberFarmer {
@@ -256,6 +257,23 @@ export default function LotDetailPage() {
                 </div>
               );
             })}
+          </div>
+
+          <div className="pt-2 border-t border-border flex justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                router.push(
+                  `/wholesaler/messages?name=${encodeURIComponent(
+                    members[0]?.farmerName || 'Farmer Collective'
+                  )}&crop=${encodeURIComponent(crop)}&poolId=${encodeURIComponent(poolId)}`
+                );
+              }}
+              className="px-3.5 py-2 bg-paper text-ink font-semibold text-xs rounded-xl border border-border hover:bg-stone-100 transition-all flex items-center gap-1.5 shadow-2xs"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-field-green" />
+              <span>Message Farmers about this Lot</span>
+            </button>
           </div>
         </div>
 

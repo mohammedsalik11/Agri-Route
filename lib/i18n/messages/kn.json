@@ -313,5 +313,9 @@
   "verification.booked": "ಪರಿಶೀಲನಾ ಭೇಟಿಯನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ",
   "verification.inspector": "ನಿಯೋಜಿತ ನಿರೀಕ್ಷಕ",
   "verification.pending": "ನಿರೀಕ್ಷಕರನ್ನು ನಿಯೋಜಿಸಲಾಗುತ್ತಿದೆ",
-  "verification.confirmed": "ಪರಿಶೀಲನೆ ದೃಢಪಟ್ಟಿದೆ"
+  "verification.confirmed": "ಪರಿಶೀಲನೆ ದೃಢಪಟ್ಟಿದೆ",
+  "common.messages": "ಸಂದೇಶಗಳು",
+  "common.chat": "ಚಾಟ್",
+  "listing.vehicleCapacity": "ವಾಹನ ಸಾಮರ್ಥ್ಯದ ಮಿತಿ",
+  "listing.searchCrops": "1,000+ ಬೆಳೆಗಳು ಮತ್ತು ವರ್ಗಗಳನ್ನು ಹುಡುಕಿ"
 }

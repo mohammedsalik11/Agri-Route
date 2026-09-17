@@ -313,5 +313,9 @@
   "verification.booked": "Verification Visit Booked",
   "verification.inspector": "Assigned Inspector",
   "verification.pending": "Assigning Inspector",
-  "verification.confirmed": "Inspection Confirmed"
+  "verification.confirmed": "Inspection Confirmed",
+  "common.messages": "Messages",
+  "common.chat": "Chat",
+  "listing.vehicleCapacity": "Vehicle Capacity Limit",
+  "listing.searchCrops": "Search 1,000+ crops & categories"
 }

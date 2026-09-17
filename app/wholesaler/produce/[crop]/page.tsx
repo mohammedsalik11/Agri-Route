@@ -24,6 +24,7 @@ import {
   AlertCircle,
   Loader2,
   ExternalLink,
+  MessageSquare,
 } from 'lucide-react';
 
 interface VarietyPrice {
@@ -559,6 +560,23 @@ export default function VegetableLotsPage() {
 
                         <div className="pt-2 border-t border-border flex gap-2">
                           <button
+                            type="button"
+                            onClick={() => {
+                              router.push(
+                                `/wholesaler/messages?name=${encodeURIComponent(
+                                  listing.farmerName || 'Farmer'
+                                )}&crop=${encodeURIComponent(listing.crop)}&listingId=${encodeURIComponent(
+                                  listing.listingId
+                                )}`
+                              );
+                            }}
+                            className="p-2 rounded-xl border border-border bg-paper hover:bg-stone-100 text-ink-muted hover:text-field-green transition-all flex items-center justify-center shrink-0"
+                            title="Message Farmer"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                          </button>
+
+                          <button
                             onClick={() => {
                               addItem({
                                 sourceType: 'listing',
@@ -571,7 +589,7 @@ export default function VegetableLotsPage() {
                               });
                             }}
                             disabled={inCart}
-                            className={`w-full py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-1 transition-all ${
+                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-1 transition-all ${
                               inCart
                                 ? 'bg-field-green/10 text-field-green border-field-green/30'
                                 : 'bg-earth text-white border-earth hover:bg-earth-light'

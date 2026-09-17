@@ -46,15 +46,7 @@ export const negotiationService = {
     
     const floor = msp !== null ? Math.max(msp, mandi.minPrice) : mandi.minPrice;
     const ceiling = Math.round(mandi.maxPrice * 1.05);
-
-    if (offerPricePerKgPaise < floor || offerPricePerKgPaise > ceiling) {
-      return { 
-        ok: false, 
-        message: `Offer is outside the fair price range (₹${(floor / 100).toFixed(2)} – ₹${(ceiling / 100).toFixed(2)}/kg).`,
-        floor,
-        ceiling
-      };
-    }
+    const isOutsideFairBand = (offerPricePerKgPaise < floor || offerPricePerKgPaise > ceiling);
 
     const docRef = db.collection('negotiations').doc();
     const negotiationId = docRef.id;
@@ -257,13 +249,7 @@ export const negotiationService = {
 
       const floor = data.floorPricePerKgPaise || 0;
       const ceiling = data.ceilingPricePerKgPaise || Infinity;
-
-      if (counterPricePerKgPaise < floor || counterPricePerKgPaise > ceiling) {
-        return {
-          ok: false,
-          message: `Counter-offer of ₹${(counterPricePerKgPaise / 100).toFixed(2)} is outside the fair band (₹${(floor / 100).toFixed(2)} – ₹${(ceiling / 100).toFixed(2)}/kg).`,
-        };
-      }
+      const isOutsideFairBand = (counterPricePerKgPaise < floor || counterPricePerKgPaise > ceiling);
 
       const newRound = currentRound + 1;
       const newExpiresAt = new Date(Date.now() + NEGOTIATION_EXPIRY_HOURS * 60 * 60 * 1000).toISOString();

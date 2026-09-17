@@ -27,9 +27,24 @@ export async function POST(request: NextRequest) {
       lng,
     } = body;
 
-    if (!crop || !quantityKg || !askPricePerKg) {
+    const qty = Number(quantityKg);
+    const ask = Number(askPricePerKg);
+
+    if (!crop || isNaN(qty) || qty <= 0 || isNaN(ask) || ask <= 0) {
       return NextResponse.json(
-        { ok: false, error: 'MISSING_FIELDS', message: 'crop, quantityKg, askPricePerKg required' },
+        { ok: false, error: 'MISSING_FIELDS', message: 'Valid crop, quantityKg, and askPricePerKg required' },
+        { status: 400 }
+      );
+    }
+
+    const MAX_VEHICLE_CAPACITY_KG = 25000;
+    if (qty > MAX_VEHICLE_CAPACITY_KG) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'EXCEEDS_VEHICLE_CAPACITY',
+          message: `Quantity (${qty.toLocaleString()} kg) exceeds maximum transport vehicle capacity (${MAX_VEHICLE_CAPACITY_KG.toLocaleString()} kg).`,
+        },
         { status: 400 }
       );
     }

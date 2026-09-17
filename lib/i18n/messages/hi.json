@@ -313,5 +313,9 @@
   "verification.booked": "सत्यापन विज़िट बुक की गई",
   "verification.inspector": "आवंटित निरीक्षक",
   "verification.pending": "निरीक्षक आवंटित हो रहा है",
-  "verification.confirmed": "निरीक्षण की पुष्टि हुई"
+  "verification.confirmed": "निरीक्षण की पुष्टि हुई",
+  "common.messages": "संदेश",
+  "common.chat": "चैट",
+  "listing.vehicleCapacity": "वाहन क्षमता सीमा",
+  "listing.searchCrops": "1,000+ फसलें और श्रेणियां खोजें"
 }

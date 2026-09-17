@@ -121,6 +121,16 @@ export const Navbar: React.FC = () => {
                 >
                   {t('farmer.dashboard.negotiationInbox')}
                 </Link>
+                <Link
+                  href="/farmer/messages"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/farmer/messages'
+                      ? 'bg-field-green/10 text-field-green font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-field-green hover:bg-black/5'
+                  }`}
+                >
+                  Messages
+                </Link>
               </>
             )}
             {isWholesaler && (
@@ -164,6 +174,16 @@ export const Navbar: React.FC = () => {
                   }`}
                 >
                   {t('farmer.dashboard.negotiationInbox')}
+                </Link>
+                <Link
+                  href="/wholesaler/messages"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/wholesaler/messages'
+                      ? 'bg-earth/10 text-earth font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-earth hover:bg-black/5'
+                  }`}
+                >
+                  Messages
                 </Link>
               </>
             )}
@@ -246,9 +266,9 @@ export const Navbar: React.FC = () => {
               <ShoppingBag className="w-5 h-5" />
               <span>Orders</span>
             </Link>
-            <Link href="/farmer/negotiations" className={`flex flex-col items-center gap-1 w-full ${pathname === '/farmer/negotiations' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>
+            <Link href="/farmer/messages" className={`flex flex-col items-center gap-1 w-full ${pathname === '/farmer/messages' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>
               <MessageSquare className="w-5 h-5" />
-              <span>Chat</span>
+              <span>Messages</span>
             </Link>
           </div>
         ) : isWholesaler ? (
@@ -265,9 +285,9 @@ export const Navbar: React.FC = () => {
               <ShoppingBag className="w-5 h-5" />
               <span>Orders</span>
             </Link>
-            <Link href="/wholesaler/negotiations" className={`flex flex-col items-center gap-1 w-full ${pathname === '/wholesaler/negotiations' ? 'text-earth font-bold' : 'text-ink-muted'}`}>
+            <Link href="/wholesaler/messages" className={`flex flex-col items-center gap-1 w-full ${pathname === '/wholesaler/messages' ? 'text-earth font-bold' : 'text-ink-muted'}`}>
               <MessageSquare className="w-5 h-5" />
-              <span>Chat</span>
+              <span>Messages</span>
             </Link>
           </div>
         ) : isDriver ? (
