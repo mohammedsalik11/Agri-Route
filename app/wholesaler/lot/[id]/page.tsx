@@ -190,6 +190,28 @@ export default function LotDetailPage() {
           </div>
         </div>
 
+        {/* Pickup Centroid & Google Maps Card */}
+        <div className="bg-white rounded-2xl p-5 border border-border shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-earth/10 text-earth flex items-center justify-center">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="font-bold text-ink text-sm block">Farm Gate Collection Centroid</span>
+              <span className="text-ink-muted">{district} Agri-Aggregation Center, Karnataka</span>
+            </div>
+          </div>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(district + ' APMC Yard, Karnataka')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-paper border border-border text-ink hover:border-earth hover:text-earth rounded-xl font-bold transition-all shrink-0 shadow-xs"
+          >
+            <MapPin className="w-3.5 h-3.5 text-earth" />
+            <span>View on Google Maps ↗</span>
+          </a>
+        </div>
+
         {/* Members Breakdown Table */}
         <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-4">
           <div className="flex items-center justify-between">

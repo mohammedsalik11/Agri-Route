@@ -278,6 +278,29 @@ export default function CheckoutPage() {
           </p>
         </div>
 
+        {/* Logistics Route with Google Maps */}
+        <div className="bg-white rounded-2xl p-4 border border-border shadow-xs space-y-2.5 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-ink flex items-center gap-1.5">
+              <span>📍</span>
+              <span>Freight Transit Route</span>
+            </span>
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent((order?.crop || 'Produce') + ' Farm Mandya, Karnataka')}&destination=${encodeURIComponent('APMC Yard Bengaluru, Karnataka')}&travelmode=driving`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-earth font-bold hover:underline inline-flex items-center gap-1"
+            >
+              <span>View on Google Maps ↗</span>
+            </a>
+          </div>
+          <div className="p-3 bg-paper rounded-xl flex items-center justify-between text-[11px] text-ink-muted">
+            <span>Origin: <strong className="text-ink">Mandya Aggregation Hub</strong></span>
+            <span>➔</span>
+            <span>Destination: <strong className="text-ink">Buyer APMC Yard</strong></span>
+          </div>
+        </div>
+
         {/* Payment Summary */}
         <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-4">
           <div className="space-y-2 text-xs">

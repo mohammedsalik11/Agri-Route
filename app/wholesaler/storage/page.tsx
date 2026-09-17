@@ -199,13 +199,24 @@ export default function WholesalerStoragePage() {
                     <span>{fac.district}, Karnataka</span>
                   </div>
 
-                  <a
-                    href={`tel:${fac.contactPhone}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-earth text-white text-xs font-bold rounded-xl hover:bg-earth-light transition-all shadow-xs"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>Contact Facility</span>
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fac.name + ', ' + fac.district + ', Karnataka')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-border text-ink text-xs font-bold rounded-xl hover:border-earth hover:text-earth transition-all shadow-xs"
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-earth" />
+                      <span>Google Maps ↗</span>
+                    </a>
+                    <a
+                      href={`tel:${fac.contactPhone}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-earth text-white text-xs font-bold rounded-xl hover:bg-earth-light transition-all shadow-xs"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Call Facility</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             ))}

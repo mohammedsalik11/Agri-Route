@@ -476,14 +476,26 @@ export default function ColdStoragePage() {
                           <span className="text-ink-muted">
                             Temp: <strong>{fac.tempRangeC[0]}°C – {fac.tempRangeC[1]}°C</strong>
                           </span>
-                          <a
-                            href={`tel:${fac.contactPhone}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-field-green font-bold flex items-center gap-1 hover:underline"
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                            <span>{fac.contactPhone}</span>
-                          </a>
+                          <div className="flex items-center gap-3">
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fac.name + ', ' + fac.district + ', Karnataka')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-field-green font-bold flex items-center gap-1 hover:underline"
+                            >
+                              <MapPin className="w-3.5 h-3.5 text-field-green" />
+                              <span>Maps ↗</span>
+                            </a>
+                            <a
+                              href={`tel:${fac.contactPhone}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-field-green font-bold flex items-center gap-1 hover:underline"
+                            >
+                              <Phone className="w-3.5 h-3.5" />
+                              <span>{fac.contactPhone}</span>
+                            </a>
+                          </div>
                         </div>
                       </div>
                     );
@@ -502,7 +514,19 @@ export default function ColdStoragePage() {
 
             <div className="space-y-3.5 text-xs">
               <div>
-                <label className="font-bold text-ink block mb-1">Select Facility</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold text-ink block">Select Facility</label>
+                  {selectedFacility && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedFacility.name + ', ' + selectedFacility.district + ', Karnataka')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-field-green font-bold hover:underline inline-flex items-center gap-0.5"
+                    >
+                      <span>📍 View on Maps ↗</span>
+                    </a>
+                  )}
+                </div>
                 <select
                   value={selectedFacility?.facilityId || ''}
                   onChange={(e) => {

@@ -361,27 +361,43 @@ export default function DriverDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Route Details */}
+                    {/* Route Details with Google Maps Links */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4 text-xs border-b border-border">
-                      <div className="flex items-start gap-2.5">
-                        <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0 mt-0.5">
-                          <MapPin className="w-3.5 h-3.5" />
+                      <div className="flex items-start gap-2.5 bg-paper/60 p-2.5 rounded-xl border border-border/60">
+                        <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0 mt-0.5">
+                          <MapPin className="w-4 h-4" />
                         </div>
-                        <div>
-                          <p className="font-semibold text-ink">Pickup (Farm Gate)</p>
+                        <div className="flex-1">
+                          <p className="font-bold text-ink">Pickup (Farm Gate)</p>
                           <p className="text-ink-muted">{job.pickupAddress}</p>
                           <p className="text-[11px] text-ink-muted font-medium mt-0.5">{job.pickupDistrict}, {job.pickupState}</p>
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.pickupAddress + ', ' + job.pickupDistrict + ', Karnataka')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-field-green hover:underline mt-1.5"
+                          >
+                            <span>📍 Open Pickup in Google Maps ↗</span>
+                          </a>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 shrink-0 mt-0.5">
-                          <MapPin className="w-3.5 h-3.5" />
+                      <div className="flex items-start gap-2.5 bg-paper/60 p-2.5 rounded-xl border border-border/60">
+                        <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 shrink-0 mt-0.5">
+                          <MapPin className="w-4 h-4" />
                         </div>
-                        <div>
-                          <p className="font-semibold text-ink">Delivery (Wholesaler)</p>
+                        <div className="flex-1">
+                          <p className="font-bold text-ink">Delivery (Wholesaler)</p>
                           <p className="text-ink-muted">{job.deliveryAddress}</p>
                           <p className="text-[11px] text-ink-muted font-medium mt-0.5">{job.deliveryDistrict}, {job.deliveryState}</p>
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.deliveryAddress + ', ' + job.deliveryDistrict + ', Karnataka')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 hover:underline mt-1.5"
+                          >
+                            <span>📍 Open Delivery in Google Maps ↗</span>
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -389,11 +405,11 @@ export default function DriverDashboardPage() {
                     {/* Stepper Progress */}
                     <div className="py-4">
                       <div className="flex items-center justify-between text-[11px] font-semibold text-ink mb-2">
-                        <span className={currentStepIdx >= 0 ? 'text-blue-700' : 'text-ink-muted'}>1. Assigned</span>
-                        <span className={currentStepIdx >= 1 ? 'text-blue-700' : 'text-ink-muted'}>2. En Route</span>
-                        <span className={currentStepIdx >= 2 ? 'text-blue-700' : 'text-ink-muted'}>3. Picked Up</span>
-                        <span className={currentStepIdx >= 3 ? 'text-blue-700' : 'text-ink-muted'}>4. In Transit</span>
-                        <span className={currentStepIdx >= 4 ? 'text-emerald-700' : 'text-ink-muted'}>5. Delivered</span>
+                        <span className={currentStepIdx >= 0 ? 'text-blue-700 font-bold' : 'text-ink-muted'}>1. Assigned</span>
+                        <span className={currentStepIdx >= 1 ? 'text-blue-700 font-bold' : 'text-ink-muted'}>2. En Route</span>
+                        <span className={currentStepIdx >= 2 ? 'text-blue-700 font-bold' : 'text-ink-muted'}>3. Picked Up</span>
+                        <span className={currentStepIdx >= 3 ? 'text-blue-700 font-bold' : 'text-ink-muted'}>4. In Transit</span>
+                        <span className={currentStepIdx >= 4 ? 'text-emerald-700 font-bold' : 'text-ink-muted'}>5. Delivered</span>
                       </div>
                       <div className="w-full h-2 bg-paper rounded-full overflow-hidden">
                         <div
@@ -403,47 +419,59 @@ export default function DriverDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Action Buttons based on status */}
-                    <div className="pt-2 flex flex-wrap items-center justify-end gap-2">
-                      {trip.status === 'assigned' && (
-                        <button
-                          onClick={() => handleTripAction(job.id, trip.tripId, 'en_route_pickup')}
-                          className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1.5"
-                        >
-                          <Navigation className="w-3.5 h-3.5" />
-                          Start Navigation to Farm Gate
-                        </button>
-                      )}
+                    {/* Action Buttons with Google Maps Navigation */}
+                    <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(job.pickupAddress + ', ' + job.pickupDistrict + ', Karnataka')}&destination=${encodeURIComponent(job.deliveryAddress + ', ' + job.deliveryDistrict + ', Karnataka')}&travelmode=driving`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2.5 bg-white border border-border text-ink hover:border-blue-600 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs"
+                      >
+                        <Navigation className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Google Maps Turn-by-Turn ↗</span>
+                      </a>
 
-                      {trip.status === 'en_route_pickup' && (
-                        <button
-                          onClick={() => handleTripAction(job.id, trip.tripId, 'picked_up', 'pickup')}
-                          className="px-4 py-2.5 bg-amber-600 text-white rounded-xl text-xs font-bold hover:bg-amber-700 transition-colors flex items-center gap-1.5"
-                        >
-                          <KeyRound className="w-3.5 h-3.5" />
-                          Arrived & Enter Farmer Pickup OTP
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {trip.status === 'assigned' && (
+                          <button
+                            onClick={() => handleTripAction(job.id, trip.tripId, 'en_route_pickup')}
+                            className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1.5 shadow-xs"
+                          >
+                            <Navigation className="w-3.5 h-3.5" />
+                            Start Navigation to Farm Gate
+                          </button>
+                        )}
 
-                      {trip.status === 'picked_up' && (
-                        <button
-                          onClick={() => handleTripAction(job.id, trip.tripId, 'in_transit')}
-                          className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1.5"
-                        >
-                          <Truck className="w-3.5 h-3.5" />
-                          Depart Farm Gate (Start Transit)
-                        </button>
-                      )}
+                        {trip.status === 'en_route_pickup' && (
+                          <button
+                            onClick={() => handleTripAction(job.id, trip.tripId, 'picked_up', 'pickup')}
+                            className="px-4 py-2.5 bg-amber-600 text-white rounded-xl text-xs font-bold hover:bg-amber-700 transition-colors flex items-center gap-1.5 shadow-xs"
+                          >
+                            <KeyRound className="w-3.5 h-3.5" />
+                            Arrived & Enter Farmer Pickup OTP
+                          </button>
+                        )}
 
-                      {trip.status === 'in_transit' && (
-                        <button
-                          onClick={() => handleTripAction(job.id, trip.tripId, 'delivered', 'delivery')}
-                          className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors flex items-center gap-1.5"
-                        >
-                          <ShieldCheck className="w-3.5 h-3.5" />
-                          Arrived & Enter Buyer Delivery OTP
-                        </button>
-                      )}
+                        {trip.status === 'picked_up' && (
+                          <button
+                            onClick={() => handleTripAction(job.id, trip.tripId, 'in_transit')}
+                            className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1.5 shadow-xs"
+                          >
+                            <Truck className="w-3.5 h-3.5" />
+                            Depart Farm Gate (Start Transit)
+                          </button>
+                        )}
+
+                        {trip.status === 'in_transit' && (
+                          <button
+                            onClick={() => handleTripAction(job.id, trip.tripId, 'delivered', 'delivery')}
+                            className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-xs"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            Arrived & Enter Buyer Delivery OTP
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
