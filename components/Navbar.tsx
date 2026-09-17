@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage, useT } from '@/lib/i18n/LanguageProvider';
 import { UserButton } from '@clerk/nextjs';
-import { Sprout, Store, Globe, List, Users, ShoppingBag, MessageSquare, Warehouse, Award } from 'lucide-react';
+import { Sprout, Store, Globe, List, Users, ShoppingBag, MessageSquare, Warehouse, Award, Truck, UserCheck } from 'lucide-react';
 import type { Language } from '@/lib/i18n/LanguageProvider';
 
 export const Navbar: React.FC = () => {
@@ -234,6 +234,22 @@ export const Navbar: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Switch Role / Edit Profile */}
+            <Link
+              href="/onboarding"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper/80 border border-border text-xs font-semibold text-ink hover:border-field-green hover:bg-field-green/5 transition-all shadow-xs"
+              title="Change Role or Profile Inputs"
+            >
+              {isFarmer && <Sprout className="w-3.5 h-3.5 text-field-green" />}
+              {isWholesaler && <Store className="w-3.5 h-3.5 text-earth" />}
+              {isDriver && <Truck className="w-3.5 h-3.5 text-blue-600" />}
+              {!isFarmer && !isWholesaler && !isDriver && <UserCheck className="w-3.5 h-3.5 text-field-green" />}
+              <span className="font-semibold capitalize">
+                {isFarmer ? 'Farmer' : isWholesaler ? 'Wholesaler' : isDriver ? 'Driver' : 'Profile'}
+              </span>
+              <span className="text-[10px] text-ink-muted font-normal">(Role)</span>
+            </Link>
 
             <UserButton />
           </div>

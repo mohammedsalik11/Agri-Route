@@ -8,7 +8,7 @@ export default function AuthCallbackPage() {
   const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'redirecting' | 'ready'>('loading');
   const [deepLinkUrl, setDeepLinkUrl] = useState<string>('agriroute://');
-  const [webFallbackUrl, setWebFallbackUrl] = useState<string>('/farmer');
+  const [webFallbackUrl, setWebFallbackUrl] = useState<string>('/onboarding');
   const [userName, setUserName] = useState<string>('');
 
   useEffect(() => {
@@ -24,11 +24,7 @@ export default function AuthCallbackPage() {
           const userId = profile.clerkUserId || '';
 
           setUserName(name);
-
-          let webDest = '/farmer';
-          if (role === 'wholesaler') webDest = '/wholesaler';
-          if (role === 'logistics_driver') webDest = '/driver';
-          setWebFallbackUrl(webDest);
+          setWebFallbackUrl('/onboarding');
 
           // Deep link back into native Android Jetpack Compose app
           const appLink = `agriroute://auth-callback?role=${encodeURIComponent(role)}&name=${encodeURIComponent(name)}&district=${encodeURIComponent(district)}&idNumber=${encodeURIComponent(idNumber)}&userId=${encodeURIComponent(userId)}`;

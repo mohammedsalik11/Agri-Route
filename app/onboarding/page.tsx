@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useT, useLanguage } from '@/lib/i18n/LanguageProvider';
-import { Sprout, Store, Truck, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
+import { Sprout, Store, Truck, AlertCircle, Loader2, CheckCircle, Info, Sparkles, ArrowLeft } from 'lucide-react';
 
 const DISTRICTS_KA = [
   'Bagalkot', 'Ballari', 'Belagavi', 'Bengaluru Rural', 'Bengaluru Urban',
@@ -19,6 +19,24 @@ const CROP_OPTIONS = [
   'Banana', 'Brinjal', 'Cabbage', 'Cauliflower', 'Groundnut',
   'Soybean', 'Sugarcane', 'Cotton',
 ];
+
+const DEMO_PRESETS = {
+  farmer: [
+    { id: 'KA-MAN-2026-004417', name: 'Lakshmamma', district: 'Mandya', village: 'Dudda', acres: '3.5', crops: ['Tomato', 'Paddy', 'Ragi'] },
+    { id: 'KA-MYS-2026-001001', name: 'Mahesh Kumar', district: 'Mysuru', village: 'Nanjangud', acres: '5.0', crops: ['Banana', 'Wheat', 'Maize'] },
+    { id: 'KA-HAS-2026-002001', name: 'Eregowda', district: 'Hassan', village: 'Alur', acres: '4.2', crops: ['Potato', 'Maize', 'Sugarcane'] },
+  ],
+  wholesaler: [
+    { id: 'WS-KA-2026-1183', name: 'Suresh Kumar', businessName: 'Suresh Traders', district: 'Bengaluru Urban', gstin: '29AAAAA1183A1Z5' },
+    { id: 'WS-KA-2026-1188', name: 'Raghavendra Rao', businessName: 'Mysuru Grain Merchants', district: 'Mysuru', gstin: '29BBBBB1188B1Z2' },
+    { id: 'WS-KA-2026-1191', name: 'Prashanth Shetty', businessName: 'Mangala Fresh Produce', district: 'Dakshina Kannada', gstin: '29CCCCC1191C1Z9' },
+  ],
+  logistics_driver: [
+    { id: 'DRV-KA-2026-1042', name: 'Ramesh Gowda', district: 'Mandya', vehicleType: 'truck' as const, vehicleNumber: 'KA-11-E-4281', vehicleCapacityKg: '5000', isRefrigerated: false },
+    { id: 'DRV-KA-2026-2189', name: 'Manjunath K', district: 'Mandya', vehicleType: 'mini_truck' as const, vehicleNumber: 'KA-11-TR-9021', vehicleCapacityKg: '2500', isRefrigerated: true },
+    { id: 'DRV-KA-2026-3351', name: 'Siddaraju N', district: 'Mysuru', vehicleType: 'truck' as const, vehicleNumber: 'KA-09-MA-1144', vehicleCapacityKg: '6000', isRefrigerated: false },
+  ],
+};
 
 export default function OnboardingPage() {
   const { t } = useT();
@@ -45,18 +63,31 @@ export default function OnboardingPage() {
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1); // Step 1: role select, Step 2: details
 
-  // Check if already onboarded in DB or read intended role from cookie
+  // Pre-load existing profile data so the user can review/update inputs, but NEVER auto-redirect away
   useEffect(() => {
     fetch('/api/me')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data?.ok && data.data?.role) {
-          document.cookie = `userRole=${data.data.role};path=/;max-age=${60 * 60 * 24 * 365}`;
-          let dest = '/farmer';
-          if (data.data.role === 'wholesaler') dest = '/wholesaler';
-          if (data.data.role === 'logistics_driver') dest = '/driver';
-          router.replace(dest);
-          return;
+        if (data?.ok && data.data) {
+          const profile = data.data;
+          if (profile.role) setRole(profile.role);
+          if (profile.name) setName(profile.name);
+          if (profile.district) setDistrict(profile.district);
+          if (profile.state) setState(profile.state || 'Karnataka');
+          if (profile.farmerId) setIdNumber(profile.farmerId);
+          if (profile.wholesalerId) setIdNumber(profile.wholesalerId);
+          if (profile.driverId) setIdNumber(profile.driverId);
+          if (profile.village) setVillage(profile.village);
+          if (profile.landSizeAcres) setLandSizeAcres(String(profile.landSizeAcres));
+          if (profile.primaryCrops && Array.isArray(profile.primaryCrops)) {
+            setSelectedCrops(profile.primaryCrops.map((c: string) => c.charAt(0).toUpperCase() + c.slice(1)));
+          }
+          if (profile.businessName) setBusinessName(profile.businessName);
+          if (profile.gstin) setGstin(profile.gstin);
+          if (profile.vehicleType) setVehicleType(profile.vehicleType);
+          if (profile.vehicleNumber) setVehicleNumber(profile.vehicleNumber);
+          if (profile.vehicleCapacityKg) setVehicleCapacityKg(String(profile.vehicleCapacityKg));
+          if (profile.isRefrigerated !== undefined) setIsRefrigerated(profile.isRefrigerated);
         }
       })
       .catch(() => {});
@@ -67,10 +98,9 @@ export default function OnboardingPage() {
       const val = roleCookie.split('=')[1];
       if (val === 'wholesaler' || val === 'farmer' || val === 'logistics_driver') {
         setRole(val);
-        setStep(2);
       }
     }
-  }, [router]);
+  }, []);
 
   const toggleCrop = (crop: string) => {
     setSelectedCrops((prev) =>
@@ -82,6 +112,26 @@ export default function OnboardingPage() {
     setRole(r);
     setError(null);
     setStep(2);
+  };
+
+  const applyPreset = (preset: any) => {
+    setName(preset.name || '');
+    setIdNumber(preset.id || '');
+    setDistrict(preset.district || 'Mandya');
+    if (role === 'farmer') {
+      setVillage(preset.village || '');
+      setLandSizeAcres(preset.acres || '3.5');
+      setSelectedCrops(preset.crops || ['Tomato']);
+    } else if (role === 'wholesaler') {
+      setBusinessName(preset.businessName || '');
+      setGstin(preset.gstin || '');
+    } else if (role === 'logistics_driver') {
+      setVehicleType(preset.vehicleType || 'truck');
+      setVehicleNumber(preset.vehicleNumber || 'KA-11-E-4281');
+      setVehicleCapacityKg(preset.vehicleCapacityKg || '5000');
+      setIsRefrigerated(preset.isRefrigerated || false);
+    }
+    setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -181,7 +231,7 @@ export default function OnboardingPage() {
   // Step 1: Role selection
   if (step === 1) {
     return (
-      <main className="min-h-screen bg-paper flex flex-col items-center justify-center px-6 py-12">
+      <main className="min-h-screen bg-paper flex flex-col items-center justify-center px-4 py-12">
         <div className="text-center mb-8 flex flex-col items-center">
           <div className="w-20 h-20 rounded-2xl bg-white p-2.5 border border-border shadow-md mb-3.5 flex items-center justify-center">
             <img
@@ -194,43 +244,58 @@ export default function OnboardingPage() {
           <p className="text-xs text-ink-muted mt-1">{t('app.tagline')}</p>
         </div>
 
-        <div className="w-full max-w-sm space-y-4">
+        <div className="w-full max-w-md space-y-3.5">
           <button
             onClick={() => handleRoleSelect('farmer')}
-            className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border hover:border-field-green hover:shadow-md transition-all active:scale-[0.98]"
+            className={`w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
+              role === 'farmer' ? 'border-field-green bg-field-green/5' : 'border-border hover:border-field-green hover:shadow-md'
+            }`}
           >
-            <div className="w-12 h-12 rounded-xl bg-field-green/10 flex items-center justify-center">
-              <Sprout className="w-6 h-6 text-field-green" />
+            <div className="w-12 h-12 rounded-xl bg-field-green/10 text-field-green flex items-center justify-center shrink-0">
+              <Sprout className="w-6 h-6" />
             </div>
-            <div className="text-left">
-              <p className="font-bold text-ink text-base">{t('role.farmer')}</p>
-              <p className="text-xs text-ink-muted">{t('role.farmerDesc')}</p>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <p className="font-bold text-ink text-base">{t('role.farmer')}</p>
+                <span className="text-[11px] font-semibold text-field-green bg-field-green/10 px-2 py-0.5 rounded-md">Producer</span>
+              </div>
+              <p className="text-xs text-ink-muted mt-0.5">{t('role.farmerDesc')}</p>
             </div>
           </button>
 
           <button
             onClick={() => handleRoleSelect('wholesaler')}
-            className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border hover:border-earth hover:shadow-md transition-all active:scale-[0.98]"
+            className={`w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
+              role === 'wholesaler' ? 'border-earth bg-earth/5' : 'border-border hover:border-earth hover:shadow-md'
+            }`}
           >
-            <div className="w-12 h-12 rounded-xl bg-earth/10 flex items-center justify-center">
-              <Store className="w-6 h-6 text-earth" />
+            <div className="w-12 h-12 rounded-xl bg-earth/10 text-earth flex items-center justify-center shrink-0">
+              <Store className="w-6 h-6" />
             </div>
-            <div className="text-left">
-              <p className="font-bold text-ink text-base">{t('role.wholesaler')}</p>
-              <p className="text-xs text-ink-muted">{t('role.wholesalerDesc')}</p>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <p className="font-bold text-ink text-base">{t('role.wholesaler')}</p>
+                <span className="text-[11px] font-semibold text-earth bg-earth/10 px-2 py-0.5 rounded-md">Buyer</span>
+              </div>
+              <p className="text-xs text-ink-muted mt-0.5">{t('role.wholesalerDesc')}</p>
             </div>
           </button>
 
           <button
             onClick={() => handleRoleSelect('logistics_driver')}
-            className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border hover:border-blue-600 hover:shadow-md transition-all active:scale-[0.98]"
+            className={`w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
+              role === 'logistics_driver' ? 'border-blue-600 bg-blue-50/50' : 'border-border hover:border-blue-600 hover:shadow-md'
+            }`}
           >
-            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Truck className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <Truck className="w-6 h-6" />
             </div>
-            <div className="text-left">
-              <p className="font-bold text-ink text-base">{t('role.driver') || 'Logistics Driver'}</p>
-              <p className="text-xs text-ink-muted">{t('role.driverDesc') || 'Deliver produce and earn per trip'}</p>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <p className="font-bold text-ink text-base">{t('role.driver') || 'Logistics Driver'}</p>
+                <span className="text-[11px] font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">Transporter</span>
+              </div>
+              <p className="text-xs text-ink-muted mt-0.5">{t('role.driverDesc') || 'Deliver produce and earn per trip'}</p>
             </div>
           </button>
         </div>
@@ -243,23 +308,47 @@ export default function OnboardingPage() {
     <main className="min-h-screen bg-paper py-8 px-4">
       <div className="max-w-xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={() => { setStep(1); setError(null); }}
-            className="p-2 rounded-xl bg-white border border-border text-ink hover:bg-paper"
-          >
-            ←
-          </button>
-          <div>
-            <div className="flex items-center gap-2">
-              {role === 'farmer' && <Sprout className="w-4 h-4 text-field-green" />}
-              {role === 'wholesaler' && <Store className="w-4 h-4 text-earth" />}
-              {role === 'logistics_driver' && <Truck className="w-4 h-4 text-blue-600" />}
-              <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
-                {role === 'logistics_driver' ? (t('role.driver') || 'Logistics Driver') : t(`role.${role}`)}
-              </span>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { setStep(1); setError(null); }}
+              className="p-2.5 rounded-xl bg-white border border-border text-ink hover:bg-paper shadow-xs flex items-center gap-1.5 text-xs font-semibold"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Change Role</span>
+            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                {role === 'farmer' && <Sprout className="w-4 h-4 text-field-green" />}
+                {role === 'wholesaler' && <Store className="w-4 h-4 text-earth" />}
+                {role === 'logistics_driver' && <Truck className="w-4 h-4 text-blue-600" />}
+                <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
+                  {role === 'logistics_driver' ? (t('role.driver') || 'Logistics Driver') : t(`role.${role}`)}
+                </span>
+              </div>
+              <h1 className="text-xl font-bold text-ink">{t('onboarding.title')}</h1>
             </div>
-            <h1 className="text-xl font-bold text-ink">{t('onboarding.title')}</h1>
+          </div>
+        </div>
+
+        {/* Demo Quick Presets */}
+        <div className="mb-5 p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl shadow-xs">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span>Quick Demo ID Presets (Click to autofill):</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {DEMO_PRESETS[role].map((p, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => applyPreset(p)}
+                className="px-2.5 py-1.5 bg-white border border-amber-300 rounded-lg text-xs font-medium text-amber-950 hover:bg-amber-100/50 shadow-xs transition-colors flex items-center gap-1"
+              >
+                <span className="font-mono text-[11px] font-bold text-amber-700">{p.id}</span>
+                <span>({p.name})</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -333,22 +422,35 @@ export default function OnboardingPage() {
             </p>
           </div>
 
-          {/* District */}
-          <div>
-            <label className="block text-xs font-semibold text-ink mb-1.5">
-              {t('onboarding.district')} *
-            </label>
-            <select
-              required
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none appearance-none"
-            >
-              <option value="">{t('onboarding.selectDistrict')}</option>
-              {DISTRICTS_KA.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
+          {/* District & State */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-ink mb-1.5">
+                {t('onboarding.district')} *
+              </label>
+              <select
+                required
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none appearance-none"
+              >
+                <option value="">{t('onboarding.selectDistrict')}</option>
+                {DISTRICTS_KA.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-ink mb-1.5">
+                {t('onboarding.state')}
+              </label>
+              <input
+                type="text"
+                value={state}
+                disabled
+                className="w-full px-3.5 py-3 bg-paper/80 border border-border rounded-xl text-sm text-ink-muted"
+              />
+            </div>
           </div>
 
           {/* Driver-specific fields */}

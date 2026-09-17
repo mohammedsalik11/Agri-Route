@@ -8,12 +8,13 @@ export default function SignUpPage() {
         <p className="text-xs text-ink-muted mt-1">Create an Account with Phone &amp; SMS OTP</p>
       </div>
 
-      <div className="w-full max-w-md bg-white p-4 rounded-2xl shadow-xs border border-border flex justify-center">
+      <div className="w-full max-w-md bg-white p-4 rounded-2xl border border-border flex justify-center shadow-md">
         <SignUp
           routing="path"
           path="/sign-up"
           signInUrl="/sign-in"
-          fallbackRedirectUrl="/auth-callback"
+          fallbackRedirectUrl="/onboarding"
+          forceRedirectUrl="/onboarding"
         />
       </div>
     </div>

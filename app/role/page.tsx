@@ -10,7 +10,7 @@ export default function RoleSelectPage() {
 
   const selectRole = (role: 'farmer' | 'wholesaler' | 'logistics_driver') => {
     document.cookie = `intendedRole=${role};path=/;max-age=${60 * 60 * 24}`;
-    router.push('/sign-up');
+    router.push('/onboarding');
   };
 
   return (

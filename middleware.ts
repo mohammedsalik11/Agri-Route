@@ -6,7 +6,8 @@ const isPublicRoute = createRouteMatcher([
   '/role',
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/onboarding',
+  '/onboarding(.*)',
+  '/auth-callback(.*)',
   '/manifest.json',
   '/favicon.ico',
   '/api/health',
@@ -77,14 +78,6 @@ export default clerkMiddleware(async (auth, request) => {
 
     if (role === 'logistics_driver' && (isFarmerRoute(request) || isWholesalerRoute(request))) {
       return NextResponse.redirect(new URL('/driver', request.url));
-    }
-
-    // Redirect onboarded users away from onboarding
-    if (role && pathname === '/onboarding') {
-      let destination = '/farmer';
-      if (role === 'wholesaler') destination = '/wholesaler';
-      if (role === 'logistics_driver') destination = '/driver';
-      return NextResponse.redirect(new URL(destination, request.url));
     }
   }
 });
