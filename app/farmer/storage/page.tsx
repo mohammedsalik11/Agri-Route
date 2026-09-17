@@ -248,7 +248,7 @@ export default function ColdStoragePage() {
         <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200 rounded-2xl p-6 shadow-xs space-y-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-field-green text-paper flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-field-green text-white flex items-center justify-center">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
@@ -260,7 +260,7 @@ export default function ColdStoragePage() {
                 </span>
               </div>
             </div>
-            <span className="text-xs font-bold px-3 py-1 bg-field-green text-paper rounded-full shadow-xs">
+            <span className="text-xs font-bold px-3 py-1 bg-field-green text-white rounded-full shadow-xs">
               + ₹2.50/kg Potential
             </span>
           </div>
@@ -445,7 +445,7 @@ export default function ColdStoragePage() {
               <button
                 onClick={handleBook}
                 disabled={bookingInProgress || !selectedFacility}
-                className="w-full py-3 bg-field-green text-paper font-bold text-xs rounded-xl hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
+                className="w-full py-3 bg-field-green text-white font-bold text-xs rounded-xl hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
               >
                 {bookingInProgress ? (
                   <>

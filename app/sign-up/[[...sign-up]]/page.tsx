@@ -16,13 +16,6 @@ export default function SignUpPage() {
           fallbackRedirectUrl="/onboarding"
         />
       </div>
-
-      <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded-xl text-center max-w-md w-full">
-        <p className="text-xs font-semibold text-amber-900">Demo Quick Access</p>
-        <p className="text-[11px] text-amber-800">
-          Phone: <code className="bg-white px-1 py-0.5 rounded font-bold">+91 9999999999</code> · OTP: <code className="bg-white px-1 py-0.5 rounded font-bold">424242</code>
-        </p>
-      </div>
     </div>
   );
 }

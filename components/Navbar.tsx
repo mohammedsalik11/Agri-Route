@@ -29,56 +29,181 @@ export const Navbar: React.FC = () => {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           {/* Brand */}
-          <Link href={homeLink} className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-field-green flex items-center justify-center text-white text-lg">
-              🌾
+          <Link href={homeLink} className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 border border-border/80 shadow-xs group-hover:border-field-green/60 transition-all">
+              <img
+                src="/logo.png"
+                alt="Agri Route Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
-              <span className="font-bold text-field-green text-lg tracking-tight block leading-tight">
+              <span className="font-extrabold text-field-green text-lg tracking-tight block leading-tight">
                 Agri Route
+              </span>
+              <span className="text-[10px] font-bold text-earth block leading-none tracking-wide">
+                Fair Prices, Together
               </span>
             </div>
           </Link>
 
           {/* Center navigation links - Desktop */}
-          <nav className="hidden sm:flex items-center gap-4 text-sm font-semibold">
+          <nav className="hidden sm:flex items-center gap-1 text-sm font-semibold">
             {isFarmer && (
               <>
-                <Link href="/farmer" className={`hover:text-field-green transition-colors ${pathname === '/farmer' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.title')}</Link>
-                <Link href="/farmer/list" className={`hover:text-field-green transition-colors ${pathname === '/farmer/list' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.listProduce')}</Link>
-                <Link href="/farmer/pools" className={`hover:text-field-green transition-colors ${pathname === '/farmer/pools' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.viewPools')}</Link>
-                <Link href="/farmer/storage" className={`hover:text-field-green transition-colors ${pathname === '/farmer/storage' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.coldStorage')}</Link>
-                <Link href="/farmer/orders" className={`hover:text-field-green transition-colors ${pathname === '/farmer/orders' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.viewOrders')}</Link>
-                <Link href="/farmer/earnings" className={`hover:text-field-green transition-colors ${pathname === '/farmer/earnings' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.myEarnings')}</Link>
-                <Link href="/farmer/negotiations" className={`hover:text-field-green transition-colors ${pathname === '/farmer/negotiations' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.negotiationInbox')}</Link>
+                <Link
+                  href="/farmer"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/farmer'
+                      ? 'bg-field-green/10 text-field-green font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-field-green hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.title')}
+                </Link>
+                <Link
+                  href="/farmer/list"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/farmer/list'
+                      ? 'bg-field-green/10 text-field-green font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-field-green hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.listProduce')}
+                </Link>
+                <Link
+                  href="/farmer/pools"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/farmer/pools'
+                      ? 'bg-field-green/10 text-field-green font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-field-green hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.viewPools')}
+                </Link>
+                <Link
+                  href="/farmer/storage"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/farmer/storage'
+                      ? 'bg-field-green/10 text-field-green font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-field-green hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.coldStorage')}
+                </Link>
+                <Link
+                  href="/farmer/orders"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/farmer/orders'
+                      ? 'bg-field-green/10 text-field-green font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-field-green hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.viewOrders')}
+                </Link>
+                <Link
+                  href="/farmer/earnings"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/farmer/earnings'
+                      ? 'bg-field-green/10 text-field-green font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-field-green hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.myEarnings')}
+                </Link>
+                <Link
+                  href="/farmer/negotiations"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/farmer/negotiations'
+                      ? 'bg-field-green/10 text-field-green font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-field-green hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.negotiationInbox')}
+                </Link>
               </>
             )}
             {isWholesaler && (
               <>
-                <Link href="/wholesaler" className={`hover:text-earth transition-colors ${pathname === '/wholesaler' ? 'text-earth font-bold' : 'text-ink-muted'}`}>{t('wholesaler.browse')}</Link>
-                <Link href="/wholesaler/storage" className={`hover:text-earth transition-colors ${pathname === '/wholesaler/storage' ? 'text-earth font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.coldStorage')}</Link>
-                <Link href="/wholesaler/orders" className={`hover:text-earth transition-colors ${pathname === '/wholesaler/orders' ? 'text-earth font-bold' : 'text-ink-muted'}`}>{t('wholesaler.orders')}</Link>
-                <Link href="/wholesaler/negotiations" className={`hover:text-earth transition-colors ${pathname === '/wholesaler/negotiations' ? 'text-earth font-bold' : 'text-ink-muted'}`}>{t('farmer.dashboard.negotiationInbox')}</Link>
+                <Link
+                  href="/wholesaler"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/wholesaler'
+                      ? 'bg-earth/10 text-earth font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-earth hover:bg-black/5'
+                  }`}
+                >
+                  {t('wholesaler.browse')}
+                </Link>
+                <Link
+                  href="/wholesaler/storage"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/wholesaler/storage'
+                      ? 'bg-earth/10 text-earth font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-earth hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.coldStorage')}
+                </Link>
+                <Link
+                  href="/wholesaler/orders"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/wholesaler/orders'
+                      ? 'bg-earth/10 text-earth font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-earth hover:bg-black/5'
+                  }`}
+                >
+                  {t('wholesaler.orders')}
+                </Link>
+                <Link
+                  href="/wholesaler/negotiations"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/wholesaler/negotiations'
+                      ? 'bg-earth/10 text-earth font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-earth hover:bg-black/5'
+                  }`}
+                >
+                  {t('farmer.dashboard.negotiationInbox')}
+                </Link>
               </>
             )}
             {isDriver && (
               <>
-                <Link href="/driver" className={`hover:text-blue-600 transition-colors ${pathname === '/driver' ? 'text-blue-600 font-bold' : 'text-ink-muted'}`}>Driver Hub</Link>
-                <Link href="/driver#active-trips" className="hover:text-blue-600 transition-colors text-ink-muted">Active Trips</Link>
-                <Link href="/driver#jobs" className="hover:text-blue-600 transition-colors text-ink-muted">Available Loads</Link>
+                <Link
+                  href="/driver"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/driver'
+                      ? 'bg-blue-50 text-blue-700 font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-blue-600 hover:bg-black/5'
+                  }`}
+                >
+                  Driver Hub
+                </Link>
+                <Link
+                  href="/driver#active-trips"
+                  className="px-3 py-1.5 rounded-lg text-ink-muted hover:text-blue-600 hover:bg-black/5 transition-all"
+                >
+                  Active Trips
+                </Link>
+                <Link
+                  href="/driver#jobs"
+                  className="px-3 py-1.5 rounded-lg text-ink-muted hover:text-blue-600 hover:bg-black/5 transition-all"
+                >
+                  Available Loads
+                </Link>
               </>
             )}
           </nav>
 
-          {/* Right tools: Language switch */}
-          <div className="flex items-center gap-2">
+          {/* Right tools: Language switch + User Profile */}
+          <div className="flex items-center gap-2.5">
             <div className="relative group">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-paper border border-border text-xs font-semibold text-ink hover:border-field-green transition-all cursor-pointer">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper/80 border border-border text-xs font-semibold text-ink hover:border-field-green transition-all cursor-pointer shadow-xs">
                 <Globe className="w-3.5 h-3.5 text-field-green" />
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value as Language)}
-                  className="bg-transparent border-none outline-none cursor-pointer appearance-none pr-4"
+                  className="bg-transparent border-none outline-none cursor-pointer appearance-none pr-4 font-semibold"
                 >
                   <option value="en">English</option>
                   <option value="hi">हिंदी</option>

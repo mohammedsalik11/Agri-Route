@@ -10,24 +10,34 @@
   --color-fair-green: #2D6A4F;
   --color-amber: #E9972C;
   --color-paper: #FBF7F0;
-  --color-ink: #1A1A1A;
-  --color-ink-light: #4A4A4A;
-  --color-ink-muted: #7A7A7A;
-  --color-border: #E5DDD3;
-  --color-border-light: #F0EBE3;
+  --color-ink: #111827;
+  --color-ink-light: #374151;
+  --color-ink-muted: #64748B;
+  --color-border: #E2E8F0;
+  --color-border-light: #F1F5F9;
 
   /* Status colors */
   --color-status-live: #059669;
-  --color-status-cached: #6B7280;
+  --color-status-cached: #64748B;
   --color-status-simulated: #D97706;
 }
 
-/* Base styles */
+/* Full Raw Farm Backdrop — 100% Opacity without any filter/overlay */
 body {
-  background-color: var(--color-paper);
+  background-image: url('/farm-backdrop.png');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--color-ink);
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Transparent container so the backdrop shows directly */
+.bg-paper {
+  background-color: transparent !important;
 }
 
 /* Force minimum touch targets for mobile */

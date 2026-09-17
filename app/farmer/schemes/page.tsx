@@ -59,7 +59,7 @@ export default function SchemesPage() {
             onClick={() => setActiveTab('matched')}
             className={`px-4 py-2 rounded-lg transition-all ${
               activeTab === 'matched'
-                ? 'bg-field-green text-paper shadow-xs'
+                ? 'bg-field-green text-white shadow-xs'
                 : 'text-ink-muted hover:text-ink'
             }`}
           >
@@ -69,7 +69,7 @@ export default function SchemesPage() {
             onClick={() => setActiveTab('all')}
             className={`px-4 py-2 rounded-lg transition-all ${
               activeTab === 'all'
-                ? 'bg-field-green text-paper shadow-xs'
+                ? 'bg-field-green text-white shadow-xs'
                 : 'text-ink-muted hover:text-ink'
             }`}
           >
@@ -131,7 +131,7 @@ export default function SchemesPage() {
                     href={s.applyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-field-green text-paper text-xs font-semibold hover:bg-field-green-light"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-field-green text-white text-xs font-semibold hover:bg-field-green-light"
                   >
                     <span>{t('schemes.apply')}</span>
                     <ExternalLink className="w-3 h-3" />

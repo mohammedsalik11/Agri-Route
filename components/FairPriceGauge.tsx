@@ -120,7 +120,7 @@ export const FairPriceGauge: React.FC<FairPriceGaugeProps> = ({
           className="absolute -top-1 transition-all duration-300 transform -translate-x-1/2 z-10 flex flex-col items-center"
           style={{ left: `${askPct}%` }}
         >
-          <span className="bg-ink text-paper text-[11px] font-bold px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">
+          <span className="bg-ink text-white text-[11px] font-bold px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">
             ₹{(askPricePerKg / 100).toFixed(1)}
           </span>
           <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-ink mt-0.5" />

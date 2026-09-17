@@ -23,7 +23,9 @@ export default function LanguageSelectPage() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.ok && data.data?.role) {
-          router.replace(data.data.role === 'farmer' ? '/farmer' : '/wholesaler');
+          const role = data.data.role;
+          document.cookie = `userRole=${role};path=/;max-age=${60 * 60 * 24 * 365}`;
+          router.replace(role === 'farmer' ? '/farmer' : role === 'wholesaler' ? '/wholesaler' : '/driver');
         }
       })
       .catch(() => {});
@@ -37,17 +39,21 @@ export default function LanguageSelectPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-paper">
       {/* Logo + Brand */}
-      <div className="mb-10 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-field-green mb-5 shadow-md">
-          <span className="text-4xl">🌾</span>
+      <div className="mb-8 text-center flex flex-col items-center">
+        <div className="w-24 h-24 rounded-3xl bg-white p-3 border border-border shadow-lg mb-4 flex items-center justify-center">
+          <img
+            src="/logo.png"
+            alt="Agri Route Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
         <h1 className="text-3xl font-extrabold text-field-green tracking-tight">
           {t('app.name')}
         </h1>
-        <p className="text-ink-muted mt-2 text-sm font-medium">
+        <p className="text-ink font-semibold mt-1.5 text-sm">
           {t('app.tagline')}
         </p>
-        <p className="text-ink-muted/70 mt-1 text-xs">
+        <p className="text-ink-muted mt-1 text-xs max-w-xs">
           {t('app.subtagline')}
         </p>
       </div>

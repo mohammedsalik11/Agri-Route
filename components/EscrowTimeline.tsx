@@ -100,7 +100,7 @@ export const EscrowTimeline: React.FC<EscrowTimelineProps> = ({
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
                   isDone
-                    ? 'bg-field-green text-paper'
+                    ? 'bg-field-green text-white'
                     : isCurrent
                     ? 'bg-amber-500 text-white animate-pulse'
                     : 'bg-paper text-ink-muted border border-border'
@@ -145,7 +145,7 @@ export const EscrowTimeline: React.FC<EscrowTimelineProps> = ({
           </p>
           <button
             onClick={onGenerateOtp}
-            className="w-full py-2.5 px-4 bg-field-green text-paper rounded-xl text-sm font-semibold hover:bg-field-green-light"
+            className="w-full py-2.5 px-4 bg-field-green text-white rounded-xl text-sm font-semibold hover:bg-field-green-light"
           >
             {t('escrow.generateOtp')}
           </button>
@@ -183,7 +183,7 @@ export const EscrowTimeline: React.FC<EscrowTimelineProps> = ({
             <button
               onClick={() => inputOtp.length === 6 && onConfirmDelivery(inputOtp)}
               disabled={inputOtp.length !== 6}
-              className="px-5 py-2 bg-field-green text-paper font-semibold text-sm rounded-xl disabled:opacity-50 hover:bg-field-green-light"
+              className="px-5 py-2 bg-field-green text-white font-semibold text-sm rounded-xl disabled:opacity-50 hover:bg-field-green-light"
             >
               Verify & Release
             </button>

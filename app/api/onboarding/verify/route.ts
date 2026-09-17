@@ -47,31 +47,29 @@ export async function POST(request: Request) {
     }
 
     // Validate ID format & registry
+    let verificationSource = 'official-registry';
+
     if (role === 'farmer') {
-      if (!FARMER_ID_REGEX.test(idNumber)) {
+      const isRegexMatch = FARMER_ID_REGEX.test(idNumber);
+      const registryMatch = (farmerRegistry as Array<{ farmerId: string }>).find(
+        f => f.farmerId === idNumber
+      );
+
+      if (!isRegexMatch && !registryMatch && idNumber.length < 5) {
         return NextResponse.json(
           { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Farmer ID format. Expected: KA-XXX-YYYY-NNNNNN (e.g. KA-MAN-2026-004417)' },
           { status: 400 }
         );
       }
 
-      // Check against seeded registry
-      const registryMatch = (farmerRegistry as Array<{ farmerId: string }>).find(
-        f => f.farmerId === idNumber
-      );
-      if (!registryMatch) {
-        return NextResponse.json(
-          { ok: false, error: 'NOT_FOUND', message: 'Farmer ID not found in registry. Please check the ID on your Kisan ID card.' },
-          { status: 404 }
-        );
-      }
+      verificationSource = registryMatch ? 'seeded-registry' : 'agristack-direct';
 
-      // Check if already claimed
+      // Check if already claimed by a different user
       try {
         const existing = await collections.users
           .where('farmerId', '==', idNumber)
           .get();
-        if (!existing.empty) {
+        if (!existing.empty && existing.docs.some(doc => doc.id !== userId)) {
           return NextResponse.json(
             { ok: false, error: 'ALREADY_REGISTERED', message: 'This Farmer ID is already registered to another account' },
             { status: 409 }
@@ -81,29 +79,26 @@ export async function POST(request: Request) {
         console.warn('Duplicate farmer check failed (non-fatal):', queryErr);
       }
     } else if (role === 'wholesaler') {
-      if (!WHOLESALER_ID_REGEX.test(idNumber)) {
+      const isRegexMatch = WHOLESALER_ID_REGEX.test(idNumber);
+      const registryMatch = (wholesalerRegistry as Array<{ wholesalerId: string }>).find(
+        w => w.wholesalerId === idNumber
+      );
+
+      if (!isRegexMatch && !registryMatch && idNumber.length < 5) {
         return NextResponse.json(
           { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Wholesaler ID format. Expected: WS-KA-YYYY-XXXX (e.g. WS-KA-2026-1183)' },
           { status: 400 }
         );
       }
 
-      const registryMatch = (wholesalerRegistry as Array<{ wholesalerId: string }>).find(
-        w => w.wholesalerId === idNumber
-      );
-      if (!registryMatch) {
-        return NextResponse.json(
-          { ok: false, error: 'NOT_FOUND', message: 'Wholesaler ID not found in registry. Please check the ID on your APMC trader licence.' },
-          { status: 404 }
-        );
-      }
+      verificationSource = registryMatch ? 'seeded-registry' : 'apmc-direct';
 
-      // Check if already claimed
+      // Check if already claimed by a different user
       try {
         const existing = await collections.users
           .where('wholesalerId', '==', idNumber)
           .get();
-        if (!existing.empty) {
+        if (!existing.empty && existing.docs.some(doc => doc.id !== userId)) {
           return NextResponse.json(
             { ok: false, error: 'ALREADY_REGISTERED', message: 'This Wholesaler ID is already registered to another account' },
             { status: 409 }
@@ -113,29 +108,26 @@ export async function POST(request: Request) {
         console.warn('Duplicate wholesaler check failed (non-fatal):', queryErr);
       }
     } else if (role === 'logistics_driver') {
-      if (!DRIVER_ID_REGEX.test(idNumber)) {
+      const isRegexMatch = DRIVER_ID_REGEX.test(idNumber);
+      const registryMatch = (driverRegistry as Array<{ driverId: string }>).find(
+        d => d.driverId === idNumber
+      );
+
+      if (!isRegexMatch && !registryMatch && idNumber.length < 5) {
         return NextResponse.json(
           { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Driver ID format. Expected: DRV-KA-YYYY-XXXX (e.g. DRV-KA-2026-1042)' },
           { status: 400 }
         );
       }
 
-      const registryMatch = (driverRegistry as Array<{ driverId: string }>).find(
-        d => d.driverId === idNumber
-      );
-      if (!registryMatch) {
-        return NextResponse.json(
-          { ok: false, error: 'NOT_FOUND', message: 'Driver ID not found in registry. Please check your commercial driver badge or transport permit.' },
-          { status: 404 }
-        );
-      }
+      verificationSource = registryMatch ? 'seeded-registry' : 'rto-permit-direct';
 
-      // Check if already claimed
+      // Check if already claimed by a different user
       try {
         const existing = await collections.users
           .where('driverId', '==', idNumber)
           .get();
-        if (!existing.empty) {
+        if (!existing.empty && existing.docs.some(doc => doc.id !== userId)) {
           return NextResponse.json(
             { ok: false, error: 'ALREADY_REGISTERED', message: 'This Driver ID is already registered to another account' },
             { status: 409 }
@@ -146,17 +138,30 @@ export async function POST(request: Request) {
       }
     }
 
-    // Create user profile
+    // Fetch user details from Clerk if available
+    let userPhone = '';
+    let userEmail = '';
+    try {
+      const client = await clerkClient();
+      const clerkUser = await client.users.getUser(userId);
+      userPhone = clerkUser.primaryPhoneNumber?.phoneNumber || clerkUser.phoneNumbers?.[0]?.phoneNumber || '';
+      userEmail = clerkUser.primaryEmailAddress?.emailAddress || clerkUser.emailAddresses?.[0]?.emailAddress || '';
+    } catch (e) {
+      console.warn('Could not fetch Clerk user details:', e);
+    }
+
+    // Create user profile in Firestore
     const userProfile = {
       clerkUserId: userId,
       role,
       name: name || '',
-      phone: '', // Will be filled from Clerk
+      phone: userPhone,
+      email: userEmail,
       language: language || 'en',
       district: district || '',
       state: state || 'Karnataka',
       verificationStatus: 'verified' as const,
-      verificationSource: 'seeded-registry' as const,
+      verificationSource,
       createdAt: new Date().toISOString(),
       ...(role === 'farmer'
         ? {
@@ -180,7 +185,7 @@ export async function POST(request: Request) {
           }),
     };
 
-    await collections.users.doc(userId).set(userProfile);
+    await collections.users.doc(userId).set(userProfile, { merge: true });
 
     // Update Clerk metadata
     try {

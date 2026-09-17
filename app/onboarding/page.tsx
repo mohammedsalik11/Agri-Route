@@ -51,7 +51,7 @@ export default function OnboardingPage() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.ok && data.data?.role) {
-          // User already completed onboarding — send directly to their dashboard
+          document.cookie = `userRole=${data.data.role};path=/;max-age=${60 * 60 * 24 * 365}`;
           let dest = '/farmer';
           if (data.data.role === 'wholesaler') dest = '/wholesaler';
           if (data.data.role === 'logistics_driver') dest = '/driver';
@@ -167,9 +167,13 @@ export default function OnboardingPage() {
   if (step === 1) {
     return (
       <main className="min-h-screen bg-paper flex flex-col items-center justify-center px-6 py-12">
-        <div className="text-center mb-8">
-          <div className="inline-flex w-16 h-16 rounded-2xl bg-field-green items-center justify-center text-2xl mb-4">
-            🌾
+        <div className="text-center mb-8 flex flex-col items-center">
+          <div className="w-20 h-20 rounded-2xl bg-white p-2.5 border border-border shadow-md mb-3.5 flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="Agri Route Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <h1 className="text-2xl font-bold text-ink">{t('role.title')}</h1>
           <p className="text-xs text-ink-muted mt-1">{t('app.tagline')}</p>

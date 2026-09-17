@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className="min-h-screen bg-paper text-ink antialiased">
+        <body className="min-h-screen text-ink antialiased">
           <LanguageProvider>{children}</LanguageProvider>
         </body>
       </html>

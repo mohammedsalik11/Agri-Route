@@ -144,7 +144,7 @@ export default function FarmerVerificationPage() {
 
           <button
             onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-field-green text-paper rounded-xl text-xs font-bold hover:bg-field-green-light flex items-center gap-1.5 shadow-xs transition-all"
+            className="px-4 py-2 bg-field-green text-white rounded-xl text-xs font-bold hover:bg-field-green-light flex items-center gap-1.5 shadow-xs transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Book Visit</span>
@@ -170,7 +170,7 @@ export default function FarmerVerificationPage() {
 
         {/* Feature Explainer */}
         <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5 flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-field-green text-paper flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-field-green text-white flex items-center justify-center shrink-0">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div className="text-xs space-y-1">
@@ -204,7 +204,7 @@ export default function FarmerVerificationPage() {
               </p>
               <button
                 onClick={() => setShowModal(true)}
-                className="mt-2 px-4 py-2 bg-field-green text-paper text-xs font-bold rounded-xl hover:bg-field-green-light"
+                className="mt-2 px-4 py-2 bg-field-green text-white text-xs font-bold rounded-xl hover:bg-field-green-light"
               >
                 Schedule First Visit
               </button>
@@ -345,7 +345,7 @@ export default function FarmerVerificationPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex-1 py-2.5 bg-field-green text-paper rounded-xl font-bold hover:bg-field-green-light flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-field-green text-white rounded-xl font-bold hover:bg-field-green-light flex items-center justify-center gap-1.5 disabled:opacity-50"
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm Booking'}
                   </button>

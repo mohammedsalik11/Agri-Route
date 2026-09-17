@@ -24,8 +24,8 @@ export default function CreateListingPage() {
   const router = useRouter();
 
   const [selectedCrop, setSelectedCrop] = useState('tomato');
-  const [quantityKg, setQuantityKg] = useState('600'); // Seed demo lot exact match!
-  const [askPricePerKg, setAskPricePerKg] = useState('14'); // in rupees
+  const [quantityKg, setQuantityKg] = useState('');
+  const [askPricePerKg, setAskPricePerKg] = useState('');
   const [qualityGrade, setQualityGrade] = useState<'A' | 'B' | 'C'>('A');
   const [gradeSource, setGradeSource] = useState<'ai' | 'self-declared'>('self-declared');
   const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
@@ -322,7 +322,7 @@ export default function CreateListingPage() {
                     }}
                     className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
                       qualityGrade === g
-                        ? 'border-field-green bg-field-green text-paper shadow-xs'
+                        ? 'border-field-green bg-field-green text-white shadow-xs'
                         : 'border-border bg-paper/60 text-ink hover:bg-white'
                     }`}
                   >
@@ -413,7 +413,7 @@ export default function CreateListingPage() {
                 Automatic Pool Matching Active
               </p>
               <p className="text-ink">
-                Your <span className="font-bold">{quantityKg} kg</span> will combine with 8 nearby farmers in Mandya (2,400 kg) to hit the <span className="font-bold">3,000 kg truck threshold</span>.
+                Your <span className="font-bold">{quantityKg || '0'} kg</span> of <span className="capitalize font-bold">{selectedCrop}</span> will automatically combine with nearby farmers in <span className="font-bold">{userDistrict}</span> to build full truckload buyer lots.
               </p>
             </div>
           </div>
@@ -422,7 +422,7 @@ export default function CreateListingPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 px-6 bg-field-green text-paper font-bold text-base rounded-2xl hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
+            className="w-full py-4 px-6 bg-field-green text-white font-bold text-base rounded-2xl hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
           >
             {loading ? (
               <>

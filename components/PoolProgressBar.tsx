@@ -162,7 +162,7 @@ export const PoolProgressBar: React.FC<PoolProgressBarProps> = ({
       {showActionButton && onJoinClick && status === 'open' && (
         <button
           onClick={onJoinClick}
-          className="w-full py-2.5 px-4 bg-field-green text-paper rounded-xl font-semibold text-sm hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className="w-full py-2.5 px-4 bg-field-green text-white rounded-xl font-semibold text-sm hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
           {joinButtonText || 'Join this pool'}
         </button>

@@ -127,7 +127,7 @@ export default function EarningsPage() {
               <div className="pt-2">
                 <Link
                   href="/farmer/list"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-field-green text-paper rounded-xl text-xs font-bold hover:bg-field-green-light transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-field-green text-white rounded-xl text-xs font-bold hover:bg-field-green-light transition-all"
                 >
                   <span>{t('farmer.dashboard.listProduce')}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
