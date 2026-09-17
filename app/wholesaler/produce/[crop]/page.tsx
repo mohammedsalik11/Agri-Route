@@ -92,6 +92,17 @@ const CROP_EMOJIS: Record<string, string> = {
   cotton: '🧶',
 };
 
+const POPULAR_VARIETIES: Record<string, string[]> = {
+  onion: ['Red Onion', 'White Onion', 'Sambhar / Shallots', 'Garlic Onion / Bellary'],
+  tomato: ['Hybrid / Shivam', 'Desi / Nati Tomato', 'Roma / Plum Tomato', 'Cherry Tomato'],
+  potato: ['Kufri Jyoti', 'Lauvkar', 'Pukhraj', 'Chipsona', 'Baby Potato'],
+  ragi: ['GPU-28', 'Indaf-8', 'ML-365', 'Brown Finger Millet'],
+  paddy: ['Sona Masuri', 'Basmati', 'BPT 5204', 'Jyothi'],
+  maize: ['Yellow Corn', 'Sweet Corn', 'White Corn'],
+  wheat: ['Sharbati', 'Lokwan', 'Durum', 'HD-2967'],
+  banana: ['Robusta / Cavendish', 'Yellaki / Ney Poovan', 'Nendran / Plantain'],
+};
+
 export default function VegetableLotsPage() {
   const { t, formatCurrency, formatWeight } = useT();
   const router = useRouter();
@@ -133,9 +144,11 @@ export default function VegetableLotsPage() {
       .finally(() => setLoading(false));
   }, [cropParam]);
 
-  // Extract all available variety names from price info + listings
+  // Extract all available variety names from price info + listings + defaults
   const availableVarieties = useMemo(() => {
     const set = new Set<string>();
+    const defaults = POPULAR_VARIETIES[cropParam.toLowerCase()] || [];
+    defaults.forEach((v) => set.add(v));
     if (priceInfo?.varieties && Array.isArray(priceInfo.varieties)) {
       priceInfo.varieties.forEach((v) => {
         if (v.variety) set.add(v.variety);
@@ -145,7 +158,7 @@ export default function VegetableLotsPage() {
       if (l.variety) set.add(l.variety);
     });
     return Array.from(set);
-  }, [priceInfo, listings]);
+  }, [priceInfo, listings, cropParam]);
 
   // Filtered listings
   const filteredListings = useMemo(() => {

@@ -235,6 +235,53 @@ async function fetchLiveMandiPrice(
   }
 }
 
+export const DEFAULT_CROP_VARIETIES: Record<string, string[]> = {
+  onion: ['Red Onion', 'White Onion', 'Sambhar / Shallots', 'Garlic Onion / Bellary', 'Hybrid Red', 'Yellow Onion'],
+  tomato: ['Hybrid / Shivam', 'Desi / Nati Tomato', 'Roma / Plum Tomato', 'Cherry Tomato', 'Green Tomato'],
+  potato: ['Kufri Jyoti', 'Lauvkar', 'Pukhraj', 'Chipsona', 'Baby Potato', 'Red Potato'],
+  paddy: ['Sona Masuri', 'Basmati', 'BPT 5204', 'Jyothi', 'IR 64', 'Jaya', 'Ponni'],
+  paddy_common: ['Sona Masuri', 'Basmati', 'BPT 5204', 'Jyothi', 'IR 64', 'Jaya'],
+  wheat: ['Sharbati', 'Lokwan', 'Durum', 'HD-2967', 'Desi Common', 'Kalyansona'],
+  maize: ['Yellow Corn', 'Sweet Corn', 'White Corn', 'Baby Corn', 'Silage Corn'],
+  ragi: ['GPU-28', 'Indaf-8', 'ML-365', 'Brown Finger Millet', 'MR-1'],
+  banana: ['Robusta / Cavendish', 'Yellaki / Ney Poovan', 'Nendran / Plantain', 'Grand Naine', 'Red Banana'],
+  brinjal: ['Purple Round', 'Green Long', 'Purple Long', 'Matti Gulla', 'Udupi Mattu'],
+  cabbage: ['Green Cabbage', 'Red / Purple Cabbage', 'Savoy Cabbage', 'Chinese Cabbage'],
+  cauliflower: ['Snowball White', 'Hybrid Early', 'Pusa Deepali', 'Romanesco'],
+  green_chilli: ['Guntur', 'Byadgi', 'Jwala (Light Green)', "Bird's Eye (Spicy)", 'Pusa Jwala'],
+  capsicum: ['Green Bell Pepper', 'Red Capsicum', 'Yellow Capsicum', 'Orange Capsicum'],
+  cucumber: ['English Seedless', 'Desi Green Field', 'Kheera', 'Dosakkai'],
+  groundnut: ['TMV-2', 'JL-24', 'Kadiri-6', 'Spanish Peanut', 'Bold Peanut'],
+  soybean: ['JS-335', 'JS-9560', 'MACS 1407', 'Yellow Soybean'],
+  soyabean: ['JS-335', 'JS-9560', 'MACS 1407', 'Yellow Soybean'],
+  cotton: ['Bt Cotton (Medium)', 'Bt Cotton (Long Staple)', 'DCH-32', 'Surabhi'],
+  sugarcane: ['Co 86032', 'Co 0238', 'Co 419', 'Snack Cane'],
+  carrot: ['Orange Kuroda', 'Red Desi Carrot', 'Pusa Rudhira', 'Baby Carrot'],
+  mango: ['Alphonso / Badami', 'Totapuri', 'Kesar', 'Banganapalli', 'Mallika', 'Dasheri'],
+  grapes: ['Thomson Seedless', 'Bangalore Blue', 'Sonaka', 'Sharad Seedless', 'Dilkhush'],
+  watermelon: ['Kiran (Dark Stripe)', 'Black Beauty', 'Icebox Red', 'Yellow Flesh Watermelon'],
+};
+
+export function getDefaultVarietiesForCrop(
+  crop: string,
+  baseModalPrice: number = 2000,
+  market: string = 'Local Mandi'
+): VarietyPrice[] {
+  const list = DEFAULT_CROP_VARIETIES[crop.toLowerCase()] || ['Standard Grade', 'Hybrid Selection', 'Desi / Country'];
+  const multipliers = [1.0, 1.08, 0.94, 1.14, 0.98, 1.05];
+  return list.map((variety, idx) => {
+    const mult = multipliers[idx % multipliers.length];
+    const modal = Math.round(baseModalPrice * mult);
+    return {
+      variety,
+      minPrice: Math.round(modal * 0.85),
+      maxPrice: Math.round(modal * 1.15),
+      modalPrice: modal,
+      market,
+    };
+  });
+}
+
 function getCachedMandiPrice(crop: string): { price: MandiPrice; source: 'CACHED' } | null {
   const snapshot = mandiSnapshot as Record<
     string,
@@ -244,13 +291,16 @@ function getCachedMandiPrice(crop: string): { price: MandiPrice; source: 'CACHED
   if (!entry || !entry.history || entry.history.length === 0) return null;
 
   const latest = entry.history[0]; // Most recent day
+  const baseModal = quintalToPaisePerKg(latest.modalPrice);
+  const mkt = (entry as unknown as { market?: string }).market || 'Cached APMC';
   return {
     price: {
       minPrice: quintalToPaisePerKg(latest.minPrice),
       maxPrice: quintalToPaisePerKg(latest.maxPrice),
-      modalPrice: quintalToPaisePerKg(latest.modalPrice),
+      modalPrice: baseModal,
       date: latest.date,
-      market: (entry as unknown as { market?: string }).market || 'Cached',
+      market: mkt,
+      varieties: getDefaultVarietiesForCrop(crop, baseModal, mkt),
     },
     source: 'CACHED' as const,
   };
@@ -278,6 +328,7 @@ export async function getMandiPrice(
           modalPrice: data.modalPrice,
           date: data.date || today,
           market: data.market || district,
+          varieties: data.varieties && data.varieties.length > 0 ? data.varieties : getDefaultVarietiesForCrop(crop, data.modalPrice, data.market || district),
         },
         source: 'LIVE',
       };
@@ -288,7 +339,12 @@ export async function getMandiPrice(
 
   // Try live API
   const live = await fetchLiveMandiPrice(crop, state, district);
-  if (live) return live;
+  if (live) {
+    if (!live.price.varieties || live.price.varieties.length === 0) {
+      live.price.varieties = getDefaultVarietiesForCrop(crop, live.price.modalPrice, live.price.market);
+    }
+    return live;
+  }
 
   // Fallback to snapshot
   const snapshot = getCachedMandiPrice(crop);

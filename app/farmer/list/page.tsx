@@ -19,6 +19,17 @@ const CROPS = [
   { key: 'banana', emoji: '🍌', name: 'Banana' },
 ];
 
+const POPULAR_VARIETIES: Record<string, string[]> = {
+  onion: ['Red Onion', 'White Onion', 'Sambhar / Shallots', 'Garlic Onion / Bellary', 'Hybrid Red', 'Yellow Onion'],
+  tomato: ['Hybrid / Shivam', 'Desi / Nati Tomato', 'Roma / Plum Tomato', 'Cherry Tomato', 'Green Tomato'],
+  potato: ['Kufri Jyoti', 'Lauvkar', 'Pukhraj', 'Chipsona', 'Baby Potato', 'Red Potato'],
+  ragi: ['GPU-28', 'Indaf-8', 'ML-365', 'Brown Finger Millet', 'MR-1'],
+  paddy: ['Sona Masuri', 'Basmati', 'BPT 5204', 'Jyothi', 'IR 64', 'Jaya', 'Ponni'],
+  maize: ['Yellow Corn', 'Sweet Corn', 'White Corn', 'Baby Corn', 'Silage Corn'],
+  wheat: ['Sharbati', 'Lokwan', 'Durum', 'HD-2967', 'Desi Common', 'Kalyansona'],
+  banana: ['Robusta / Cavendish', 'Yellaki / Ney Poovan', 'Nendran / Plantain', 'Grand Naine', 'Red Banana'],
+};
+
 export default function CreateListingPage() {
   const { t } = useT();
   const router = useRouter();
@@ -51,8 +62,10 @@ export default function CreateListingPage() {
     date: 'Today',
   });
 
-  const [varieties, setVarieties] = useState<Array<{ variety: string; modalPrice: number }>>([]);
+  const [varieties, setVarieties] = useState<Array<{ variety: string; modalPrice?: number }>>([]);
   const [selectedVariety, setSelectedVariety] = useState('');
+  const [customVariety, setCustomVariety] = useState('');
+  const [isCustomVariety, setIsCustomVariety] = useState(false);
   const [userDistrict, setUserDistrict] = useState('Mandya');
 
   useEffect(() => {
@@ -68,8 +81,13 @@ export default function CreateListingPage() {
 
   // Fetch prices on crop or district selection
   useEffect(() => {
-    setVarieties([]);
-    setSelectedVariety('');
+    const defaultList = POPULAR_VARIETIES[selectedCrop] || ['Common / Standard', 'Hybrid', 'Local Desi'];
+    const initialVarietyList = defaultList.map(v => ({ variety: v }));
+    setVarieties(initialVarietyList);
+    setSelectedVariety(defaultList[0] || '');
+    setIsCustomVariety(false);
+    setCustomVariety('');
+
     fetch(`/api/prices?crop=${selectedCrop}&district=${encodeURIComponent(userDistrict)}`)
       .then((res) => res.json())
       .then((res) => {
@@ -83,10 +101,17 @@ export default function CreateListingPage() {
             date: res.data.mandiDate || 'Today',
           });
           if (Array.isArray(res.data.varieties) && res.data.varieties.length > 0) {
-            setVarieties(res.data.varieties.map((v: { variety: string; modalPrice: number }) => ({
-              variety: v.variety,
-              modalPrice: v.modalPrice,
-            })));
+            // Merge Agmarknet live varieties with presets
+            const map = new Map<string, { variety: string; modalPrice?: number }>();
+            res.data.varieties.forEach((v: { variety: string; modalPrice: number }) => {
+              if (v.variety) map.set(v.variety.toLowerCase(), { variety: v.variety, modalPrice: v.modalPrice });
+            });
+            defaultList.forEach(v => {
+              if (!map.has(v.toLowerCase())) {
+                map.set(v.toLowerCase(), { variety: v });
+              }
+            });
+            setVarieties(Array.from(map.values()));
           }
         }
       })
@@ -142,13 +167,15 @@ export default function CreateListingPage() {
     setLoading(true);
     setError(null);
 
+    const finalVariety = isCustomVariety ? customVariety.trim() : selectedVariety;
+
     try {
       const res = await fetch('/api/listings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           crop: selectedCrop,
-          variety: selectedVariety || undefined,
+          variety: finalVariety || undefined,
           quantityKg: qty,
           askPricePerKg: askPricePaise,
           qualityGrade,
@@ -220,47 +247,74 @@ export default function CreateListingPage() {
             </div>
           </div>
 
-          {/* Variety Selector — shown only when Agmarknet returns varieties */}
-          {varieties.length > 0 && (
-            <div className="bg-white rounded-2xl p-5 border border-border space-y-3">
+          {/* Variety / Type Selector */}
+          <div className="bg-white rounded-2xl p-5 border border-border space-y-3">
+            <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-ink uppercase tracking-wider block">
-                1b. Select Variety{' '}
-                <span className="normal-case font-normal text-ink-muted ml-1">
-                  (from live Agmarknet data)
-                </span>
+                1b. Select Variety / Type
               </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedVariety('')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                    selectedVariety === ''
-                      ? 'bg-field-green text-white border-field-green'
-                      : 'bg-paper text-ink border-border hover:border-field-green'
-                  }`}
-                >
-                  Any / Unspecified
-                </button>
-                {varieties.map((v) => (
+              <span className="text-[11px] text-ink-muted">
+                e.g. {selectedCrop === 'onion' ? 'Red Onion, White Onion' : selectedCrop === 'tomato' ? 'Hybrid, Desi' : 'Popular Varieties'}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {varieties.map((v) => {
+                const isChosen = !isCustomVariety && selectedVariety === v.variety;
+                return (
                   <button
                     key={v.variety}
                     type="button"
-                    onClick={() => setSelectedVariety(v.variety)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                      selectedVariety === v.variety
-                        ? 'bg-field-green text-white border-field-green'
-                        : 'bg-paper text-ink border-border hover:border-field-green'
+                    onClick={() => {
+                      setSelectedVariety(v.variety);
+                      setIsCustomVariety(false);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                      isChosen
+                        ? 'bg-field-green text-white border-field-green shadow-xs'
+                        : 'bg-paper/70 text-ink border-border hover:border-field-green/50 hover:bg-white'
                     }`}
                   >
-                    {v.variety}
-                    <span className="ml-1 text-[10px] opacity-70">
-                      ₹{(v.modalPrice / 100).toFixed(1)}/kg
-                    </span>
+                    {isChosen && <CheckCircle className="w-3 h-3 text-white" />}
+                    <span>{v.variety}</span>
+                    {v.modalPrice && (
+                      <span className={`text-[10px] ml-0.5 px-1.5 py-0.2 rounded-full ${isChosen ? 'bg-white/20 text-white' : 'bg-border/60 text-ink-muted'}`}>
+                        ₹{(v.modalPrice / 100).toFixed(1)}/kg
+                      </span>
+                    )}
                   </button>
-                ))}
-              </div>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCustomVariety(true);
+                  setSelectedVariety('');
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                  isCustomVariety
+                    ? 'bg-field-green text-white border-field-green shadow-xs'
+                    : 'bg-paper/70 text-ink border-border hover:border-field-green/50 hover:bg-white'
+                }`}
+              >
+                + Custom / Other
+              </button>
             </div>
-          )}
+
+            {isCustomVariety && (
+              <div className="pt-2">
+                <input
+                  type="text"
+                  placeholder="Enter specific variety or cultivar name (e.g. White Onion, Bangalore Blue)..."
+                  value={customVariety}
+                  onChange={(e) => setCustomVariety(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-border focus:border-field-green focus:outline-hidden text-xs bg-paper/40"
+                  autoFocus
+                />
+              </div>
+            )}
+          </div>
 
           {/* AI Quality Grading & Camera */}
           <div className="bg-white rounded-2xl p-5 border border-border space-y-3">
