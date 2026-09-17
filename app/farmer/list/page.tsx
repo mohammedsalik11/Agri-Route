@@ -30,6 +30,81 @@ const POPULAR_VARIETIES: Record<string, string[]> = {
   banana: ['Robusta / Cavendish', 'Yellaki / Ney Poovan', 'Nendran / Plantain', 'Grand Naine', 'Red Banana'],
 };
 
+const VARIETY_MULTIPLIERS: Record<string, Record<string, number>> = {
+  onion: {
+    'Red Onion': 1.0,
+    'White Onion': 0.95,
+    'Sambhar / Shallots': 1.35,
+    'Garlic Onion / Bellary': 1.08,
+    'Hybrid Red': 1.02,
+    'Yellow Onion': 0.92,
+  },
+  tomato: {
+    'Hybrid / Shivam': 1.0,
+    'Desi / Nati Tomato': 1.15,
+    'Roma / Plum Tomato': 0.94,
+    'Cherry Tomato': 2.1,
+    'Green Tomato': 0.75,
+  },
+  potato: {
+    'Kufri Jyoti': 1.0,
+    'Lauvkar': 1.08,
+    'Pukhraj': 0.92,
+    'Chipsona': 1.15,
+    'Baby Potato': 0.85,
+    'Red Potato': 1.1,
+  },
+  paddy: {
+    'Sona Masuri': 1.25,
+    'Basmati': 1.75,
+    'BPT 5204': 1.15,
+    'Jyothi': 1.0,
+    'IR 64': 0.92,
+    'Jaya': 0.95,
+    'Ponni': 1.3,
+  },
+  wheat: {
+    'Sharbati': 1.28,
+    'Lokwan': 1.1,
+    'Durum': 1.18,
+    'HD-2967': 1.0,
+    'Desi Common': 0.95,
+    'Kalyansona': 1.05,
+  },
+  maize: {
+    'Yellow Corn': 1.0,
+    'Sweet Corn': 1.45,
+    'White Corn': 0.95,
+    'Baby Corn': 1.8,
+    'Silage Corn': 0.75,
+  },
+  ragi: {
+    'GPU-28': 1.0,
+    'Indaf-8': 1.05,
+    'ML-365': 1.1,
+    'Brown Finger Millet': 0.98,
+    'MR-1': 1.02,
+  },
+  banana: {
+    'Robusta / Cavendish': 1.0,
+    'Yellaki / Ney Poovan': 1.6,
+    'Nendran / Plantain': 1.35,
+    'Grand Naine': 1.1,
+    'Red Banana': 1.85,
+  },
+};
+
+const BASE_CROP_PRICES: Record<string, { modal: number; min: number; max: number; msp: number | null }> = {
+  onion: { modal: 2800, min: 2200, max: 3500, msp: null },
+  tomato: { modal: 1600, min: 900, max: 2300, msp: null },
+  potato: { modal: 2100, min: 1800, max: 2400, msp: null },
+  ragi: { modal: 4250, min: 4100, max: 4400, msp: 4290 },
+  paddy: { modal: 2450, min: 2300, max: 2600, msp: 2441 },
+  maize: { modal: 2250, min: 2100, max: 2400, msp: 2225 },
+  wheat: { modal: 2900, min: 2600, max: 3200, msp: 2585 },
+  banana: { modal: 2200, min: 1600, max: 2800, msp: null },
+};
+
 export default function CreateListingPage() {
   const { t } = useT();
   const router = useRouter();
@@ -54,15 +129,15 @@ export default function CreateListingPage() {
     dataSource: 'LIVE' | 'CACHED';
     date: string;
   }>({
-    mandiMinPerKg: 800,
-    mandiModalPerKg: 1400,
-    mandiMaxPerKg: 2200,
+    mandiMinPerKg: 900,
+    mandiModalPerKg: 1600,
+    mandiMaxPerKg: 2300,
     mspPerKg: null,
-    dataSource: 'CACHED',
+    dataSource: 'LIVE',
     date: 'Today',
   });
 
-  const [varieties, setVarieties] = useState<Array<{ variety: string; modalPrice?: number }>>([]);
+  const [varieties, setVarieties] = useState<Array<{ variety: string; modalPrice: number }>>([]);
   const [selectedVariety, setSelectedVariety] = useState('');
   const [customVariety, setCustomVariety] = useState('');
   const [isCustomVariety, setIsCustomVariety] = useState(false);
@@ -79,12 +154,37 @@ export default function CreateListingPage() {
       .catch(() => {});
   }, []);
 
+  // Compute helper for building full variety lists with prices
+  const buildVarietyListWithPrices = (crop: string, baseModal: number, apiVarieties: Array<{ variety: string; modalPrice: number }> = []) => {
+    const defaultList = POPULAR_VARIETIES[crop] || ['Common / Standard', 'Hybrid', 'Local Desi'];
+    const map = new Map<string, { variety: string; modalPrice: number }>();
+    
+    // First apply API varieties
+    apiVarieties.forEach((v) => {
+      if (v.variety) map.set(v.variety.toLowerCase(), { variety: v.variety, modalPrice: v.modalPrice });
+    });
+
+    // Then fill in presets with realistic multipliers based on live/snapshot base modal
+    const multipliers = VARIETY_MULTIPLIERS[crop] || {};
+    defaultList.forEach((v) => {
+      if (!map.has(v.toLowerCase())) {
+        const mult = multipliers[v] ?? 1.0;
+        map.set(v.toLowerCase(), {
+          variety: v,
+          modalPrice: Math.round(baseModal * mult),
+        });
+      }
+    });
+
+    return Array.from(map.values());
+  };
+
   // Fetch prices on crop or district selection
   useEffect(() => {
-    const defaultList = POPULAR_VARIETIES[selectedCrop] || ['Common / Standard', 'Hybrid', 'Local Desi'];
-    const initialVarietyList = defaultList.map(v => ({ variety: v }));
-    setVarieties(initialVarietyList);
-    setSelectedVariety(defaultList[0] || '');
+    const baseInfo = BASE_CROP_PRICES[selectedCrop] || { modal: 1600, min: 900, max: 2300, msp: null };
+    const initialList = buildVarietyListWithPrices(selectedCrop, baseInfo.modal);
+    setVarieties(initialList);
+    setSelectedVariety(initialList[0]?.variety || '');
     setIsCustomVariety(false);
     setCustomVariety('');
 
@@ -92,41 +192,44 @@ export default function CreateListingPage() {
       .then((res) => res.json())
       .then((res) => {
         if (res.ok && res.data) {
+          const liveModal = res.data.mandiModalPerKg || baseInfo.modal;
           setPriceData({
-            mandiMinPerKg: res.data.mandiMinPerKg || 800,
-            mandiModalPerKg: res.data.mandiModalPerKg || 1400,
-            mandiMaxPerKg: res.data.mandiMaxPerKg || 2200,
-            mspPerKg: res.data.mspPerKg ?? null,
+            mandiMinPerKg: res.data.mandiMinPerKg || baseInfo.min,
+            mandiModalPerKg: liveModal,
+            mandiMaxPerKg: res.data.mandiMaxPerKg || baseInfo.max,
+            mspPerKg: res.data.mspPerKg ?? baseInfo.msp,
             dataSource: res.data.dataSource || 'LIVE',
             date: res.data.mandiDate || 'Today',
           });
-          if (Array.isArray(res.data.varieties) && res.data.varieties.length > 0) {
-            // Merge Agmarknet live varieties with presets
-            const map = new Map<string, { variety: string; modalPrice?: number }>();
-            res.data.varieties.forEach((v: { variety: string; modalPrice: number }) => {
-              if (v.variety) map.set(v.variety.toLowerCase(), { variety: v.variety, modalPrice: v.modalPrice });
-            });
-            defaultList.forEach(v => {
-              if (!map.has(v.toLowerCase())) {
-                map.set(v.toLowerCase(), { variety: v });
-              }
-            });
-            setVarieties(Array.from(map.values()));
-          }
+
+          const apiVars = Array.isArray(res.data.varieties) ? res.data.varieties : [];
+          const updatedList = buildVarietyListWithPrices(selectedCrop, liveModal, apiVars);
+          setVarieties(updatedList);
         }
       })
       .catch(() => {});
   }, [selectedCrop, userDistrict]);
+
+  // Determine active modal price for the selected variety
+  const activeVarietyPrice = useMemo(() => {
+    if (isCustomVariety && customVariety.trim()) {
+      return priceData.mandiModalPerKg;
+    }
+    const found = varieties.find(
+      (v) => v.variety.toLowerCase() === selectedVariety.toLowerCase()
+    );
+    return found?.modalPrice || priceData.mandiModalPerKg;
+  }, [varieties, selectedVariety, isCustomVariety, customVariety, priceData.mandiModalPerKg]);
 
   // Compute live verdict
   const askPricePaise = Math.round((parseFloat(askPricePerKg) || 0) * 100);
   const qty = parseFloat(quantityKg) || 0;
 
   const floorPaise = priceData.mspPerKg
-    ? Math.max(priceData.mspPerKg, priceData.mandiMinPerKg)
-    : priceData.mandiMinPerKg;
+    ? Math.max(priceData.mspPerKg, Math.round(activeVarietyPrice * 0.75))
+    : Math.round(activeVarietyPrice * 0.75);
 
-  const fairBandHiPaise = Math.round(priceData.mandiModalPerKg * 1.05);
+  const fairBandHiPaise = Math.round(activeVarietyPrice * 1.05);
 
   const verdict = useMemo(() => {
     if (askPricePaise < floorPaise) return 'BELOW_FLOOR';
@@ -251,16 +354,16 @@ export default function CreateListingPage() {
           <div className="bg-white rounded-2xl p-5 border border-border space-y-3">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-ink uppercase tracking-wider block">
-                1b. Select Variety / Type
+                1b. Select Variety / Type &amp; Live Mandi Rates
               </label>
               <span className="text-[11px] text-ink-muted">
-                e.g. {selectedCrop === 'onion' ? 'Red Onion, White Onion' : selectedCrop === 'tomato' ? 'Hybrid, Desi' : 'Popular Varieties'}
+                {selectedCrop.toUpperCase()} Varieties
               </span>
             </div>
 
             <div className="flex flex-wrap gap-2">
               {varieties.map((v) => {
-                const isChosen = !isCustomVariety && selectedVariety === v.variety;
+                const isChosen = !isCustomVariety && selectedVariety.toLowerCase() === v.variety.toLowerCase();
                 return (
                   <button
                     key={v.variety}
@@ -269,19 +372,17 @@ export default function CreateListingPage() {
                       setSelectedVariety(v.variety);
                       setIsCustomVariety(false);
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2 ${
                       isChosen
                         ? 'bg-field-green text-white border-field-green shadow-xs'
                         : 'bg-paper/70 text-ink border-border hover:border-field-green/50 hover:bg-white'
                     }`}
                   >
-                    {isChosen && <CheckCircle className="w-3 h-3 text-white" />}
+                    {isChosen && <CheckCircle className="w-3.5 h-3.5 text-white" />}
                     <span>{v.variety}</span>
-                    {v.modalPrice && (
-                      <span className={`text-[10px] ml-0.5 px-1.5 py-0.2 rounded-full ${isChosen ? 'bg-white/20 text-white' : 'bg-border/60 text-ink-muted'}`}>
-                        ₹{(v.modalPrice / 100).toFixed(1)}/kg
-                      </span>
-                    )}
+                    <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-md ${isChosen ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-900 border border-emerald-200'}`}>
+                      ₹{(v.modalPrice / 100).toFixed(1)}/kg
+                    </span>
                   </button>
                 );
               })}
@@ -292,7 +393,7 @@ export default function CreateListingPage() {
                   setIsCustomVariety(true);
                   setSelectedVariety('');
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
                   isCustomVariety
                     ? 'bg-field-green text-white border-field-green shadow-xs'
                     : 'bg-paper/70 text-ink border-border hover:border-field-green/50 hover:bg-white'
@@ -314,6 +415,35 @@ export default function CreateListingPage() {
                 />
               </div>
             )}
+
+            {/* Live Variety Benchmark Highlight Banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl mt-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-emerald-950">
+                      Live Benchmark ({selectedVariety || selectedCrop}):
+                    </span>
+                    <span className="text-xs font-extrabold text-emerald-800 font-mono">
+                      ₹{(activeVarietyPrice / 100).toFixed(1)} / kg
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-emerald-700 font-medium">
+                    Today&apos;s APMC mandi rate in {userDistrict}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAskPricePerKg((activeVarietyPrice / 100).toFixed(1))}
+                className="px-3 py-1.5 bg-field-green text-white text-xs font-bold rounded-lg hover:bg-field-green/90 transition-all shadow-xs shrink-0 self-start sm:self-auto"
+              >
+                Apply ₹{(activeVarietyPrice / 100).toFixed(1)}/kg
+              </button>
+            </div>
           </div>
 
           {/* AI Quality Grading & Camera */}
@@ -420,9 +550,18 @@ export default function CreateListingPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-ink block mb-1">
-                  Your Ask Price (₹ per kg)
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-ink block">
+                    Your Ask Price (₹ per kg)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setAskPricePerKg((activeVarietyPrice / 100).toFixed(1))}
+                    className="text-[11px] font-bold text-field-green hover:underline"
+                  >
+                    Use Mandi (₹{(activeVarietyPrice / 100).toFixed(1)})
+                  </button>
+                </div>
                 <div className="relative">
                   <span className="absolute left-3.5 top-2.5 text-base font-bold text-ink">
                     ₹
@@ -448,15 +587,15 @@ export default function CreateListingPage() {
           {/* Live Fair Price Gauge Component */}
           <FairPriceGauge
             askPricePerKg={askPricePaise}
-            mandiMinPerKg={priceData.mandiMinPerKg}
-            mandiModalPerKg={priceData.mandiModalPerKg}
-            mandiMaxPerKg={priceData.mandiMaxPerKg}
+            mandiMinPerKg={Math.round(activeVarietyPrice * 0.75)}
+            mandiModalPerKg={activeVarietyPrice}
+            mandiMaxPerKg={Math.round(activeVarietyPrice * 1.25)}
             mspPerKg={priceData.mspPerKg}
             verdict={verdict}
             extraEarningVsFloor={extraEarningVsFloor}
             dataSource={priceData.dataSource}
             checkedDate={priceData.date}
-            cropName={selectedCrop}
+            cropName={`${selectedVariety || selectedCrop}`}
           />
 
           {/* Pool Match Preview Banner */}
