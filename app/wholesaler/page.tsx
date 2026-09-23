@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { CartDrawer } from '@/components/CartDrawer';
+import { KisanBot } from '@/components/KisanBot';
 import { useCart } from '@/lib/context/CartContext';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import {
@@ -101,7 +102,7 @@ export default function WholesalerBrowsePage() {
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
       <Navbar />
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Wholesaler Header */}
         <div className="flex items-center justify-between bg-white rounded-2xl p-5 border border-border">
           <div>
@@ -486,6 +487,7 @@ export default function WholesalerBrowsePage() {
           )
         )}
       </main>
+      <KisanBot userRole="wholesaler" />
     </div>
   );
 }

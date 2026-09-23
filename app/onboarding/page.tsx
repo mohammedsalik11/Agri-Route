@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useT, useLanguage } from '@/lib/i18n/LanguageProvider';
-import { Sprout, Store, Truck, Warehouse, AlertCircle, Loader2, CheckCircle, Info, Sparkles, ArrowLeft } from 'lucide-react';
+import { Sprout, Store, Truck, Warehouse, AlertCircle, Loader2, CheckCircle, Info, ArrowLeft } from 'lucide-react';
 
 const DISTRICTS_KA = [
   'Bagalkot', 'Ballari', 'Belagavi', 'Bengaluru Rural', 'Bengaluru Urban',
@@ -20,29 +20,8 @@ const CROP_OPTIONS = [
   'Soybean', 'Sugarcane', 'Cotton',
 ];
 
-const DEMO_PRESETS = {
-  farmer: [
-    { id: 'KA-MAN-2026-004417', name: 'Lakshmamma', district: 'Mandya', village: 'Dudda', acres: '3.5', crops: ['Tomato', 'Paddy', 'Ragi'] },
-    { id: 'KA-MYS-2026-001001', name: 'Mahesh Kumar', district: 'Mysuru', village: 'Nanjangud', acres: '5.0', crops: ['Banana', 'Wheat', 'Maize'] },
-    { id: 'KA-HAS-2026-002001', name: 'Eregowda', district: 'Hassan', village: 'Alur', acres: '4.2', crops: ['Potato', 'Maize', 'Sugarcane'] },
-  ],
-  wholesaler: [
-    { id: 'WS-KA-2026-1183', name: 'Suresh Kumar', businessName: 'Suresh Traders', district: 'Bengaluru Urban', gstin: '29AAAAA1183A1Z5' },
-    { id: 'WS-KA-2026-1188', name: 'Raghavendra Rao', businessName: 'Mysuru Grain Merchants', district: 'Mysuru', gstin: '29BBBBB1188B1Z2' },
-    { id: 'WS-KA-2026-1191', name: 'Prashanth Shetty', businessName: 'Mangala Fresh Produce', district: 'Dakshina Kannada', gstin: '29CCCCC1191C1Z9' },
-  ],
-  logistics_driver: [
-    { id: 'DRV-KA-2026-1042', name: 'Ramesh Gowda', district: 'Mandya', vehicleType: 'truck' as const, vehicleNumber: 'KA-11-E-4281', vehicleCapacityKg: '5000', isRefrigerated: false },
-    { id: 'DRV-KA-2026-2189', name: 'Manjunath K', district: 'Mandya', vehicleType: 'mini_truck' as const, vehicleNumber: 'KA-11-TR-9021', vehicleCapacityKg: '2500', isRefrigerated: true },
-    { id: 'DRV-KA-2026-3351', name: 'Siddaraju N', district: 'Mysuru', vehicleType: 'truck' as const, vehicleNumber: 'KA-09-MA-1144', vehicleCapacityKg: '6000', isRefrigerated: false },
-  ],
-  storage_owner: [
-    { id: 'STO-KA-2026-1001', name: 'H. M. Chandrashekar', businessName: 'Karnataka Cold Chain Pvt Ltd', facilityName: 'Mandya Agri Cold Store', district: 'Mandya', capacityKg: '500000', pricePerKgPerDay: '15', licenseNumber: 'WDRA-KA-MAN-2024-0891' },
-    { id: 'STO-KA-2026-1003', name: 'Dr. Venkatesh Murthy', businessName: 'Mysuru Mega Cold Logistics Ltd', facilityName: 'Mysuru Mega Veg Cold Logistics', district: 'Mysuru', capacityKg: '1000000', pricePerKgPerDay: '18', licenseNumber: 'WDRA-KA-MYS-2023-0442' },
-    { id: 'STO-KA-2026-1006', name: 'K. S. Manjunatha Swamy', businessName: 'Hassan Potato Cold Space & Logistics', facilityName: 'Hassan Potato Cold Space & Logistics', district: 'Hassan', capacityKg: '1500000', pricePerKgPerDay: '12', licenseNumber: 'WDRA-KA-HAS-2024-0012' },
-    { id: 'STO-KA-2026-1008', name: 'R. Narayanaswamy', businessName: 'Kolar Gold Field Tomato Preservation', facilityName: 'Kolar Gold Field Tomato Preservation', district: 'Kolar', capacityKg: '1200000', pricePerKgPerDay: '16', licenseNumber: 'WDRA-KA-KOL-2023-0518' },
-  ],
-};
+
+
 
 export default function OnboardingPage() {
   const { t } = useT();
@@ -132,32 +111,6 @@ export default function OnboardingPage() {
     setStep(2);
   };
 
-  const applyPreset = (preset: any) => {
-    setName(preset.name || '');
-    setIdNumber(preset.id || '');
-    setDistrict(preset.district || 'Mandya');
-    if (role === 'farmer') {
-      setVillage(preset.village || '');
-      setLandSizeAcres(preset.acres || '3.5');
-      setSelectedCrops(preset.crops || ['Tomato']);
-    } else if (role === 'wholesaler') {
-      setBusinessName(preset.businessName || '');
-      setGstin(preset.gstin || '');
-    } else if (role === 'logistics_driver') {
-      setVehicleType(preset.vehicleType || 'truck');
-      setVehicleNumber(preset.vehicleNumber || 'KA-11-E-4281');
-      setVehicleCapacityKg(preset.vehicleCapacityKg || '5000');
-      setIsRefrigerated(preset.isRefrigerated || false);
-    } else if (role === 'storage_owner') {
-      setBusinessName(preset.businessName || '');
-      setFacilityName(preset.facilityName || '');
-      setStorageCapacityKg(preset.capacityKg || '500000');
-      setPricePerKgPerDay(preset.pricePerKgPerDay || '15');
-      setLicenseNumber(preset.licenseNumber || 'WDRA-KA-2024-001');
-      setFacilityAddress(`${preset.district} Industrial Area, Karnataka`);
-    }
-    setError(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -390,26 +343,6 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* Demo Quick Presets */}
-        <div className="mb-5 p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl shadow-xs">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Quick Demo ID Presets (Click to autofill):</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {DEMO_PRESETS[role].map((p, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => applyPreset(p)}
-                className="px-2.5 py-1.5 bg-white border border-amber-300 rounded-lg text-xs font-medium text-amber-950 hover:bg-amber-100/50 shadow-xs transition-colors flex items-center gap-1"
-              >
-                <span className="font-mono text-[11px] font-bold text-amber-700">{p.id}</span>
-                <span>({p.name})</span>
-              </button>
-            ))}
-          </div>
-        </div>
 
         {/* Registry note */}
         <div className="mb-5 p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2.5 text-xs">

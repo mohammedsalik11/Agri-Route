@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
+import { KisanBot } from '@/components/KisanBot';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import {
   Truck,
@@ -226,7 +227,7 @@ export default function DriverDashboardPage() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Driver Profile & Vehicle Badge */}
         <div className="bg-white border border-border rounded-2xl p-5 mb-6 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -770,6 +771,7 @@ export default function DriverDashboardPage() {
           </div>
         </div>
       )}
+      <KisanBot userRole="logistics_driver" />
     </div>
   );
 }

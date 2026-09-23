@@ -5,25 +5,27 @@ import { useSearchParams } from 'next/navigation';
 import {
   MessageSquare,
   Send,
-  User,
   Store,
   Sprout,
   ShieldCheck,
   Search,
   ArrowLeft,
   Loader2,
-  Clock,
   Sparkles,
   Package,
+  Truck,
+  Warehouse,
 } from 'lucide-react';
 import { useT } from '@/lib/i18n/LanguageProvider';
+
+type AnyRole = 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner';
 
 interface ChatMessage {
   messageId: string;
   conversationId: string;
   senderId: string;
   senderName: string;
-  senderRole: 'farmer' | 'wholesaler' | 'driver' | 'admin';
+  senderRole: AnyRole;
   text: string;
   createdAt: string;
   read: boolean;
@@ -37,7 +39,7 @@ interface Conversation {
     {
       userId: string;
       name: string;
-      role: 'farmer' | 'wholesaler' | 'driver' | 'admin';
+      role: AnyRole;
       businessName?: string;
       district?: string;
     }
@@ -63,8 +65,29 @@ interface Conversation {
 }
 
 interface ChatInterfaceProps {
-  currentRole: 'farmer' | 'wholesaler';
+  currentRole: AnyRole;
 }
+
+const getRoleIcon = (role: string) => {
+  if (role === 'wholesaler') return <Store className="w-5 h-5" />;
+  if (role === 'logistics_driver') return <Truck className="w-5 h-5" />;
+  if (role === 'storage_owner') return <Warehouse className="w-5 h-5" />;
+  return <Sprout className="w-5 h-5" />;
+};
+
+const getRoleColors = (role: string) => {
+  if (role === 'wholesaler') return 'bg-amber-100 text-amber-800';
+  if (role === 'logistics_driver') return 'bg-blue-100 text-blue-800';
+  if (role === 'storage_owner') return 'bg-cyan-100 text-cyan-800';
+  return 'bg-emerald-100 text-emerald-800';
+};
+
+const getRoleLabel = (role: string) => {
+  if (role === 'wholesaler') return 'Wholesaler';
+  if (role === 'logistics_driver') return 'Driver';
+  if (role === 'storage_owner') return 'Storage';
+  return 'Farmer';
+};
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentRole }) => {
   const { t, formatCurrency } = useT();
@@ -92,9 +115,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentRole }) => 
   const [pendingRecipient, setPendingRecipient] = useState<{
     id: string;
     name: string;
-    role: 'farmer' | 'wholesaler';
+    role: AnyRole;
     crop?: string;
   } | null>(null);
+
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -279,7 +303,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentRole }) => 
               Direct Messages
             </h1>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-field-green/10 text-field-green">
-              {currentRole === 'farmer' ? 'Farmer Connect' : 'Wholesaler Connect'}
+              {getRoleLabel(currentRole)} Connect
             </span>
           </div>
           <div className="relative">
@@ -306,9 +330,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentRole }) => 
               <MessageSquare className="w-10 h-10 mx-auto mb-2 text-ink-muted/40" />
               <p className="font-semibold text-sm text-ink">No conversations yet</p>
               <p className="text-xs mt-1">
-                {currentRole === 'farmer'
-                  ? 'Wholesalers will message you regarding your listed lots and offers.'
-                  : 'Browse lots or farmer listings and click "Message Farmer" to start a chat.'}
+                Messages from traders and partners will appear here.
               </p>
             </div>
           ) : (
@@ -363,17 +385,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentRole }) => 
                     }`}
                   >
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold text-sm ${
-                        other?.role === 'wholesaler'
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold text-sm ${getRoleColors(other?.role || 'farmer')}`}
                     >
-                      {other?.role === 'wholesaler' ? (
-                        <Store className="w-5 h-5" />
-                      ) : (
-                        <Sprout className="w-5 h-5" />
-                      )}
+                      {getRoleIcon(other?.role || 'farmer')}
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -427,17 +441,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentRole }) => 
               </button>
 
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
-                  otherParticipant.role === 'wholesaler'
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'bg-emerald-100 text-emerald-800'
-                }`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${getRoleColors(otherParticipant.role)}`}
               >
-                {otherParticipant.role === 'wholesaler' ? (
-                  <Store className="w-5 h-5" />
-                ) : (
-                  <Sprout className="w-5 h-5" />
-                )}
+                {getRoleIcon(otherParticipant.role)}
               </div>
 
               <div>
@@ -446,7 +452,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentRole }) => 
                     {otherParticipant.name || 'Trade Partner'}
                   </h2>
                   <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-stone-100 text-ink-muted">
-                    {otherParticipant.role}
+                    {getRoleLabel(otherParticipant.role)}
                   </span>
                 </div>
                 <p className="text-[11px] text-ink-muted flex items-center gap-1">
@@ -534,11 +540,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentRole }) => 
           >
             <input
               type="text"
-              placeholder={
-                currentRole === 'farmer'
-                  ? 'Message wholesaler about lot availability, quality, or pickup...'
-                  : 'Message farmer about lot quantity, negotiation, or delivery schedule...'
-              }
+              placeholder="Type your message..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               disabled={sending}

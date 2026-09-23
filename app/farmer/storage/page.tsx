@@ -206,7 +206,7 @@ export default function ColdStoragePage() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <div>
           <span className="text-xs font-bold text-field-green uppercase tracking-wide">
             Cold Chain &amp; Price Preservation Network

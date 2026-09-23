@@ -10,7 +10,7 @@ export default function FarmerMessagesPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-paper pb-20 md:pb-8 pt-4">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-64">

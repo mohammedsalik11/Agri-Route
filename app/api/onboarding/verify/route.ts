@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate ID format & registry
+    // Validate ID format & registry — STRICT: reject if ID matches a DIFFERENT role's pattern
     let verificationSource = 'official-registry';
 
     if (role === 'farmer') {
@@ -62,7 +62,15 @@ export async function POST(request: Request) {
         f => f.farmerId === idNumber
       );
 
-      if (!isRegexMatch && !registryMatch && idNumber.length < 5) {
+      // Reject if the ID looks like a different role's ID
+      if (WHOLESALER_ID_REGEX.test(idNumber) || DRIVER_ID_REGEX.test(idNumber) || STORAGE_OWNER_ID_REGEX.test(idNumber)) {
+        return NextResponse.json(
+          { ok: false, error: 'WRONG_ROLE', message: 'This ID belongs to a different role. Please select the correct role for your registration.' },
+          { status: 400 }
+        );
+      }
+
+      if (!isRegexMatch && !registryMatch) {
         return NextResponse.json(
           { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Farmer ID format. Expected: KA-XXX-YYYY-NNNNNN (e.g. KA-MAN-2026-004417)' },
           { status: 400 }
@@ -91,7 +99,15 @@ export async function POST(request: Request) {
         w => w.wholesalerId === idNumber
       );
 
-      if (!isRegexMatch && !registryMatch && idNumber.length < 5) {
+      // Reject if the ID looks like a different role's ID
+      if (FARMER_ID_REGEX.test(idNumber) || DRIVER_ID_REGEX.test(idNumber) || STORAGE_OWNER_ID_REGEX.test(idNumber)) {
+        return NextResponse.json(
+          { ok: false, error: 'WRONG_ROLE', message: 'This ID belongs to a different role. Please select the correct role for your registration.' },
+          { status: 400 }
+        );
+      }
+
+      if (!isRegexMatch && !registryMatch) {
         return NextResponse.json(
           { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Wholesaler ID format. Expected: WS-KA-YYYY-XXXX (e.g. WS-KA-2026-1183)' },
           { status: 400 }
@@ -120,7 +136,15 @@ export async function POST(request: Request) {
         d => d.driverId === idNumber
       );
 
-      if (!isRegexMatch && !registryMatch && idNumber.length < 5) {
+      // Reject if the ID looks like a different role's ID
+      if (FARMER_ID_REGEX.test(idNumber) || WHOLESALER_ID_REGEX.test(idNumber) || STORAGE_OWNER_ID_REGEX.test(idNumber)) {
+        return NextResponse.json(
+          { ok: false, error: 'WRONG_ROLE', message: 'This ID belongs to a different role. Please select the correct role for your registration.' },
+          { status: 400 }
+        );
+      }
+
+      if (!isRegexMatch && !registryMatch) {
         return NextResponse.json(
           { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Driver ID format. Expected: DRV-KA-YYYY-XXXX (e.g. DRV-KA-2026-1042)' },
           { status: 400 }
@@ -149,7 +173,15 @@ export async function POST(request: Request) {
         s => s.ownerId === idNumber
       );
 
-      if (!isRegexMatch && !registryMatch && idNumber.length < 5) {
+      // Reject if the ID looks like a different role's ID
+      if (FARMER_ID_REGEX.test(idNumber) || WHOLESALER_ID_REGEX.test(idNumber) || DRIVER_ID_REGEX.test(idNumber)) {
+        return NextResponse.json(
+          { ok: false, error: 'WRONG_ROLE', message: 'This ID belongs to a different role. Please select the correct role for your registration.' },
+          { status: 400 }
+        );
+      }
+
+      if (!isRegexMatch && !registryMatch) {
         return NextResponse.json(
           { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Storage Provider ID format. Expected: STO-KA-YYYY-XXXX (e.g. STO-KA-2026-1001)' },
           { status: 400 }
@@ -172,6 +204,7 @@ export async function POST(request: Request) {
         console.warn('Duplicate storage owner check failed (non-fatal):', queryErr);
       }
     }
+
 
     // Fetch user details from Clerk if available
     let userPhone = '';

@@ -21,6 +21,7 @@ export async function POST() {
       'notifications',
       'priceCache',
       'coldStorages',
+      'conversations',
     ];
 
     for (const collectionName of collectionsToReset) {
@@ -117,6 +118,98 @@ export async function POST() {
     for (const fac of coldStoragesData) {
       await db.collection('coldStorages').doc(fac.facilityId).set(fac, { merge: true });
     }
+
+    // Seed 2 demo cold storage owner user profiles
+    await db.collection('users').doc('demo_storage_owner_01').set({
+      clerkUserId: 'demo_storage_owner_01',
+      role: 'storage_owner',
+      name: 'H. M. Chandrashekar',
+      ownerId: 'STO-KA-2026-1001',
+      businessName: 'Karnataka Cold Chain Pvt Ltd',
+      facilityName: 'Mandya Agri Cold Store',
+      facilityId: 'cs-mandya-01',
+      district: 'Mandya',
+      state: 'Karnataka',
+      phone: '+919876543210',
+      email: 'chandrashekar@karnatakacold.in',
+      licenseNumber: 'WDRA-KA-MAN-2024-0891',
+      storageCapacityKg: 500000,
+      availableCapacityKg: 180000,
+      pricePerKgPerDay: 15,
+      facilityAddress: 'Plot 14-16, KIADB Industrial Area, Tubinakere, Mandya - 571402',
+      verificationStatus: 'verified',
+      verificationSource: 'seeded-registry',
+      createdAt: now.toISOString(),
+    }, { merge: true });
+
+    await db.collection('users').doc('demo_storage_owner_02').set({
+      clerkUserId: 'demo_storage_owner_02',
+      role: 'storage_owner',
+      name: 'K. R. Srinivas Gowda',
+      ownerId: 'STO-KA-2026-1002',
+      businessName: 'Mandya Farmers Co-op Cold Storage',
+      facilityName: 'KRS Fresh Farmers Co-op Storage',
+      facilityId: 'cs-mandya-02',
+      district: 'Mandya',
+      state: 'Karnataka',
+      phone: '+919876543211',
+      email: 'srinivas@mandyacoop.org',
+      licenseNumber: 'APMC-MAN-CS-2023-114',
+      storageCapacityKg: 300000,
+      availableCapacityKg: 95000,
+      pricePerKgPerDay: 12,
+      facilityAddress: 'APMC Yard Gate 2, Mysuru-Bengaluru Highway, Mandya - 571401',
+      verificationStatus: 'verified',
+      verificationSource: 'seeded-registry',
+      createdAt: now.toISOString(),
+    }, { merge: true });
+
+    // Seed 2 demo storage bookings (1 active, 1 confirmed)
+    await db.collection('storageBookings').doc('bk_demo_01').set({
+      bookingId: 'bk_demo_01',
+      facilityId: 'cs-mandya-01',
+      facilityName: 'Mandya Agri Cold Store',
+      farmerId: 'KA-MAN-2026-004417',
+      userId: 'demo_farmer_lakshmamma',
+      userRole: 'farmer',
+      userName: 'Lakshmamma',
+      userPhone: '+919876543210',
+      crop: 'tomato',
+      quantityKg: 600,
+      startDate: now.toISOString().slice(0, 10),
+      endDate: windowEnd.toISOString().slice(0, 10),
+      days: 5,
+      totalCost: 4500, // 600 kg * 5 days * 15 paise
+      status: 'active',
+      contactPhone: '+919876543210',
+      pickupAddress: 'Dudda Village, Mandya District',
+      requestLogistics: true,
+      logisticsJobId: 'job_demo_storage_01',
+      createdAt: now.toISOString(),
+    });
+
+    await db.collection('storageBookings').doc('bk_demo_02').set({
+      bookingId: 'bk_demo_02',
+      facilityId: 'cs-mandya-02',
+      facilityName: 'KRS Fresh Farmers Co-op Storage',
+      farmerId: 'KA-MYS-2026-001001',
+      userId: 'demo_farmer_mahesh',
+      userRole: 'farmer',
+      userName: 'Mahesh Kumar',
+      userPhone: '+919876543212',
+      crop: 'potato',
+      quantityKg: 1200,
+      startDate: now.toISOString().slice(0, 10),
+      endDate: windowEnd.toISOString().slice(0, 10),
+      days: 5,
+      totalCost: 7200, // 1200 kg * 5 days * 12 paise
+      status: 'confirmed',
+      contactPhone: '+919876543212',
+      pickupAddress: 'Nanjangud, Mysuru District',
+      requestLogistics: false,
+      logisticsJobId: null,
+      createdAt: now.toISOString(),
+    });
 
     return NextResponse.json({
       ok: true,

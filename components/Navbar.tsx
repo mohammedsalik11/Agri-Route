@@ -28,7 +28,7 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           {/* Brand */}
           <Link href={homeLink} className="flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 border border-border/80 shadow-xs group-hover:border-field-green/60 transition-all">
@@ -212,6 +212,16 @@ export const Navbar: React.FC = () => {
                 >
                   Available Loads
                 </Link>
+                <Link
+                  href="/driver/messages"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/driver/messages'
+                      ? 'bg-blue-50 text-blue-700 font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-blue-600 hover:bg-black/5'
+                  }`}
+                >
+                  Messages
+                </Link>
               </>
             )}
             {isStorageOwner && (
@@ -225,6 +235,16 @@ export const Navbar: React.FC = () => {
                   }`}
                 >
                   Storage Dashboard
+                </Link>
+                <Link
+                  href="/storage-owner/messages"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/storage-owner/messages'
+                      ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-emerald-700 hover:bg-black/5'
+                  }`}
+                >
+                  Messages
                 </Link>
               </>
             )}
@@ -331,12 +351,20 @@ export const Navbar: React.FC = () => {
               <ShoppingBag className="w-5 h-5" />
               <span>My Trips</span>
             </Link>
+            <Link href="/driver/messages" className={`flex flex-col items-center gap-1 w-full ${pathname === '/driver/messages' ? 'text-blue-600 font-bold' : 'text-ink-muted'}`}>
+              <MessageSquare className="w-5 h-5" />
+              <span>Messages</span>
+            </Link>
           </div>
         ) : isStorageOwner ? (
           <div className="flex items-center justify-around px-2 py-2 text-[10px] font-medium h-16">
             <Link href="/storage-owner" className={`flex flex-col items-center gap-1 w-full ${pathname === '/storage-owner' ? 'text-emerald-600 font-bold' : 'text-ink-muted'}`}>
               <Warehouse className="w-5 h-5" />
               <span>Facilities</span>
+            </Link>
+            <Link href="/storage-owner/messages" className={`flex flex-col items-center gap-1 w-full ${pathname === '/storage-owner/messages' ? 'text-emerald-600 font-bold' : 'text-ink-muted'}`}>
+              <MessageSquare className="w-5 h-5" />
+              <span>Messages</span>
             </Link>
           </div>
         ) : null}

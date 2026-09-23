@@ -112,7 +112,7 @@ export default function AdminDemoPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white pb-16">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-6 rounded-2xl">
           <div>

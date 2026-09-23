@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { DataSourceBadge } from '@/components/DataSourceBadge';
+import { KisanBot } from '@/components/KisanBot';
 import { useT, useLanguage } from '@/lib/i18n/LanguageProvider';
 import {
   PlusCircle,
@@ -164,7 +165,7 @@ export default function FarmerDashboard() {
     return (
       <div className="min-h-screen bg-paper pb-24">
         <Navbar />
-        <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
           <div className="animate-pulse bg-white rounded-2xl h-24 w-full border border-border" />
           <div className="animate-pulse bg-white rounded-2xl h-48 w-full border border-border" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -187,7 +188,7 @@ export default function FarmerDashboard() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Welcome & Persona Banner */}
         <div className="bg-white rounded-2xl p-5 border border-border shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -540,6 +541,7 @@ export default function FarmerDashboard() {
           </div>
         </div>
       </main>
+      <KisanBot userRole="farmer" />
     </div>
   );
 }

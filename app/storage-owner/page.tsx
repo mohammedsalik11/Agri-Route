@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
+import { KisanBot } from '@/components/KisanBot';
 import { useT } from '@/lib/i18n/LanguageProvider';
 import {
   Warehouse,
@@ -741,6 +742,7 @@ export default function StorageOwnerDashboard() {
           </div>
         )}
       </main>
+      <KisanBot userRole="storage_owner" />
     </div>
   );
 }

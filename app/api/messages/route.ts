@@ -82,12 +82,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: 'Could not determine recipient' }, { status: 400 });
     }
 
-    const senderName = user.name || user.businessName || (user.role === 'farmer' ? 'Farmer' : 'Wholesaler');
+    const senderName = user.name || user.businessName || (user.role === 'farmer' ? 'Farmer' : user.role === 'wholesaler' ? 'Wholesaler' : user.role === 'logistics_driver' ? 'Driver' : 'Storage Provider');
 
     const res = await messageService.sendMessage({
       senderId: user.clerkUserId,
       senderName,
-      senderRole: user.role as 'farmer' | 'wholesaler' | 'driver' | 'admin',
+      senderRole: user.role as any,
       recipientId: targetRecipientId,
       recipientName: targetRecipientName,
       recipientRole: targetRecipientRole,
