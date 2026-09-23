@@ -1,306 +1,904 @@
 [
   {
     "facilityId": "cs-mandya-01",
+    "ownerId": "STO-KA-2026-1001",
     "name": "Mandya Agri Cold Store",
     "operator": "Karnataka Cold Chain Pvt Ltd",
     "district": "Mandya",
     "state": "Karnataka",
     "lat": 12.5218,
     "lng": 76.8951,
+    "address": "Plot 14-16, KIADB Industrial Area, Tubinakere, Mandya - 571402",
     "totalCapacityKg": 500000,
     "availableCapacityKg": 180000,
-    "suitableCrops": ["tomato", "potato", "onion"],
-    "tempRangeC": [2, 8],
+    "suitableCrops": [
+      "tomato",
+      "potato",
+      "onion",
+      "vegetables"
+    ],
+    "tempRangeC": [
+      2,
+      8
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 15,
     "contactPhone": "+919876543210",
-    "subsidySchemeTag": "AIF"
+    "licenseNumber": "WDRA-KA-MAN-2024-0891",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.8,
+    "features": [
+      "Solar Powered",
+      "24/7 CCTV",
+      "Loading Dock",
+      "Pre-cooling Chamber",
+      "Backup Generator"
+    ],
+    "facilityImages": [
+      "/storage/mandya-01.jpg"
+    ]
   },
   {
     "facilityId": "cs-mandya-02",
-    "name": "KRS Fresh Storage",
+    "ownerId": "STO-KA-2026-1002",
+    "name": "KRS Fresh Farmers Co-op Storage",
     "operator": "Mandya Farmers Co-op",
     "district": "Mandya",
     "state": "Karnataka",
-    "lat": 12.5510,
-    "lng": 76.9200,
+    "lat": 12.551,
+    "lng": 76.92,
+    "address": "APMC Yard Gate 2, Mysuru-Bengaluru Highway, Mandya - 571401",
     "totalCapacityKg": 300000,
-    "availableCapacityKg": 50000,
-    "suitableCrops": ["tomato", "potato", "banana"],
-    "tempRangeC": [2, 10],
+    "availableCapacityKg": 95000,
+    "suitableCrops": [
+      "tomato",
+      "potato",
+      "banana",
+      "beans"
+    ],
+    "tempRangeC": [
+      2,
+      10
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 12,
     "contactPhone": "+919876543211",
-    "subsidySchemeTag": null
+    "licenseNumber": "APMC-MAN-CS-2023-114",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.6,
+    "features": [
+      "Direct Mandi Railing",
+      "Humidity Control",
+      "Weighbridge"
+    ],
+    "facilityImages": [
+      "/storage/mandya-02.jpg"
+    ]
+  },
+  {
+    "facilityId": "cs-mandya-03",
+    "ownerId": "STO-KA-2026-1001",
+    "name": "Maddur Mega Agro Cold Zone",
+    "operator": "Karnataka Cold Chain Pvt Ltd",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "lat": 12.5833,
+    "lng": 77.05,
+    "address": "Tender Coconut Market Complex, Maddur, Mandya - 571428",
+    "totalCapacityKg": 650000,
+    "availableCapacityKg": 280000,
+    "suitableCrops": [
+      "banana",
+      "tomato",
+      "mango",
+      "papaya"
+    ],
+    "tempRangeC": [
+      4,
+      12
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 14,
+    "contactPhone": "+919876543210",
+    "licenseNumber": "WDRA-KA-MAN-2024-0902",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.7,
+    "features": [
+      "Ripening Chamber",
+      "Controlled Atmosphere",
+      "Grading Area"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-mysuru-01",
-    "name": "Mysuru Veg Cold Chain",
-    "operator": "Mysuru Logistics",
+    "ownerId": "STO-KA-2026-1003",
+    "name": "Mysuru Mega Veg Cold Logistics",
+    "operator": "Mysuru Mega Cold Logistics Ltd",
     "district": "Mysuru",
     "state": "Karnataka",
     "lat": 12.3051,
-    "lng": 76.6400,
+    "lng": 76.64,
+    "address": "Ring Road Junction, Hebbal Industrial Area, Mysuru - 570016",
     "totalCapacityKg": 1000000,
-    "availableCapacityKg": 400000,
-    "suitableCrops": ["tomato", "potato", "onion", "banana"],
-    "tempRangeC": [0, 8],
+    "availableCapacityKg": 420000,
+    "suitableCrops": [
+      "tomato",
+      "potato",
+      "onion",
+      "banana",
+      "cabbage",
+      "cauliflower"
+    ],
+    "tempRangeC": [
+      0,
+      8
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 18,
     "contactPhone": "+919876543212",
-    "subsidySchemeTag": "AIF"
+    "licenseNumber": "WDRA-KA-MYS-2023-0442",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.9,
+    "features": [
+      "Sub-Zero Freezer Rooms",
+      "Palletized Multi-tier Racking",
+      "EV Fleet Charging"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-mysuru-02",
-    "name": "Nanjangud Cold Storage",
-    "operator": "Nanjangud Agro",
+    "ownerId": "STO-KA-2026-1004",
+    "name": "Nanjangud Agro Preservation Hub",
+    "operator": "Nanjangud Agro Preservation Hub",
     "district": "Mysuru",
     "state": "Karnataka",
-    "lat": 12.1150,
-    "lng": 76.6800,
+    "lat": 12.115,
+    "lng": 76.68,
+    "address": "Gundlupet Road, Near APMC, Nanjangud, Mysuru - 571301",
     "totalCapacityKg": 400000,
-    "availableCapacityKg": 100000,
-    "suitableCrops": ["banana", "tomato"],
-    "tempRangeC": [4, 12],
+    "availableCapacityKg": 160000,
+    "suitableCrops": [
+      "banana",
+      "tomato",
+      "chilli",
+      "ginger"
+    ],
+    "tempRangeC": [
+      4,
+      12
+    ],
+    "humidityControl": false,
     "pricePerKgPerDay": 14,
     "contactPhone": "+919876543213",
-    "subsidySchemeTag": null
+    "licenseNumber": "FSSAI-11223344001920",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": null,
+    "rating": 4.5,
+    "features": [
+      "Banana Ripening",
+      "Pest Management",
+      "Curing Yard"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-mysuru-03",
-    "name": "Hebbal Industrial Cold Store",
-    "operator": "Southern Cool Chains",
+    "ownerId": "STO-KA-2026-1005",
+    "name": "Hebbal Cool Chains & Vault",
+    "operator": "Southern Cool Chains & Warehousing",
     "district": "Mysuru",
     "state": "Karnataka",
-    "lat": 12.3350,
-    "lng": 76.6200,
+    "lat": 12.335,
+    "lng": 76.62,
+    "address": "Electronic City Phase 1, Hebbal, Mysuru - 570018",
     "totalCapacityKg": 800000,
-    "availableCapacityKg": 250000,
-    "suitableCrops": ["potato", "onion", "vegetables"],
-    "tempRangeC": [0, 10],
+    "availableCapacityKg": 310000,
+    "suitableCrops": [
+      "potato",
+      "onion",
+      "carrot",
+      "vegetables"
+    ],
+    "tempRangeC": [
+      0,
+      10
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 16,
     "contactPhone": "+919876543214",
-    "subsidySchemeTag": "AIF"
+    "licenseNumber": "WDRA-KA-MYS-2022-0199",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.8,
+    "features": [
+      "Multi-commodity Chambers",
+      "Automated Temperature Logging",
+      "24/7 Security"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-hassan-01",
-    "name": "Hassan Potato Cold Space",
-    "operator": "Hassan Agri Tech",
+    "ownerId": "STO-KA-2026-1006",
+    "name": "Hassan Potato Cold Space & Logistics",
+    "operator": "Hassan Potato Cold Space & Logistics",
     "district": "Hassan",
     "state": "Karnataka",
     "lat": 13.0068,
     "lng": 76.1004,
+    "address": "Plot 88, B. Katihalli Industrial Area, Hassan - 573201",
     "totalCapacityKg": 1500000,
-    "availableCapacityKg": 500000,
-    "suitableCrops": ["potato", "onion"],
-    "tempRangeC": [2, 12],
+    "availableCapacityKg": 620000,
+    "suitableCrops": [
+      "potato",
+      "onion",
+      "ginger",
+      "garlic"
+    ],
+    "tempRangeC": [
+      2,
+      12
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 12,
     "contactPhone": "+919876543215",
-    "subsidySchemeTag": null
+    "licenseNumber": "WDRA-KA-HAS-2024-0012",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.9,
+    "features": [
+      "Massive Potato Stacking",
+      "Sprout Inhibitor Treatment",
+      "10 Bay Loading Dock"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-hassan-02",
-    "name": "Arsikere Fresh",
-    "operator": "Arsikere Produce",
+    "ownerId": "STO-KA-2026-1007",
+    "name": "Arsikere Fresh Agri Store",
+    "operator": "Arsikere Fresh Agri Store",
     "district": "Hassan",
     "state": "Karnataka",
-    "lat": 13.3140,
-    "lng": 76.2570,
-    "totalCapacityKg": 200000,
-    "availableCapacityKg": 80000,
-    "suitableCrops": ["tomato", "vegetables"],
-    "tempRangeC": [2, 8],
-    "pricePerKgPerDay": 14,
+    "lat": 13.315,
+    "lng": 76.257,
+    "address": "Tiptur Road, Near Railway Goods Shed, Arsikere - 573103",
+    "totalCapacityKg": 600000,
+    "availableCapacityKg": 210000,
+    "suitableCrops": [
+      "coconut",
+      "potato",
+      "maize",
+      "tomato"
+    ],
+    "tempRangeC": [
+      4,
+      14
+    ],
+    "humidityControl": false,
+    "pricePerKgPerDay": 11,
     "contactPhone": "+919876543216",
-    "subsidySchemeTag": null
+    "licenseNumber": "APMC-HAS-2021-087",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": null,
+    "rating": 4.4,
+    "features": [
+      "Railway Siding Access",
+      "Bulk De-husking Area"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-kolar-01",
-    "name": "Kolar Tomato Cold Hub",
-    "operator": "Kolar Farmers Union",
+    "ownerId": "STO-KA-2026-1008",
+    "name": "Kolar Gold Field Tomato Preservation",
+    "operator": "Kolar Gold Field Tomato Preservation",
     "district": "Kolar",
     "state": "Karnataka",
-    "lat": 13.1360,
-    "lng": 78.1290,
+    "lat": 13.1378,
+    "lng": 78.1292,
+    "address": "APMC Tomato Market Yard, Kolar - 563101",
     "totalCapacityKg": 1200000,
-    "availableCapacityKg": 300000,
-    "suitableCrops": ["tomato", "mango"],
-    "tempRangeC": [2, 10],
-    "pricePerKgPerDay": 15,
+    "availableCapacityKg": 490000,
+    "suitableCrops": [
+      "tomato",
+      "capsicum",
+      "chilli",
+      "beans",
+      "mango"
+    ],
+    "tempRangeC": [
+      2,
+      10
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 16,
     "contactPhone": "+919876543217",
-    "subsidySchemeTag": "AIF"
+    "licenseNumber": "WDRA-KA-KOL-2023-0518",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.9,
+    "features": [
+      "Fast Hydro-cooling",
+      "Sorting & Packing Automation",
+      "Export Standard Cert"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-kolar-02",
-    "name": "Srinivaspur Fruit Storage",
-    "operator": "Srinivaspur Agri Logistics",
+    "ownerId": "STO-KA-2026-1009",
+    "name": "Malur Fresh Chill & Cold Store",
+    "operator": "Malur Fresh Chill & Cold Store",
     "district": "Kolar",
     "state": "Karnataka",
-    "lat": 13.3350,
-    "lng": 78.2100,
-    "totalCapacityKg": 600000,
-    "availableCapacityKg": 150000,
-    "suitableCrops": ["mango", "tomato", "fruits", "vegetables"],
-    "tempRangeC": [5, 12],
-    "pricePerKgPerDay": 20,
-    "contactPhone": "+919876543218",
-    "subsidySchemeTag": null
-  },
-  {
-    "facilityId": "cs-bengaluru-01",
-    "name": "Yeshwanthpur Agro Cold Logistics",
-    "operator": "Karnataka State Warehousing Corp",
-    "district": "Bengaluru Urban",
-    "state": "Karnataka",
-    "lat": 13.0280,
-    "lng": 77.5400,
-    "totalCapacityKg": 2500000,
-    "availableCapacityKg": 850000,
-    "suitableCrops": ["tomato", "potato", "onion", "banana", "paddy", "ragi", "maize", "wheat", "vegetables", "fruits"],
-    "tempRangeC": [0, 10],
-    "pricePerKgPerDay": 16,
-    "contactPhone": "+919876543220",
-    "subsidySchemeTag": "AIF"
-  },
-  {
-    "facilityId": "cs-bengaluru-02",
-    "name": "Doddaballapur Farm Fresh Cold Hub",
-    "operator": "Bangalore Rural Agri Cold Chain",
-    "district": "Bengaluru Rural",
-    "state": "Karnataka",
-    "lat": 13.2930,
-    "lng": 77.5420,
-    "totalCapacityKg": 1800000,
-    "availableCapacityKg": 600000,
-    "suitableCrops": ["tomato", "potato", "onion", "banana", "ragi", "maize", "vegetables", "fruits"],
-    "tempRangeC": [2, 10],
+    "lat": 13.003,
+    "lng": 77.94,
+    "address": "KIADB Phase 2, Malur Industrial Area, Kolar - 563130",
+    "totalCapacityKg": 850000,
+    "availableCapacityKg": 340000,
+    "suitableCrops": [
+      "tomato",
+      "capsicum",
+      "carrot",
+      "green_chilli"
+    ],
+    "tempRangeC": [
+      0,
+      8
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 15,
-    "contactPhone": "+919876543221",
-    "subsidySchemeTag": "AIF"
+    "contactPhone": "+919876543218",
+    "licenseNumber": "WDRA-KA-KOL-2024-0104",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.7,
+    "features": [
+      "Proximity to Bengaluru Market",
+      "Cold Chain Fleet Support"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-belagavi-01",
-    "name": "Belagavi Northern Cold Chain",
-    "operator": "KLE Agro Processing",
+    "ownerId": "STO-KA-2026-1010",
+    "name": "Belagavi Agro Cold Infrastructure",
+    "operator": "Belagavi Agro Cold Infrastructure",
     "district": "Belagavi",
     "state": "Karnataka",
     "lat": 15.8497,
     "lng": 74.4977,
-    "totalCapacityKg": 1600000,
-    "availableCapacityKg": 520000,
-    "suitableCrops": ["potato", "onion", "tomato", "wheat", "paddy", "maize", "vegetables"],
-    "tempRangeC": [2, 8],
-    "pricePerKgPerDay": 14,
-    "contactPhone": "+919876543222",
-    "subsidySchemeTag": "AIF"
+    "address": "Auto Nagar Industrial Estate, Belagavi - 590016",
+    "totalCapacityKg": 1400000,
+    "availableCapacityKg": 580000,
+    "suitableCrops": [
+      "vegetables",
+      "potato",
+      "onion",
+      "grapes",
+      "sugarcane_juice"
+    ],
+    "tempRangeC": [
+      -2,
+      10
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 15,
+    "contactPhone": "+919876543219",
+    "licenseNumber": "WDRA-KA-BEL-2023-0911",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.8,
+    "features": [
+      "Blast Freezing",
+      "Grape Pre-cooling",
+      "Goa Corridor Direct Dispatch"
+    ],
+    "facilityImages": []
   },
   {
-    "facilityId": "cs-kalaburagi-01",
-    "name": "Kalyana Karnataka Cold Storage",
-    "operator": "Gulbarga Farmer Producer Co",
-    "district": "Kalaburagi",
+    "facilityId": "cs-belagavi-02",
+    "ownerId": "STO-KA-2026-1010",
+    "name": "Gokak Agro Preservation Centre",
+    "operator": "Belagavi Agro Cold Infrastructure",
+    "district": "Belagavi",
     "state": "Karnataka",
-    "lat": 17.3297,
-    "lng": 76.8343,
-    "totalCapacityKg": 1200000,
-    "availableCapacityKg": 410000,
-    "suitableCrops": ["paddy", "wheat", "maize", "potato", "onion", "tomato", "vegetables"],
-    "tempRangeC": [2, 10],
+    "lat": 16.1667,
+    "lng": 74.8333,
+    "address": "Falls Road, Gokak, Belagavi - 591307",
+    "totalCapacityKg": 500000,
+    "availableCapacityKg": 220000,
+    "suitableCrops": [
+      "banana",
+      "sugarcane",
+      "vegetables"
+    ],
+    "tempRangeC": [
+      4,
+      12
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 13,
-    "contactPhone": "+919876543223",
-    "subsidySchemeTag": null
+    "contactPhone": "+919876543219",
+    "licenseNumber": "WDRA-KA-BEL-2024-0190",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": null,
+    "rating": 4.5,
+    "features": [
+      "Co-operative Farmer Discounts",
+      "Solar Backup"
+    ],
+    "facilityImages": []
+  },
+  {
+    "facilityId": "cs-dharwad-01",
+    "ownerId": "STO-KA-2026-1011",
+    "name": "Hubballi-Dharwad Cold Warehouse",
+    "operator": "Hubballi-Dharwad Cold Warehouse",
+    "district": "Dharwad",
+    "state": "Karnataka",
+    "lat": 15.4589,
+    "lng": 75.0078,
+    "address": "Rayapur Industrial Area, PB Road, Hubballi-Dharwad - 580009",
+    "totalCapacityKg": 1100000,
+    "availableCapacityKg": 460000,
+    "suitableCrops": [
+      "chilli",
+      "onion",
+      "cotton_seed",
+      "maize"
+    ],
+    "tempRangeC": [
+      2,
+      12
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 14,
+    "contactPhone": "+919876543220",
+    "licenseNumber": "WDRA-KA-DHA-2024-0230",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.8,
+    "features": [
+      "Byadagi Red Chilli Specialist",
+      "De-humidification Chambers"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-tumakuru-01",
-    "name": "Tumkur Food Park Cold Hub",
-    "operator": "India Food Park Ltd",
+    "ownerId": "STO-KA-2026-1012",
+    "name": "Tumakuru Coconut & Spices Storage Hub",
+    "operator": "Tumakuru Coconut & Spices Storage Hub",
     "district": "Tumakuru",
     "state": "Karnataka",
-    "lat": 13.3409,
-    "lng": 77.1010,
+    "lat": 13.3379,
+    "lng": 77.1173,
+    "address": "Vasanthanarasapura Industrial Area Phase 1, Tumakuru - 572128",
+    "totalCapacityKg": 900000,
+    "availableCapacityKg": 390000,
+    "suitableCrops": [
+      "copra",
+      "coconut",
+      "ragi",
+      "groundnut",
+      "banana"
+    ],
+    "tempRangeC": [
+      4,
+      14
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 13,
+    "contactPhone": "+919876543221",
+    "licenseNumber": "WDRA-KA-TUM-2023-0761",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.7,
+    "features": [
+      "NH48 Direct Access",
+      "Integrated Quality Lab"
+    ],
+    "facilityImages": []
+  },
+  {
+    "facilityId": "cs-blr-rural-01",
+    "ownerId": "STO-KA-2026-1013",
+    "name": "Bengaluru Rural Agri Vault & Terminal",
+    "operator": "Bengaluru Rural Agri Vault",
+    "district": "Bengaluru Rural",
+    "state": "Karnataka",
+    "lat": 13.2847,
+    "lng": 77.5404,
+    "address": "Doddaballapur Integrated Food Park, Bengaluru Rural - 561203",
     "totalCapacityKg": 2000000,
-    "availableCapacityKg": 750000,
-    "suitableCrops": ["tomato", "potato", "onion", "ragi", "maize", "banana", "vegetables", "fruits"],
-    "tempRangeC": [0, 8],
-    "pricePerKgPerDay": 14,
-    "contactPhone": "+919876543224",
-    "subsidySchemeTag": "AIF"
+    "availableCapacityKg": 780000,
+    "suitableCrops": [
+      "tomato",
+      "capsicum",
+      "carrot",
+      "broccoli",
+      "exotic_vegetables",
+      "fruits"
+    ],
+    "tempRangeC": [
+      -2,
+      8
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 20,
+    "contactPhone": "+919876543222",
+    "licenseNumber": "WDRA-KA-BLR-2024-0992",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.95,
+    "features": [
+      "Direct Airport Cold Corridor",
+      "FSSAI & GlobalGAP Certified",
+      "Reefer Fleet Hub"
+    ],
+    "facilityImages": []
+  },
+  {
+    "facilityId": "cs-blr-urban-01",
+    "ownerId": "STO-KA-2026-1013",
+    "name": "Yeshwanthpur APMC Cool Chambers",
+    "operator": "Bengaluru Rural Agri Vault",
+    "district": "Bengaluru Urban",
+    "state": "Karnataka",
+    "lat": 13.02,
+    "lng": 77.55,
+    "address": "APMC Yard Block D, Yeshwanthpur, Bengaluru - 560022",
+    "totalCapacityKg": 750000,
+    "availableCapacityKg": 190000,
+    "suitableCrops": [
+      "vegetables",
+      "fruits",
+      "tomato",
+      "potato",
+      "onion"
+    ],
+    "tempRangeC": [
+      0,
+      10
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 22,
+    "contactPhone": "+919876543222",
+    "licenseNumber": "WDRA-KA-BLR-2023-0105",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": null,
+    "rating": 4.7,
+    "features": [
+      "Instant Wholesale Mandi Offload",
+      "Night Delivery Dock"
+    ],
+    "facilityImages": []
+  },
+  {
+    "facilityId": "cs-chitradurga-01",
+    "ownerId": "STO-KA-2026-1014",
+    "name": "Chitradurga Onion & Pomegranate Preservers",
+    "operator": "Chitradurga Onion & Pomegranate Preservers",
+    "district": "Chitradurga",
+    "state": "Karnataka",
+    "lat": 14.2251,
+    "lng": 76.4024,
+    "address": "Kelagote Industrial Layout, Chitradurga - 577501",
+    "totalCapacityKg": 1000000,
+    "availableCapacityKg": 450000,
+    "suitableCrops": [
+      "onion",
+      "pomegranate",
+      "groundnut",
+      "maize"
+    ],
+    "tempRangeC": [
+      0,
+      12
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 13,
+    "contactPhone": "+919876543223",
+    "licenseNumber": "WDRA-KA-CTA-2023-0312",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.75,
+    "features": [
+      "Onion Dehydration & Cold Storage",
+      "Export Curing"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-shivamogga-01",
-    "name": "Malnad Cold Storage & Warehousing",
-    "operator": "Shimoga Agri Supply Co",
+    "ownerId": "STO-KA-2026-1015",
+    "name": "Shivamogga Perishables Cold Care",
+    "operator": "Shimoga Arecanut & Perishables Cold Care",
     "district": "Shivamogga",
     "state": "Karnataka",
     "lat": 13.9299,
     "lng": 75.5681,
-    "totalCapacityKg": 900000,
+    "address": "Mandli Industrial Area, Shimoga - 577202",
+    "totalCapacityKg": 700000,
     "availableCapacityKg": 320000,
-    "suitableCrops": ["paddy", "maize", "banana", "tomato", "vegetables"],
-    "tempRangeC": [4, 12],
+    "suitableCrops": [
+      "ginger",
+      "arecanut",
+      "banana",
+      "pineapple",
+      "vegetables"
+    ],
+    "tempRangeC": [
+      4,
+      14
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 14,
+    "contactPhone": "+919876543224",
+    "licenseNumber": "WDRA-KA-SHI-2024-0455",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.8,
+    "features": [
+      "Ginger Soil Washing & Preservation",
+      "Organic Certified Sections"
+    ],
+    "facilityImages": []
+  },
+  {
+    "facilityId": "cs-chamarajanagara-01",
+    "ownerId": "STO-KA-2026-1004",
+    "name": "Chamarajanagar Border Agri Chill",
+    "operator": "Nanjangud Agro Preservation Hub",
+    "district": "Chamarajanagara",
+    "state": "Karnataka",
+    "lat": 11.9261,
+    "lng": 76.9437,
+    "address": "Santhemarahalli Road, Chamarajanagara - 571313",
+    "totalCapacityKg": 450000,
+    "availableCapacityKg": 200000,
+    "suitableCrops": [
+      "turmeric",
+      "banana",
+      "onion",
+      "maize"
+    ],
+    "tempRangeC": [
+      2,
+      12
+    ],
+    "humidityControl": false,
+    "pricePerKgPerDay": 12,
+    "contactPhone": "+919876543213",
+    "licenseNumber": "WDRA-KA-CRN-2023-0118",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": null,
+    "rating": 4.5,
+    "features": [
+      "Tamil Nadu Border Transit",
+      "Turmeric Curing"
+    ],
+    "facilityImages": []
+  },
+  {
+    "facilityId": "cs-ramanagara-01",
+    "ownerId": "STO-KA-2026-1002",
+    "name": "Ramanagara Silk & Mango Cold Park",
+    "operator": "Mandya Farmers Co-op",
+    "district": "Ramanagara",
+    "state": "Karnataka",
+    "lat": 12.7209,
+    "lng": 77.2799,
+    "address": "Ijoor APMC Yard, Ramanagara - 562159",
+    "totalCapacityKg": 600000,
+    "availableCapacityKg": 270000,
+    "suitableCrops": [
+      "mango",
+      "tomato",
+      "banana",
+      "vegetables"
+    ],
+    "tempRangeC": [
+      4,
+      12
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 15,
-    "contactPhone": "+919876543225",
-    "subsidySchemeTag": null
+    "contactPhone": "+919876543211",
+    "licenseNumber": "WDRA-KA-RAM-2024-0044",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.65,
+    "features": [
+      "Vapour Heat Treatment (VHT) for Mangoes",
+      "Express Expressway Hub"
+    ],
+    "facilityImages": []
+  },
+  {
+    "facilityId": "cs-chikkaballapur-01",
+    "ownerId": "STO-KA-2026-1008",
+    "name": "Chikkaballapur Grape & Veg Vault",
+    "operator": "Kolar Gold Field Tomato Preservation",
+    "district": "Chikkaballapur",
+    "state": "Karnataka",
+    "lat": 13.4325,
+    "lng": 77.7275,
+    "address": "Nandi Hills Road, Chikkaballapur - 562101",
+    "totalCapacityKg": 950000,
+    "availableCapacityKg": 380000,
+    "suitableCrops": [
+      "grapes",
+      "tomato",
+      "potato",
+      "capsicum",
+      "cut_flowers"
+    ],
+    "tempRangeC": [
+      -1,
+      8
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 17,
+    "contactPhone": "+919876543217",
+    "licenseNumber": "WDRA-KA-CKB-2023-0661",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.85,
+    "features": [
+      "Precision Floriculture Cold Vault",
+      "Sulfur Dioxide Pad Treatment"
+    ],
+    "facilityImages": []
+  },
+  {
+    "facilityId": "cs-haveri-01",
+    "ownerId": "STO-KA-2026-1011",
+    "name": "Byadagi Chilli Terminal Cold Storage",
+    "operator": "Hubballi-Dharwad Cold Warehouse",
+    "district": "Haveri",
+    "state": "Karnataka",
+    "lat": 14.68,
+    "lng": 75.48,
+    "address": "APMC Yard, Byadagi, Haveri - 581106",
+    "totalCapacityKg": 1600000,
+    "availableCapacityKg": 710000,
+    "suitableCrops": [
+      "chilli",
+      "groundnut",
+      "maize",
+      "cotton_seed"
+    ],
+    "tempRangeC": [
+      4,
+      14
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 13,
+    "contactPhone": "+919876543220",
+    "licenseNumber": "WDRA-KA-HAV-2023-0801",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.9,
+    "features": [
+      "Asia's Largest Chilli Hub",
+      "Oleoresin Extraction Support",
+      "Automated Fumigation"
+    ],
+    "facilityImages": []
   },
   {
     "facilityId": "cs-davangere-01",
-    "name": "Central Karnataka Agri Cold Store",
-    "operator": "Davangere APMC Logistics",
+    "ownerId": "STO-KA-2026-1014",
+    "name": "Davangere Central Agro Cold Hub",
+    "operator": "Chitradurga Onion & Pomegranate Preservers",
     "district": "Davangere",
     "state": "Karnataka",
     "lat": 14.4644,
     "lng": 75.9218,
-    "totalCapacityKg": 1400000,
-    "availableCapacityKg": 480000,
-    "suitableCrops": ["maize", "paddy", "ragi", "tomato", "potato", "onion", "vegetables"],
-    "tempRangeC": [2, 10],
-    "pricePerKgPerDay": 13,
-    "contactPhone": "+919876543226",
-    "subsidySchemeTag": "AIF"
-  },
-  {
-    "facilityId": "cs-ballari-01",
-    "name": "Ballari APMC Multi-Chamber Storage",
-    "operator": "Tungabhadra Agro Corp",
-    "district": "Ballari",
-    "state": "Karnataka",
-    "lat": 15.1394,
-    "lng": 76.9214,
-    "totalCapacityKg": 1100000,
-    "availableCapacityKg": 390000,
-    "suitableCrops": ["paddy", "maize", "tomato", "chilli", "onion", "vegetables"],
-    "tempRangeC": [2, 8],
+    "address": "Karur Industrial Area, Davangere - 577006",
+    "totalCapacityKg": 850000,
+    "availableCapacityKg": 360000,
+    "suitableCrops": [
+      "maize",
+      "paddy",
+      "vegetables",
+      "banana"
+    ],
+    "tempRangeC": [
+      2,
+      10
+    ],
+    "humidityControl": true,
     "pricePerKgPerDay": 14,
-    "contactPhone": "+919876543227",
-    "subsidySchemeTag": null
+    "contactPhone": "+919876543223",
+    "licenseNumber": "WDRA-KA-DVG-2024-0155",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.7,
+    "features": [
+      "Central Karnataka Transit Junction",
+      "Grain Moisture Controls"
+    ],
+    "facilityImages": []
   },
   {
-    "facilityId": "cs-chikkaballapur-01",
-    "name": "Chintamani Agro Chill Point",
-    "operator": "Chikkaballapur Farmers Trust",
-    "district": "Chikkaballapur",
+    "facilityId": "cs-bagalkot-01",
+    "ownerId": "STO-KA-2026-1010",
+    "name": "Bagalkot Horticulture Cold Facility",
+    "operator": "Belagavi Agro Cold Infrastructure",
+    "district": "Bagalkot",
     "state": "Karnataka",
-    "lat": 13.4000,
-    "lng": 77.7200,
-    "totalCapacityKg": 1300000,
-    "availableCapacityKg": 440000,
-    "suitableCrops": ["tomato", "potato", "onion", "ragi", "fruits", "vegetables"],
-    "tempRangeC": [2, 10],
-    "pricePerKgPerDay": 15,
-    "contactPhone": "+919876543228",
-    "subsidySchemeTag": "AIF"
+    "lat": 16.18,
+    "lng": 75.7,
+    "address": "Sector 62, Navanagar, Bagalkot - 587103",
+    "totalCapacityKg": 650000,
+    "availableCapacityKg": 290000,
+    "suitableCrops": [
+      "pomegranate",
+      "grapes",
+      "onion",
+      "chilli"
+    ],
+    "tempRangeC": [
+      0,
+      10
+    ],
+    "humidityControl": true,
+    "pricePerKgPerDay": 14,
+    "contactPhone": "+919876543219",
+    "licenseNumber": "WDRA-KA-BGK-2023-0472",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": null,
+    "rating": 4.6,
+    "features": [
+      "UHS Horticultural Research Tie-up",
+      "Individual Cell Monitoring"
+    ],
+    "facilityImages": []
   },
   {
-    "facilityId": "cs-udupi-01",
-    "name": "Coastal Cold Preservation Ltd",
-    "operator": "Dakshina & Udupi Cold Chain",
-    "district": "Udupi",
+    "facilityId": "cs-kalaburagi-01",
+    "ownerId": "STO-KA-2026-1011",
+    "name": "Kalyana Karnataka Tur & Pulses Cold Storage",
+    "operator": "Hubballi-Dharwad Cold Warehouse",
+    "district": "Kalaburagi",
     "state": "Karnataka",
-    "lat": 13.3409,
-    "lng": 74.7421,
-    "totalCapacityKg": 800000,
-    "availableCapacityKg": 280000,
-    "suitableCrops": ["banana", "paddy", "vegetables", "fruits"],
-    "tempRangeC": [0, 8],
-    "pricePerKgPerDay": 17,
-    "contactPhone": "+919876543229",
-    "subsidySchemeTag": "AIF"
+    "lat": 17.3297,
+    "lng": 76.8343,
+    "address": "Kapnoor Industrial Area 2nd Stage, Kalaburagi - 585104",
+    "totalCapacityKg": 1200000,
+    "availableCapacityKg": 540000,
+    "suitableCrops": [
+      "tur",
+      "urad",
+      "chickpea",
+      "wheat",
+      "lime"
+    ],
+    "tempRangeC": [
+      4,
+      15
+    ],
+    "humidityControl": false,
+    "pricePerKgPerDay": 12,
+    "contactPhone": "+919876543220",
+    "licenseNumber": "WDRA-KA-KLB-2024-0389",
+    "verificationStatus": "verified",
+    "subsidySchemeTag": "AIF",
+    "rating": 4.75,
+    "features": [
+      "GI-tagged Kalaburagi Tur Preservation",
+      "Nitrogen Flushing"
+    ],
+    "facilityImages": []
   }
 ]

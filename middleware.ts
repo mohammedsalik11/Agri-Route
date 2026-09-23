@@ -18,6 +18,7 @@ const isPublicRoute = createRouteMatcher([
 const isFarmerRoute = createRouteMatcher(['/farmer(.*)']);
 const isWholesalerRoute = createRouteMatcher(['/wholesaler(.*)']);
 const isDriverRoute = createRouteMatcher(['/driver(.*)']);
+const isStorageOwnerRoute = createRouteMatcher(['/storage-owner(.*)']);
 
 export default clerkMiddleware(async (auth, request) => {
   const pathname = request.nextUrl.pathname;
@@ -68,16 +69,20 @@ export default clerkMiddleware(async (auth, request) => {
     }
 
     // Role-based route enforcement
-    if (role === 'farmer' && (isWholesalerRoute(request) || isDriverRoute(request))) {
+    if (role === 'farmer' && (isWholesalerRoute(request) || isDriverRoute(request) || isStorageOwnerRoute(request))) {
       return NextResponse.redirect(new URL('/farmer', request.url));
     }
 
-    if (role === 'wholesaler' && (isFarmerRoute(request) || isDriverRoute(request))) {
+    if (role === 'wholesaler' && (isFarmerRoute(request) || isDriverRoute(request) || isStorageOwnerRoute(request))) {
       return NextResponse.redirect(new URL('/wholesaler', request.url));
     }
 
-    if (role === 'logistics_driver' && (isFarmerRoute(request) || isWholesalerRoute(request))) {
+    if (role === 'logistics_driver' && (isFarmerRoute(request) || isWholesalerRoute(request) || isStorageOwnerRoute(request))) {
       return NextResponse.redirect(new URL('/driver', request.url));
+    }
+
+    if (role === 'storage_owner' && (isFarmerRoute(request) || isWholesalerRoute(request) || isDriverRoute(request))) {
+      return NextResponse.redirect(new URL('/storage-owner', request.url));
     }
   }
 });

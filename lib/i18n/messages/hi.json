@@ -317,5 +317,7 @@
   "common.messages": "संदेश",
   "common.chat": "चैट",
   "listing.vehicleCapacity": "वाहन क्षमता सीमा",
-  "listing.searchCrops": "1,000+ फसलें और श्रेणियां खोजें"
+  "listing.searchCrops": "1,000+ फसलें और श्रेणियां खोजें",
+  "role.storageOwner": "शीत भंडारण प्रदाता",
+  "role.storageOwnerDesc": "गोदाम की जगह किराए पर दें और फसल संरक्षण कक्षों का प्रबंधन करें"
 }

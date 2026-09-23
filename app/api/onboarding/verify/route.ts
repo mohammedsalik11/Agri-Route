@@ -4,10 +4,12 @@ import { collections } from '@/lib/firebase-admin';
 import farmerRegistry from '@/data/farmer-registry.json';
 import wholesalerRegistry from '@/data/wholesaler-registry.json';
 import driverRegistry from '@/data/driver-registry.json';
+import storageOwnerRegistry from '@/data/storage-owner-registry.json';
 
 const FARMER_ID_REGEX = /^KA-[A-Z]{3}-\d{4}-\d{6}$/;
 const WHOLESALER_ID_REGEX = /^WS-KA-\d{4}-\d{4}$/;
 const DRIVER_ID_REGEX = /^DRV-KA-\d{4}-\d{4}$/;
+const STORAGE_OWNER_ID_REGEX = /^STO-KA-\d{4}-\d{4}$/;
 
 export async function POST(request: Request) {
   try {
@@ -35,13 +37,18 @@ export async function POST(request: Request) {
       vehicleNumber,
       vehicleCapacityKg,
       isRefrigerated,
+      facilityName,
+      licenseNumber,
+      storageCapacityKg,
+      pricePerKgPerDay,
+      facilityAddress,
       language,
     } = body;
 
     // Validate role
-    if (!['farmer', 'wholesaler', 'logistics_driver'].includes(role)) {
+    if (!['farmer', 'wholesaler', 'logistics_driver', 'storage_owner'].includes(role)) {
       return NextResponse.json(
-        { ok: false, error: 'INVALID_ROLE', message: 'Role must be farmer, wholesaler, or logistics_driver' },
+        { ok: false, error: 'INVALID_ROLE', message: 'Role must be farmer, wholesaler, logistics_driver, or storage_owner' },
         { status: 400 }
       );
     }
@@ -136,6 +143,34 @@ export async function POST(request: Request) {
       } catch (queryErr) {
         console.warn('Duplicate driver check failed (non-fatal):', queryErr);
       }
+    } else if (role === 'storage_owner') {
+      const isRegexMatch = STORAGE_OWNER_ID_REGEX.test(idNumber);
+      const registryMatch = (storageOwnerRegistry as Array<{ ownerId: string }>).find(
+        s => s.ownerId === idNumber
+      );
+
+      if (!isRegexMatch && !registryMatch && idNumber.length < 5) {
+        return NextResponse.json(
+          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Storage Provider ID format. Expected: STO-KA-YYYY-XXXX (e.g. STO-KA-2026-1001)' },
+          { status: 400 }
+        );
+      }
+
+      verificationSource = registryMatch ? 'seeded-registry' : 'wdra-accredited-direct';
+
+      try {
+        const existing = await collections.users
+          .where('ownerId', '==', idNumber)
+          .get();
+        if (!existing.empty && existing.docs.some(doc => doc.id !== userId)) {
+          return NextResponse.json(
+            { ok: false, error: 'ALREADY_REGISTERED', message: 'This Storage Owner ID is already registered to another account' },
+            { status: 409 }
+          );
+        }
+      } catch (queryErr) {
+        console.warn('Duplicate storage owner check failed (non-fatal):', queryErr);
+      }
     }
 
     // Fetch user details from Clerk if available
@@ -176,16 +211,56 @@ export async function POST(request: Request) {
             businessName: businessName || '',
             gstin: gstin || '',
           }
-        : {
+        : role === 'logistics_driver'
+        ? {
             driverId: idNumber,
             vehicleType: vehicleType || 'truck',
             vehicleNumber: vehicleNumber || 'KA-11-E-4281',
             vehicleCapacityKg: Number(vehicleCapacityKg) || 3000,
             isRefrigerated: Boolean(isRefrigerated),
+          }
+        : {
+            ownerId: idNumber,
+            businessName: businessName || facilityName || 'Cold Storage Facility',
+            facilityName: facilityName || businessName || 'Cold Storage Facility',
+            licenseNumber: licenseNumber || `WDRA-KA-${(district || 'MAN').slice(0,3).toUpperCase()}-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+            storageCapacityKg: Number(storageCapacityKg) || 500000,
+            availableCapacityKg: Number(storageCapacityKg) || 500000,
+            pricePerKgPerDay: Number(pricePerKgPerDay) || 15,
+            facilityAddress: facilityAddress || `${district} Industrial Area`,
           }),
     };
 
     await collections.users.doc(userId).set(userProfile, { merge: true });
+
+    // If storage_owner, also sync or create the facility document in coldStorages collection
+    if (role === 'storage_owner') {
+      const facilityId = `cs-${(district || 'mandya').toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString().slice(-4)}`;
+      await collections.coldStorages.doc(facilityId).set({
+        facilityId,
+        ownerId: userId,
+        name: facilityName || businessName || `${district} Cold Storage`,
+        operator: name || 'Storage Operator',
+        district: district || 'Mandya',
+        state: state || 'Karnataka',
+        lat: 12.52,
+        lng: 76.89,
+        address: facilityAddress || `${district} Industrial Area, Karnataka`,
+        totalCapacityKg: Number(storageCapacityKg) || 500000,
+        availableCapacityKg: Number(storageCapacityKg) || 500000,
+        suitableCrops: ["tomato", "potato", "onion", "banana", "vegetables"],
+        tempRangeC: [2, 10],
+        humidityControl: true,
+        pricePerKgPerDay: Number(pricePerKgPerDay) || 15,
+        contactPhone: userPhone || "+919876543210",
+        licenseNumber: licenseNumber || "WDRA-KA-2026-PENDING",
+        verificationStatus: "verified",
+        subsidySchemeTag: "AIF",
+        rating: 4.8,
+        features: ["CCTV Security", "Solar Backup", "Loading Bay"],
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+    }
 
     // Update Clerk metadata
     try {

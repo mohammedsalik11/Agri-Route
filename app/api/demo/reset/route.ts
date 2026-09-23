@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
+import coldStoragesData from '@/data/cold-storages.json';
 
 /**
  * POST /api/demo/reset
- * Re-seeds the database to a clean demo state.
- * This is a SCORING ASSET, not a dev tool — builds trust with judges.
+ * Re-seeds the database to a clean demo state with interconnected entities.
  */
 export async function POST() {
   try {
@@ -20,6 +20,7 @@ export async function POST() {
       'verificationBookings',
       'notifications',
       'priceCache',
+      'coldStorages',
     ];
 
     for (const collectionName of collectionsToReset) {
@@ -112,15 +113,15 @@ export async function POST() {
       createdAt: new Date(now.getTime() - 8 * 3600000).toISOString(),
     });
 
-    // Seed cold storage capacities
-    await db.collection('coldStorages').doc('cs-mandya-01').set({
-      availableCapacityKg: 180000,
-    }, { merge: true });
+    // Seed cold storage facilities into Firestore
+    for (const fac of coldStoragesData) {
+      await db.collection('coldStorages').doc(fac.facilityId).set(fac, { merge: true });
+    }
 
     return NextResponse.json({
       ok: true,
       data: {
-        message: 'Demo data reset complete',
+        message: 'Interconnected demo seed reset complete',
         pool: {
           id: 'demo_pool_tomato',
           currentKg: totalQty,

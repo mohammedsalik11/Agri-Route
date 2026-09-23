@@ -11,6 +11,13 @@ import {
   Search,
   Building,
   MapPin,
+  Truck,
+  Plus,
+  Loader2,
+  Calendar,
+  CheckCircle2,
+  AlertCircle,
+  PackageCheck,
 } from 'lucide-react';
 
 interface StorageFacility {
@@ -26,29 +33,108 @@ interface StorageFacility {
   pricePerKgPerDay: number; // in paise
   contactPhone: string;
   subsidySchemeTag?: string;
+  verificationStatus?: 'verified' | 'pending' | 'rejected';
+}
+
+interface StorageBooking {
+  bookingId: string;
+  facilityId: string;
+  facilityName: string;
+  crop: string;
+  quantityKg: number;
+  startDate: string;
+  endDate: string;
+  days: number;
+  totalCost: number;
+  status: string;
+  requestLogistics?: boolean;
 }
 
 export default function WholesalerStoragePage() {
   const { t, formatCurrency, formatWeight } = useT();
 
   const [facilities, setFacilities] = useState<StorageFacility[]>([]);
+  const [myBookings, setMyBookings] = useState<StorageBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDistrict, setSelectedDistrict] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  // Booking Modal
+  const [bookingModalFac, setBookingModalFac] = useState<StorageFacility | null>(null);
+  const [bookCrop, setBookCrop] = useState('tomato');
+  const [bookQtyKg, setBookQtyKg] = useState('2000');
+  const [bookDays, setBookDays] = useState('7');
+  const [requestLogistics, setRequestLogistics] = useState(true);
+  const [pickupAddress, setPickupAddress] = useState('Bengaluru Yeshwanthpur Wholesale Hub');
+  const [submitting, setSubmitting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const loadData = async () => {
+    try {
+      const [facRes, bookRes] = await Promise.all([
+        fetch('/api/storage').then((r) => r.json()),
+        fetch('/api/storage/bookings').then((r) => r.json()),
+      ]);
+
+      if (facRes.success && Array.isArray(facRes.storages)) {
+        setFacilities(facRes.storages);
+      } else if (facRes.ok && Array.isArray(facRes.data)) {
+        setFacilities(facRes.data);
+      }
+
+      if (bookRes.success && Array.isArray(bookRes.bookings)) {
+        setMyBookings(bookRes.bookings);
+      }
+    } catch (err) {
+      console.error('Error fetching storage facilities:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetch('/api/storage')
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.ok && Array.isArray(res.data)) {
-          setFacilities(res.data);
-        }
-      })
-      .catch((err) => console.error('Error fetching storage facilities:', err))
-      .finally(() => setLoading(false));
+    loadData();
   }, []);
 
-  const districts = ['ALL', 'Mandya', 'Mysuru', 'Hassan', 'Kolar'];
+  const handleBook = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bookingModalFac) return;
+
+    setSubmitting(true);
+    setSuccessMsg(null);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch('/api/storage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          facilityId: bookingModalFac.facilityId,
+          crop: bookCrop,
+          quantityKg: Number(bookQtyKg),
+          days: Number(bookDays),
+          pickupAddress: requestLogistics ? pickupAddress : undefined,
+          requestLogistics,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.booking) {
+        setSuccessMsg(`Cold storage booked successfully at ${bookingModalFac.name}!`);
+        setBookingModalFac(null);
+        loadData();
+      } else {
+        setErrorMsg(data.error || 'Failed to book storage');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error making booking');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const districts = ['ALL', 'Mandya', 'Mysuru', 'Hassan', 'Kolar', 'Bengaluru Urban', 'Bengaluru Rural', 'Tumakuru', 'Belagavi', 'Dharwad'];
 
   const filteredFacilities = facilities.filter((fac) => {
     const matchesDistrict =
@@ -68,18 +154,18 @@ export default function WholesalerStoragePage() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl p-5 border border-border">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl p-5 border border-border shadow-xs">
           <div>
             <span className="text-xs font-semibold text-earth uppercase tracking-wide">
-              Agri Logistics & Infrastructure
+              Agri Logistics &amp; Cold Chain Infrastructure
             </span>
             <h1 className="text-xl font-bold text-ink mt-0.5">
-              Cold Storage & Logistics Hubs
+              Cold Storage Warehouses &amp; Staging Hubs
             </h1>
             <p className="text-xs text-ink-muted mt-0.5">
-              Locate verified temperature-controlled storage and staging centers across Karnataka
+              Locate and book WDRA/FSSAI verified temperature-controlled storage and staging centers across Karnataka
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -88,6 +174,46 @@ export default function WholesalerStoragePage() {
             </span>
           </div>
         </div>
+
+        {/* Feedback Alerts */}
+        {successMsg && (
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <span className="font-semibold">{successMsg}</span>
+          </div>
+        )}
+        {errorMsg && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        {/* Active Reservations */}
+        {myBookings.length > 0 && (
+          <div className="bg-white rounded-2xl p-5 border border-border shadow-xs">
+            <h2 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2 mb-3">
+              <PackageCheck className="w-4 h-4 text-earth" />
+              <span>My Active Storage Reservations ({myBookings.length})</span>
+            </h2>
+            <div className="divide-y divide-border">
+              {myBookings.map((b) => (
+                <div key={b.bookingId} className="py-3 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-ink">{b.facilityName}</span>
+                    <span className="text-ink-muted ml-2">({b.quantityKg} kg {b.crop})</span>
+                    <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold uppercase">
+                      {b.status}
+                    </span>
+                  </div>
+                  <div className="font-mono font-bold text-ink">
+                    ₹{((b.totalCost || 0) / 100).toFixed(0)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Filter Bar */}
         <div className="bg-white rounded-2xl p-4 border border-border flex flex-col sm:flex-row gap-3">
@@ -124,7 +250,6 @@ export default function WholesalerStoragePage() {
           <div className="space-y-3">
             <div className="animate-pulse bg-white rounded-2xl h-36 border border-border" />
             <div className="animate-pulse bg-white rounded-2xl h-36 border border-border" />
-            <div className="animate-pulse bg-white rounded-2xl h-36 border border-border" />
           </div>
         ) : filteredFacilities.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-border space-y-3">
@@ -144,7 +269,13 @@ export default function WholesalerStoragePage() {
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="font-bold text-base text-ink">{fac.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-base text-ink">{fac.name}</h3>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <ShieldCheck className="w-3 h-3" />
+                          {fac.verificationStatus === 'verified' ? 'WDRA Verified' : 'Accredited'}
+                        </span>
+                      </div>
                       <p className="text-xs text-ink-muted flex items-center gap-1 mt-0.5">
                         <Building className="w-3.5 h-3.5 text-earth" />
                         {fac.operator}
@@ -200,26 +331,124 @@ export default function WholesalerStoragePage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fac.name + ', ' + fac.district + ', Karnataka')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-border text-ink text-xs font-bold rounded-xl hover:border-earth hover:text-earth transition-all shadow-xs"
+                    <button
+                      onClick={() => setBookingModalFac(fac)}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-earth text-white text-xs font-bold rounded-xl hover:bg-earth-light transition-all shadow-xs"
                     >
-                      <MapPin className="w-3.5 h-3.5 text-earth" />
-                      <span>Google Maps ↗</span>
-                    </a>
-                    <a
-                      href={`tel:${fac.contactPhone}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-earth text-white text-xs font-bold rounded-xl hover:bg-earth-light transition-all shadow-xs"
-                    >
-                      <Phone className="w-3.5 h-3.5" />
-                      <span>Call Facility</span>
-                    </a>
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Book Space</span>
+                    </button>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Modal: Book Space */}
+        {bookingModalFac && (
+          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-border">
+              <div className="flex items-start justify-between gap-2 mb-4">
+                <div>
+                  <h3 className="text-base font-bold text-ink">Reserve Storage: {bookingModalFac.name}</h3>
+                  <p className="text-xs text-ink-muted">{bookingModalFac.district} APMC Facility</p>
+                </div>
+                <button
+                  onClick={() => setBookingModalFac(null)}
+                  className="p-1 rounded-lg text-ink-muted hover:bg-paper"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleBook} className="space-y-3.5 text-xs">
+                <div>
+                  <label className="font-bold text-ink block mb-1">Crop / Commodity</label>
+                  <input
+                    type="text"
+                    required
+                    value={bookCrop}
+                    onChange={(e) => setBookCrop(e.target.value)}
+                    className="w-full p-2.5 bg-paper border border-border rounded-xl font-bold text-ink focus:outline-none focus:border-earth"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-ink block mb-1">Quantity (kg)</label>
+                    <input
+                      type="number"
+                      required
+                      min="100"
+                      value={bookQtyKg}
+                      onChange={(e) => setBookQtyKg(e.target.value)}
+                      className="w-full p-2.5 bg-paper border border-border rounded-xl font-bold text-ink focus:outline-none focus:border-earth"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-ink block mb-1">Duration (Days)</label>
+                    <select
+                      value={bookDays}
+                      onChange={(e) => setBookDays(e.target.value)}
+                      className="w-full p-2.5 bg-paper border border-border rounded-xl font-bold text-ink focus:outline-none focus:border-earth"
+                    >
+                      <option value="3">3 Days</option>
+                      <option value="7">7 Days (1 Week)</option>
+                      <option value="14">14 Days (2 Weeks)</option>
+                      <option value="30">30 Days (1 Month)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-paper rounded-xl space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer font-bold text-ink">
+                    <input
+                      type="checkbox"
+                      checked={requestLogistics}
+                      onChange={(e) => setRequestLogistics(e.target.checked)}
+                      className="w-4 h-4 rounded text-earth focus:ring-earth"
+                    />
+                    <Truck className="w-4 h-4 text-earth" />
+                    <span>Dispatch Logistics Haulage from Hub</span>
+                  </label>
+                  {requestLogistics && (
+                    <input
+                      type="text"
+                      value={pickupAddress}
+                      onChange={(e) => setPickupAddress(e.target.value)}
+                      placeholder="Pickup Hub Address"
+                      className="w-full p-2 bg-white border border-border rounded-lg text-xs font-medium text-ink"
+                    />
+                  )}
+                </div>
+
+                <div className="p-3 bg-paper rounded-xl flex justify-between font-bold text-ink text-sm">
+                  <span>Estimated Total:</span>
+                  <span className="text-earth font-mono font-extrabold">
+                    ₹{((Number(bookQtyKg) * bookingModalFac.pricePerKgPerDay * Number(bookDays) + (requestLogistics ? Number(bookQtyKg) * 140 : 0)) / 100).toLocaleString('en-IN')}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setBookingModalFac(null)}
+                    className="w-1/2 py-2.5 border border-border text-ink rounded-xl text-xs font-semibold hover:bg-paper"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-1/2 py-2.5 bg-earth hover:bg-earth-light text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  >
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm Booking'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </main>

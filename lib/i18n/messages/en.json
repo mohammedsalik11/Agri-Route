@@ -317,5 +317,7 @@
   "common.messages": "Messages",
   "common.chat": "Chat",
   "listing.vehicleCapacity": "Vehicle Capacity Limit",
-  "listing.searchCrops": "Search 1,000+ crops & categories"
+  "listing.searchCrops": "Search 1,000+ crops & categories",
+  "role.storageOwner": "Cold Storage Provider",
+  "role.storageOwnerDesc": "Rent warehouse space and manage crop preservation chambers"
 }

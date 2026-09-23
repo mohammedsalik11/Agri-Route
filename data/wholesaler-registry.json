@@ -1,17 +1,209 @@
 [
-  { "wholesalerId": "WS-KA-2026-1183", "businessName": "Suresh Traders", "district": "Bengaluru Urban", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1184", "businessName": "Sri Balaji Agro", "district": "Bengaluru Urban", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1185", "businessName": "Venkateshwara Vegetable Suppliers", "district": "Bengaluru Urban", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1186", "businessName": "Lakshmi Produce", "district": "Bengaluru Urban", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1187", "businessName": "Kaveri Fresh Mart", "district": "Bengaluru Urban", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1188", "businessName": "Mysuru Grain Merchants", "district": "Mysuru", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1189", "businessName": "Chamundeshwari Traders", "district": "Mysuru", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1190", "businessName": "Sri Ranga Wholesale", "district": "Mysuru", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1191", "businessName": "Mangala Fresh Produce", "district": "Dakshina Kannada", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1192", "businessName": "Karavali Agri Traders", "district": "Dakshina Kannada", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1193", "businessName": "Udupi Fresh Supplies", "district": "Dakshina Kannada", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1194", "businessName": "Hassan Potato King", "district": "Hassan", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1195", "businessName": "Malnad Agro Agencies", "district": "Hassan", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1196", "businessName": "Kolar Tomato Distributors", "district": "Kolar", "state": "Karnataka" },
-  { "wholesalerId": "WS-KA-2026-1197", "businessName": "Golden City Traders", "district": "Kolar", "state": "Karnataka" }
+  {
+    "wholesalerId": "WS-KA-2026-1183",
+    "businessName": "Suresh Traders",
+    "ownerName": "Suresh Kumar",
+    "district": "Bengaluru Urban",
+    "state": "Karnataka",
+    "gstin": "29AAAAA1183A1Z5",
+    "category": "Vegetables & Perishables"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1184",
+    "businessName": "Sri Balaji Agro Trading Co",
+    "ownerName": "Venkat Raman",
+    "district": "Bengaluru Urban",
+    "state": "Karnataka",
+    "gstin": "29BBBBB1184B1Z4",
+    "category": "Grains & Pulses"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1185",
+    "businessName": "Venkateshwara Vegetable Suppliers",
+    "ownerName": "N. Venkatesh",
+    "district": "Bengaluru Urban",
+    "state": "Karnataka",
+    "gstin": "29CCCCC1185C1Z3",
+    "category": "Bulk Tomato & Greens"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1186",
+    "businessName": "Lakshmi Produce Corp",
+    "ownerName": "Lakshmipathi R.",
+    "district": "Bengaluru Urban",
+    "state": "Karnataka",
+    "gstin": "29DDDDD1186D1Z2",
+    "category": "Fruits & Exotics"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1187",
+    "businessName": "Kaveri Fresh Mart Hub",
+    "ownerName": "S. K. Anand",
+    "district": "Bengaluru Urban",
+    "state": "Karnataka",
+    "gstin": "29EEEEE1187E1Z1",
+    "category": "Supermarket Supply"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1188",
+    "businessName": "Mysuru Grain Merchants",
+    "ownerName": "Raghavendra Rao",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "gstin": "29FFFFF1188F1Z0",
+    "category": "Paddy & Ragi Wholesalers"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1189",
+    "businessName": "Chamundeshwari Traders",
+    "ownerName": "Mahesh M.",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "gstin": "29GGGGG1189G1Z9",
+    "category": "Banana & Tropical Fruits"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1190",
+    "businessName": "Sri Ranga Wholesale Produce",
+    "ownerName": "Ranganath Swamy",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "gstin": "29HHHHH1190H1Z8",
+    "category": "APMC Bandi Trader"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1191",
+    "businessName": "Mangala Fresh Produce",
+    "ownerName": "Prashanth Shetty",
+    "district": "Dakshina Kannada",
+    "state": "Karnataka",
+    "gstin": "29IIIII1191I1Z7",
+    "category": "Coastal Procurement"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1192",
+    "businessName": "Canara Agro Exports",
+    "ownerName": "Devadas Kamath",
+    "district": "Dakshina Kannada",
+    "state": "Karnataka",
+    "gstin": "29JJJJJ1192J1Z6",
+    "category": "Export Quality Produce"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1193",
+    "businessName": "Mandya Jaggery & Grain Hub",
+    "ownerName": "K. N. Lingappa",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "gstin": "29KKKKK1193K1Z5",
+    "category": "Jaggery, Rice & Pulses"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1194",
+    "businessName": "Sugar City Agro Mart",
+    "ownerName": "Shashidhar Gowda",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "gstin": "29LLLLL1194L1Z4",
+    "category": "Tomato & Field Crops"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1195",
+    "businessName": "Hassan Potato Merchants Syndicate",
+    "ownerName": "H. G. Somashekar",
+    "district": "Hassan",
+    "state": "Karnataka",
+    "gstin": "29MMMMM1195M1Z3",
+    "category": "Potato & Ginger Wholesale"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1196",
+    "businessName": "Malnad Spices & Commodity Trading",
+    "ownerName": "B. R. Girish",
+    "district": "Hassan",
+    "state": "Karnataka",
+    "gstin": "29NNNNN1196N1Z2",
+    "category": "Ginger & Spices"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1197",
+    "businessName": "Kolar Tomato APMC Buyers Consortium",
+    "ownerName": "M. N. Ravikumar",
+    "district": "Kolar",
+    "state": "Karnataka",
+    "gstin": "29OOOOO1197O1Z1",
+    "category": "Interstate Tomato Dispatch"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1198",
+    "businessName": "Golden Valley Fruits & Veg",
+    "ownerName": "Syed Imran",
+    "district": "Kolar",
+    "state": "Karnataka",
+    "gstin": "29PPPPP1198P1Z0",
+    "category": "Capsicum & Mango Wholesale"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1199",
+    "businessName": "Belgaum Commercial Corporation",
+    "ownerName": "Vijay Kulkarni",
+    "district": "Belagavi",
+    "state": "Karnataka",
+    "gstin": "29QQQQQ1199Q1Z9",
+    "category": "Vegetables & Jaggery"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1200",
+    "businessName": "North Karnataka Grains Syndicate",
+    "ownerName": "Santosh Patil",
+    "district": "Belagavi",
+    "state": "Karnataka",
+    "gstin": "29RRRRR1200R1Z8",
+    "category": "Pulses, Soybean & Cotton"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1201",
+    "businessName": "Hubli-Dharwad Chilli Merchants",
+    "ownerName": "Ashok Daddi",
+    "district": "Dharwad",
+    "state": "Karnataka",
+    "gstin": "29SSSSS1201S1Z7",
+    "category": "Red Chilli & Oilseeds"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1202",
+    "businessName": "Byadagi Kaddi Chilli Traders",
+    "ownerName": "C. M. Byadagi",
+    "district": "Haveri",
+    "state": "Karnataka",
+    "gstin": "29TTTTT1202T1Z6",
+    "category": "Spices & Dry Produce"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1203",
+    "businessName": "Kalpataru Copra Trading",
+    "ownerName": "G. V. Shivakumar",
+    "district": "Tumakuru",
+    "state": "Karnataka",
+    "gstin": "29UUUUU1203U1Z5",
+    "category": "Milling Copra & Coconut"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1204",
+    "businessName": "Fort City Onion & Seeds",
+    "ownerName": "H. T. Rudresh",
+    "district": "Chitradurga",
+    "state": "Karnataka",
+    "gstin": "29VVVVV1204V1Z4",
+    "category": "Bulk Onion & Pomegranate"
+  },
+  {
+    "wholesalerId": "WS-KA-2026-1205",
+    "businessName": "Kalaburagi Red Gram Wholesalers",
+    "ownerName": "Mohammad Yusuf",
+    "district": "Kalaburagi",
+    "state": "Karnataka",
+    "gstin": "29WWWWW1205W1Z3",
+    "category": "Tur Dal Processing & Trade"
+  }
 ]

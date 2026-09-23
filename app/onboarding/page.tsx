@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useT, useLanguage } from '@/lib/i18n/LanguageProvider';
-import { Sprout, Store, Truck, AlertCircle, Loader2, CheckCircle, Info, Sparkles, ArrowLeft } from 'lucide-react';
+import { Sprout, Store, Truck, Warehouse, AlertCircle, Loader2, CheckCircle, Info, Sparkles, ArrowLeft } from 'lucide-react';
 
 const DISTRICTS_KA = [
   'Bagalkot', 'Ballari', 'Belagavi', 'Bengaluru Rural', 'Bengaluru Urban',
@@ -36,6 +36,12 @@ const DEMO_PRESETS = {
     { id: 'DRV-KA-2026-2189', name: 'Manjunath K', district: 'Mandya', vehicleType: 'mini_truck' as const, vehicleNumber: 'KA-11-TR-9021', vehicleCapacityKg: '2500', isRefrigerated: true },
     { id: 'DRV-KA-2026-3351', name: 'Siddaraju N', district: 'Mysuru', vehicleType: 'truck' as const, vehicleNumber: 'KA-09-MA-1144', vehicleCapacityKg: '6000', isRefrigerated: false },
   ],
+  storage_owner: [
+    { id: 'STO-KA-2026-1001', name: 'H. M. Chandrashekar', businessName: 'Karnataka Cold Chain Pvt Ltd', facilityName: 'Mandya Agri Cold Store', district: 'Mandya', capacityKg: '500000', pricePerKgPerDay: '15', licenseNumber: 'WDRA-KA-MAN-2024-0891' },
+    { id: 'STO-KA-2026-1003', name: 'Dr. Venkatesh Murthy', businessName: 'Mysuru Mega Cold Logistics Ltd', facilityName: 'Mysuru Mega Veg Cold Logistics', district: 'Mysuru', capacityKg: '1000000', pricePerKgPerDay: '18', licenseNumber: 'WDRA-KA-MYS-2023-0442' },
+    { id: 'STO-KA-2026-1006', name: 'K. S. Manjunatha Swamy', businessName: 'Hassan Potato Cold Space & Logistics', facilityName: 'Hassan Potato Cold Space & Logistics', district: 'Hassan', capacityKg: '1500000', pricePerKgPerDay: '12', licenseNumber: 'WDRA-KA-HAS-2024-0012' },
+    { id: 'STO-KA-2026-1008', name: 'R. Narayanaswamy', businessName: 'Kolar Gold Field Tomato Preservation', facilityName: 'Kolar Gold Field Tomato Preservation', district: 'Kolar', capacityKg: '1200000', pricePerKgPerDay: '16', licenseNumber: 'WDRA-KA-KOL-2023-0518' },
+  ],
 };
 
 export default function OnboardingPage() {
@@ -43,7 +49,7 @@ export default function OnboardingPage() {
   const { language } = useLanguage();
   const router = useRouter();
 
-  const [role, setRole] = useState<'farmer' | 'wholesaler' | 'logistics_driver'>('farmer');
+  const [role, setRole] = useState<'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner'>('farmer');
   const [name, setName] = useState('');
   const [idNumber, setIdNumber] = useState('');
   const [district, setDistrict] = useState('');
@@ -58,6 +64,12 @@ export default function OnboardingPage() {
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [vehicleCapacityKg, setVehicleCapacityKg] = useState('3000');
   const [isRefrigerated, setIsRefrigerated] = useState(false);
+  // Cold Storage Owner fields
+  const [facilityName, setFacilityName] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
+  const [storageCapacityKg, setStorageCapacityKg] = useState('500000');
+  const [pricePerKgPerDay, setPricePerKgPerDay] = useState('15');
+  const [facilityAddress, setFacilityAddress] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,6 +89,7 @@ export default function OnboardingPage() {
           if (profile.farmerId) setIdNumber(profile.farmerId);
           if (profile.wholesalerId) setIdNumber(profile.wholesalerId);
           if (profile.driverId) setIdNumber(profile.driverId);
+          if (profile.ownerId) setIdNumber(profile.ownerId);
           if (profile.village) setVillage(profile.village);
           if (profile.landSizeAcres) setLandSizeAcres(String(profile.landSizeAcres));
           if (profile.primaryCrops && Array.isArray(profile.primaryCrops)) {
@@ -88,6 +101,11 @@ export default function OnboardingPage() {
           if (profile.vehicleNumber) setVehicleNumber(profile.vehicleNumber);
           if (profile.vehicleCapacityKg) setVehicleCapacityKg(String(profile.vehicleCapacityKg));
           if (profile.isRefrigerated !== undefined) setIsRefrigerated(profile.isRefrigerated);
+          if (profile.facilityName) setFacilityName(profile.facilityName);
+          if (profile.licenseNumber) setLicenseNumber(profile.licenseNumber);
+          if (profile.storageCapacityKg) setStorageCapacityKg(String(profile.storageCapacityKg));
+          if (profile.pricePerKgPerDay) setPricePerKgPerDay(String(profile.pricePerKgPerDay));
+          if (profile.facilityAddress) setFacilityAddress(profile.facilityAddress);
         }
       })
       .catch(() => {});
@@ -96,8 +114,8 @@ export default function OnboardingPage() {
     const roleCookie = cookies.find((c) => c.startsWith('intendedRole='));
     if (roleCookie) {
       const val = roleCookie.split('=')[1];
-      if (val === 'wholesaler' || val === 'farmer' || val === 'logistics_driver') {
-        setRole(val);
+      if (val === 'wholesaler' || val === 'farmer' || val === 'logistics_driver' || val === 'storage_owner') {
+        setRole(val as any);
       }
     }
   }, []);
@@ -108,7 +126,7 @@ export default function OnboardingPage() {
     );
   };
 
-  const handleRoleSelect = (r: 'farmer' | 'wholesaler' | 'logistics_driver') => {
+  const handleRoleSelect = (r: 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner') => {
     setRole(r);
     setError(null);
     setStep(2);
@@ -130,6 +148,13 @@ export default function OnboardingPage() {
       setVehicleNumber(preset.vehicleNumber || 'KA-11-E-4281');
       setVehicleCapacityKg(preset.vehicleCapacityKg || '5000');
       setIsRefrigerated(preset.isRefrigerated || false);
+    } else if (role === 'storage_owner') {
+      setBusinessName(preset.businessName || '');
+      setFacilityName(preset.facilityName || '');
+      setStorageCapacityKg(preset.capacityKg || '500000');
+      setPricePerKgPerDay(preset.pricePerKgPerDay || '15');
+      setLicenseNumber(preset.licenseNumber || 'WDRA-KA-2024-001');
+      setFacilityAddress(`${preset.district} Industrial Area, Karnataka`);
     }
     setError(null);
   };
@@ -160,6 +185,11 @@ export default function OnboardingPage() {
       setLoading(false);
       return;
     }
+    if (role === 'storage_owner' && !facilityName.trim()) {
+      setError('Please enter your cold-storage facility name.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/onboarding/verify', {
@@ -174,12 +204,17 @@ export default function OnboardingPage() {
           village: role === 'farmer' ? village.trim() : undefined,
           landSizeAcres: role === 'farmer' ? parseFloat(landSizeAcres) || undefined : undefined,
           primaryCrops: role === 'farmer' ? selectedCrops.map((c) => c.toLowerCase()) : undefined,
-          businessName: role === 'wholesaler' ? businessName.trim() : undefined,
+          businessName: role === 'wholesaler' || role === 'storage_owner' ? businessName.trim() : undefined,
           gstin: role === 'wholesaler' ? gstin.trim() : undefined,
           vehicleType: role === 'logistics_driver' ? vehicleType : undefined,
           vehicleNumber: role === 'logistics_driver' ? vehicleNumber.trim().toUpperCase() : undefined,
           vehicleCapacityKg: role === 'logistics_driver' ? Number(vehicleCapacityKg) || 3000 : undefined,
           isRefrigerated: role === 'logistics_driver' ? isRefrigerated : undefined,
+          facilityName: role === 'storage_owner' ? facilityName.trim() : undefined,
+          licenseNumber: role === 'storage_owner' ? licenseNumber.trim() : undefined,
+          storageCapacityKg: role === 'storage_owner' ? Number(storageCapacityKg) || 500000 : undefined,
+          pricePerKgPerDay: role === 'storage_owner' ? Number(pricePerKgPerDay) || 15 : undefined,
+          facilityAddress: role === 'storage_owner' ? facilityAddress.trim() : undefined,
           language,
         }),
       });
@@ -204,6 +239,7 @@ export default function OnboardingPage() {
       let destination = '/farmer';
       if (role === 'wholesaler') destination = '/wholesaler';
       if (role === 'logistics_driver') destination = '/driver';
+      if (role === 'storage_owner') destination = '/storage-owner';
 
       const isAndroidSource = typeof window !== 'undefined' && (
         window.location.search.includes('source=android') ||
@@ -247,7 +283,7 @@ export default function OnboardingPage() {
         <div className="w-full max-w-md space-y-3.5">
           <button
             onClick={() => handleRoleSelect('farmer')}
-            className={`w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
+            className={`w-full flex items-center gap-4 px-6 py-4.5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
               role === 'farmer' ? 'border-field-green bg-field-green/5' : 'border-border hover:border-field-green hover:shadow-md'
             }`}
           >
@@ -265,7 +301,7 @@ export default function OnboardingPage() {
 
           <button
             onClick={() => handleRoleSelect('wholesaler')}
-            className={`w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
+            className={`w-full flex items-center gap-4 px-6 py-4.5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
               role === 'wholesaler' ? 'border-earth bg-earth/5' : 'border-border hover:border-earth hover:shadow-md'
             }`}
           >
@@ -283,7 +319,7 @@ export default function OnboardingPage() {
 
           <button
             onClick={() => handleRoleSelect('logistics_driver')}
-            className={`w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
+            className={`w-full flex items-center gap-4 px-6 py-4.5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
               role === 'logistics_driver' ? 'border-blue-600 bg-blue-50/50' : 'border-border hover:border-blue-600 hover:shadow-md'
             }`}
           >
@@ -296,6 +332,24 @@ export default function OnboardingPage() {
                 <span className="text-[11px] font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">Transporter</span>
               </div>
               <p className="text-xs text-ink-muted mt-0.5">{t('role.driverDesc') || 'Deliver produce and earn per trip'}</p>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleRoleSelect('storage_owner')}
+            className={`w-full flex items-center gap-4 px-6 py-4.5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
+              role === 'storage_owner' ? 'border-cyan-600 bg-cyan-50/50' : 'border-border hover:border-cyan-600 hover:shadow-md'
+            }`}
+          >
+            <div className="w-12 h-12 rounded-xl bg-cyan-100 text-cyan-800 flex items-center justify-center shrink-0">
+              <Warehouse className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <p className="font-bold text-ink text-base">Cold-Storage Provider</p>
+                <span className="text-[11px] font-semibold text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded-md">Facility Owner</span>
+              </div>
+              <p className="text-xs text-ink-muted mt-0.5">List available warehouse capacity & rent to farmers</p>
             </div>
           </button>
         </div>
@@ -322,8 +376,13 @@ export default function OnboardingPage() {
                 {role === 'farmer' && <Sprout className="w-4 h-4 text-field-green" />}
                 {role === 'wholesaler' && <Store className="w-4 h-4 text-earth" />}
                 {role === 'logistics_driver' && <Truck className="w-4 h-4 text-blue-600" />}
+                {role === 'storage_owner' && <Warehouse className="w-4 h-4 text-cyan-700" />}
                 <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
-                  {role === 'logistics_driver' ? (t('role.driver') || 'Logistics Driver') : t(`role.${role}`)}
+                  {role === 'storage_owner'
+                    ? 'Cold Storage Provider'
+                    : role === 'logistics_driver'
+                    ? (t('role.driver') || 'Logistics Driver')
+                    : t(`role.${role}`)}
                 </span>
               </div>
               <h1 className="text-xl font-bold text-ink">{t('onboarding.title')}</h1>
@@ -592,6 +651,7 @@ export default function OnboardingPage() {
                   required
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
+                  placeholder="e.g. Suresh Traders"
                   className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none"
                 />
               </div>
@@ -606,6 +666,87 @@ export default function OnboardingPage() {
                   placeholder="29AAAAA0000A1Z5"
                   className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm font-mono focus:border-field-green focus:outline-none"
                 />
+              </div>
+            </>
+          )}
+
+          {/* Cold-Storage Provider specific fields */}
+          {role === 'storage_owner' && (
+            <>
+              <div>
+                <label className="block text-xs font-semibold text-ink mb-1.5">
+                  Facility Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={facilityName}
+                  onChange={(e) => setFacilityName(e.target.value)}
+                  placeholder="e.g. Mandya Agri Cold Store / KRS Fresh Storage"
+                  className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-cyan-600 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    WDRA / APMC License No. *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={licenseNumber}
+                    onChange={(e) => setLicenseNumber(e.target.value)}
+                    placeholder="WDRA-KA-MAN-2024-0891"
+                    className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm font-mono focus:border-cyan-600 focus:outline-none uppercase"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    Total Capacity (kg) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="10000"
+                    step="5000"
+                    value={storageCapacityKg}
+                    onChange={(e) => setStorageCapacityKg(e.target.value)}
+                    className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-cyan-600 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    Rental Price (Paise/kg/day) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="5"
+                    max="100"
+                    value={pricePerKgPerDay}
+                    onChange={(e) => setPricePerKgPerDay(e.target.value)}
+                    placeholder="15 (= ₹0.15/kg/day)"
+                    className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-cyan-600 focus:outline-none"
+                  />
+                  <p className="text-[10px] text-ink-muted mt-1">15 paise = ₹0.15 per kg/day</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
+                    Facility Address *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={facilityAddress}
+                    onChange={(e) => setFacilityAddress(e.target.value)}
+                    placeholder="e.g. KIADB Industrial Area, Tubinakere"
+                    className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-cyan-600 focus:outline-none"
+                  />
+                </div>
               </div>
             </>
           )}

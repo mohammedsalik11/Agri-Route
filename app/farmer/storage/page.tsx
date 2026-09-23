@@ -19,6 +19,9 @@ import {
   PackageCheck,
   Plus,
   Search,
+  Truck,
+  Building2,
+  Layers,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -34,6 +37,7 @@ interface StorageFacility {
   name: string;
   operator: string;
   district: string;
+  state?: string;
   totalCapacityKg: number;
   availableCapacityKg: number;
   suitableCrops: string[];
@@ -41,6 +45,9 @@ interface StorageFacility {
   pricePerKgPerDay: number; // in paise
   contactPhone: string;
   subsidySchemeTag?: string;
+  licenseNumber?: string;
+  verificationStatus?: 'verified' | 'pending' | 'rejected';
+  address?: string;
 }
 
 interface StorageBooking {
@@ -55,6 +62,9 @@ interface StorageBooking {
   totalCost: number; // paise
   status: 'confirmed' | 'active' | 'completed' | 'cancelled';
   contactPhone?: string;
+  pickupAddress?: string;
+  requestLogistics?: boolean;
+  logisticsJobId?: string | null;
   createdAt: string;
 }
 
@@ -66,6 +76,8 @@ export default function ColdStoragePage() {
   const [selectedFacility, setSelectedFacility] = useState<StorageFacility | null>(null);
   const [bookingDays, setBookingDays] = useState('4');
   const [quantityKg, setQuantityKg] = useState('500');
+  const [pickupAddress, setPickupAddress] = useState('Farm Gate APMC Node, Mandya');
+  const [requestLogistics, setRequestLogistics] = useState(true);
 
   const [selectedDistrict, setSelectedDistrict] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -86,35 +98,33 @@ export default function ColdStoragePage() {
       const crop = meRes?.data?.primaryCrops?.[0] || 'tomato';
       setFarmerDistrict(district);
       setFarmerCrop(crop);
+      if (meRes?.data?.address) {
+        setPickupAddress(meRes.data.address);
+      }
 
       const targetDistrict = districtFilter !== undefined ? districtFilter : district;
 
-      const [storageRes, trendRes] = await Promise.all([
+      const [storageRes, bookingsRes, trendRes] = await Promise.all([
         fetch(`/api/storage?district=${encodeURIComponent(targetDistrict)}&crop=${encodeURIComponent(crop)}`).then((r) => (r.ok ? r.json() : null)),
+        fetch('/api/storage/bookings').then((r) => (r.ok ? r.json() : null)),
         fetch(`/api/prices/trend?crop=${encodeURIComponent(crop)}&days=7`).then((r) => (r.ok ? r.json() : null)),
       ]);
 
-      if (storageRes?.ok) {
-        if (Array.isArray(storageRes.data) && storageRes.data.length > 0) {
-          setFacilities(storageRes.data);
-          setSelectedFacility((prev) => {
-            if (prev && storageRes.data.some((f: StorageFacility) => f.facilityId === prev.facilityId)) {
-              return prev;
-            }
-            return storageRes.data[0];
-          });
-        } else {
-          // If no specific match, load all available storages
-          const allRes = await fetch('/api/storage').then((r) => (r.ok ? r.json() : null));
-          if (allRes?.ok && Array.isArray(allRes.data)) {
-            setFacilities(allRes.data);
-            setSelectedFacility(allRes.data[0] || null);
+      if (storageRes?.success && Array.isArray(storageRes.storages)) {
+        setFacilities(storageRes.storages);
+        setSelectedFacility((prev) => {
+          if (prev && storageRes.storages.some((f: StorageFacility) => f.facilityId === prev.facilityId)) {
+            return prev;
           }
-        }
+          return storageRes.storages[0] || null;
+        });
+      } else if (storageRes?.ok && Array.isArray(storageRes.data)) {
+        setFacilities(storageRes.data);
+        setSelectedFacility(storageRes.data[0] || null);
+      }
 
-        if (Array.isArray(storageRes.bookings)) {
-          setMyBookings(storageRes.bookings);
-        }
+      if (bookingsRes?.success && Array.isArray(bookingsRes.bookings)) {
+        setMyBookings(bookingsRes.bookings);
       }
 
       if (trendRes?.ok && Array.isArray(trendRes.data)) {
@@ -146,6 +156,10 @@ export default function ColdStoragePage() {
   const ratePerKgDayPaise = selectedFacility?.pricePerKgPerDay || 15;
   const storageCostPaise = qty * ratePerKgDayPaise * days;
 
+  // Logistics fee (₹1.40/kg)
+  const logisticsCostPaise = requestLogistics ? Math.round(qty * 140) : 0;
+  const totalCostPaise = storageCostPaise + logisticsCostPaise;
+
   // Projected gain from trend: ~₹2.5/kg rise over 4 days
   const projectedRisePaise = 250; // ₹2.50
   const totalGainPaise = qty * projectedRisePaise - storageCostPaise;
@@ -165,16 +179,21 @@ export default function ColdStoragePage() {
           crop: farmerCrop,
           quantityKg: qty,
           days,
+          pickupAddress: requestLogistics ? pickupAddress : undefined,
+          requestLogistics,
         }),
       });
 
       const data = await res.json();
-      if (data.ok && data.data) {
-        setBookingSuccessMsg(`Storage reserved at ${selectedFacility.name}! Booking ID: #${data.data.bookingId.slice(-6)}`);
-        // Refresh bookings list from server
+      if (data.success && data.booking) {
+        setBookingSuccessMsg(
+          `Storage reserved at ${selectedFacility.name}! Booking ID: #${data.booking.bookingId.slice(-6)}${
+            requestLogistics ? ' • Haulage driver dispatched to your farm gate!' : ''
+          }`
+        );
         loadStorageData();
       } else {
-        setBookingErrorMsg(data.message || 'Storage booking failed. Please try again.');
+        setBookingErrorMsg(data.error || 'Storage booking failed. Please try again.');
       }
     } catch {
       setBookingErrorMsg('Network error reserving storage space.');
@@ -190,11 +209,11 @@ export default function ColdStoragePage() {
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         <div>
           <span className="text-xs font-bold text-field-green uppercase tracking-wide">
-            Cold Chain &amp; Price Preservation
+            Cold Chain &amp; Price Preservation Network
           </span>
           <h1 className="text-2xl font-bold text-ink mt-0.5">{t('storage.title')}</h1>
           <p className="text-xs text-ink-muted">
-            Avoid distress sales during price dips. Store your harvest in subsidized cold facilities and track your active reservations.
+            Avoid distress sales during peak harvest price dips. Store your produce in WDRA certified cold chain facilities with optional direct farm pickup haulage.
           </p>
         </div>
 
@@ -203,9 +222,9 @@ export default function ColdStoragePage() {
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
               <PackageCheck className="w-4 h-4 text-field-green" />
-              <span>My Cold Storage Reservations ({myBookings.length})</span>
+              <span>My Active Cold Storage Bookings ({myBookings.length})</span>
             </h2>
-            <span className="text-xs text-ink-muted">Real-time facility tracking</span>
+            <span className="text-xs text-ink-muted">WDRA Warehouse Receipt Staging</span>
           </div>
 
           {loading ? (
@@ -217,7 +236,7 @@ export default function ColdStoragePage() {
               <Warehouse className="w-8 h-8 text-ink-muted mx-auto" />
               <p className="text-sm font-semibold text-ink">No Active Cold Storage Reservations</p>
               <p className="text-xs text-ink-muted max-w-sm mx-auto">
-                Reserve space below at certified district storage centers to preserve quality and gain higher market returns.
+                Reserve chamber space below at certified district storage centers to preserve produce freshness and secure premium market returns.
               </p>
             </div>
           ) : (
@@ -230,6 +249,11 @@ export default function ColdStoragePage() {
                       <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full uppercase">
                         {b.status}
                       </span>
+                      {b.requestLogistics && (
+                        <span className="text-[10px] bg-cyan-100 text-cyan-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Truck className="w-3 h-3" /> Haulage Active
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-ink-muted">
                       <span className="capitalize font-semibold text-ink">
@@ -245,7 +269,7 @@ export default function ColdStoragePage() {
 
                   <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center">
                     <div className="text-right">
-                      <span className="text-[10px] text-ink-muted block">Storage Fee</span>
+                      <span className="text-[10px] text-ink-muted block">Total Rental Fee</span>
                       <span className="font-extrabold text-sm text-ink font-mono">
                         {formatCurrency(b.totalCost)}
                       </span>
@@ -352,9 +376,9 @@ export default function ColdStoragePage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <h2 className="text-sm font-bold text-ink uppercase tracking-wider flex items-center gap-2">
                 <Warehouse className="w-4 h-4 text-field-green" />
-                <span>Certified Cold Storage Centers ({facilities.length})</span>
+                <span>Certified Cold Storage Warehouses ({facilities.length})</span>
               </h2>
-              <span className="text-xs text-ink-muted">Tap a center to select</span>
+              <span className="text-xs text-ink-muted">Tap a facility to book</span>
             </div>
 
             {/* District & Search Filter Bar */}
@@ -371,7 +395,7 @@ export default function ColdStoragePage() {
               </div>
 
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-                {['ALL', 'Mandya', 'Mysuru', 'Hassan', 'Kolar', 'Bengaluru Urban', 'Bengaluru Rural', 'Belagavi', 'Tumakuru', 'Shivamogga', 'Kalaburagi', 'Davangere', 'Ballari', 'Chikkaballapur', 'Udupi'].map((d) => (
+                {['ALL', 'Mandya', 'Mysuru', 'Hassan', 'Kolar', 'Bengaluru Urban', 'Bengaluru Rural', 'Belagavi', 'Tumakuru', 'Shivamogga'].map((d) => (
                   <button
                     key={d}
                     type="button"
@@ -428,6 +452,9 @@ export default function ColdStoragePage() {
                   {filtered.map((fac) => {
                     const isSelected = selectedFacility?.facilityId === fac.facilityId;
                     const hasSubsidy = !!fac.subsidySchemeTag;
+                    const occ = fac.totalCapacityKg > 0
+                      ? Math.round(((fac.totalCapacityKg - (fac.availableCapacityKg || 0)) / fac.totalCapacityKg) * 100)
+                      : 0;
 
                     return (
                       <div
@@ -448,9 +475,12 @@ export default function ColdStoragePage() {
                                   Selected ✓
                                 </span>
                               )}
+                              <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                {fac.verificationStatus === 'verified' ? 'WDRA Verified' : 'Accredited'}
+                              </span>
                               {hasSubsidy && (
-                                <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                  <ShieldCheck className="w-3 h-3" />
+                                <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
                                   {fac.subsidySchemeTag} Subsidized
                                 </span>
                               )}
@@ -469,12 +499,20 @@ export default function ColdStoragePage() {
                           </div>
                         </div>
 
-                        <div className="mt-4 pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs">
+                        {/* Capacity Meter */}
+                        <div className="mt-3 bg-paper p-2.5 rounded-xl border border-border/60">
+                          <div className="flex justify-between text-[11px] text-ink-muted mb-1 font-medium">
+                            <span>Available Capacity: <strong className="text-ink">{formatWeight(fac.availableCapacityKg)}</strong></span>
+                            <span className="text-emerald-700">{100 - occ}% Free</span>
+                          </div>
+                          <div className="w-full bg-border/60 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-field-green h-full rounded-full" style={{ width: `${100 - occ}%` }} />
+                          </div>
+                        </div>
+
+                        <div className="mt-3 pt-2.5 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs">
                           <span className="text-ink-muted">
-                            Available: <strong className="text-ink">{formatWeight(fac.availableCapacityKg)}</strong>
-                          </span>
-                          <span className="text-ink-muted">
-                            Temp: <strong>{fac.tempRangeC[0]}°C – {fac.tempRangeC[1]}°C</strong>
+                            Temp Range: <strong>{fac.tempRangeC[0]}°C – {fac.tempRangeC[1]}°C</strong>
                           </span>
                           <div className="flex items-center gap-3">
                             <a
@@ -514,19 +552,7 @@ export default function ColdStoragePage() {
 
             <div className="space-y-3.5 text-xs">
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="font-bold text-ink block">Select Facility</label>
-                  {selectedFacility && (
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedFacility.name + ', ' + selectedFacility.district + ', Karnataka')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[11px] text-field-green font-bold hover:underline inline-flex items-center gap-0.5"
-                    >
-                      <span>📍 View on Maps ↗</span>
-                    </a>
-                  )}
-                </div>
+                <label className="font-bold text-ink block mb-1">Select Facility</label>
                 <select
                   value={selectedFacility?.facilityId || ''}
                   onChange={(e) => {
@@ -568,16 +594,51 @@ export default function ColdStoragePage() {
                 </select>
               </div>
 
+              {/* Logistics Request Option */}
+              <div className="p-3 bg-cyan-50/70 border border-cyan-200/80 rounded-xl space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer font-bold text-cyan-950">
+                  <input
+                    type="checkbox"
+                    checked={requestLogistics}
+                    onChange={(e) => setRequestLogistics(e.target.checked)}
+                    className="w-4 h-4 rounded text-field-green focus:ring-field-green"
+                  />
+                  <Truck className="w-4 h-4 text-cyan-700" />
+                  <span>Request Farm Gate Pickup Haulage</span>
+                </label>
+                {requestLogistics && (
+                  <div>
+                    <label className="text-[11px] text-cyan-900 font-semibold block mb-1">
+                      Farm Gate Pickup Address:
+                    </label>
+                    <input
+                      type="text"
+                      value={pickupAddress}
+                      onChange={(e) => setPickupAddress(e.target.value)}
+                      placeholder="Enter farm location or APMC node"
+                      className="w-full p-2 bg-white border border-cyan-300 rounded-lg text-xs font-medium text-ink focus:outline-none"
+                    />
+                    <span className="text-[10px] text-cyan-800 block mt-1">
+                      + ₹1.40/kg direct logistics transport fee
+                    </span>
+                  </div>
+                )}
+              </div>
+
               <div className="pt-3 border-t border-border space-y-2 bg-paper/60 p-3 rounded-xl">
                 <div className="flex justify-between text-ink-muted">
-                  <span>Daily Rate:</span>
-                  <span className="font-bold text-ink">
-                    ₹{((selectedFacility?.pricePerKgPerDay || 15) / 100).toFixed(2)}/kg
-                  </span>
+                  <span>Storage Fee ({bookingDays} days):</span>
+                  <span className="font-bold text-ink">{formatCurrency(storageCostPaise)}</span>
                 </div>
+                {requestLogistics && (
+                  <div className="flex justify-between text-ink-muted">
+                    <span>Haulage Transport:</span>
+                    <span className="font-bold text-cyan-800">{formatCurrency(logisticsCostPaise)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-bold text-ink text-sm pt-1 border-t border-border/60">
-                  <span>Total Storage Fee:</span>
-                  <span className="text-field-green font-mono font-extrabold">{formatCurrency(storageCostPaise)}</span>
+                  <span>Total Payable:</span>
+                  <span className="text-field-green font-mono font-extrabold">{formatCurrency(totalCostPaise)}</span>
                 </div>
               </div>
 

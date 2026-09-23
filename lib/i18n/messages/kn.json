@@ -317,5 +317,7 @@
   "common.messages": "ಸಂದೇಶಗಳು",
   "common.chat": "ಚಾಟ್",
   "listing.vehicleCapacity": "ವಾಹನ ಸಾಮರ್ಥ್ಯದ ಮಿತಿ",
-  "listing.searchCrops": "1,000+ ಬೆಳೆಗಳು ಮತ್ತು ವರ್ಗಗಳನ್ನು ಹುಡುಕಿ"
+  "listing.searchCrops": "1,000+ ಬೆಳೆಗಳು ಮತ್ತು ವರ್ಗಗಳನ್ನು ಹುಡುಕಿ",
+  "role.storageOwner": "ಶೈತ್ಯಾಗಾರ ಮಾಲೀಕರು",
+  "role.storageOwnerDesc": "ಗೋದಾಮಿನ ಸ್ಥಳವನ್ನು ಬಾಡಿಗೆಗೆ ನೀಡಿ ಮತ್ತು ಬೆಳೆ ಸಂರಕ್ಷಣಾ ಕೊಠಡಿಗಳನ್ನು ನಿರ್ವಹಿಸಿ"
 }

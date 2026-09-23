@@ -1,42 +1,580 @@
 [
-  { "farmerId": "KA-MAN-2026-004417", "name": "Lakshmamma", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004418", "name": "Ramu Gowda", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004419", "name": "Shivanna", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004420", "name": "Bhairappa", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004421", "name": "Nanjamma", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004422", "name": "Puttaiah", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004423", "name": "Govinda", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004424", "name": "Devakka", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004425", "name": "Somanna", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MAN-2026-004426", "name": "Gowramma", "district": "Mandya", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001001", "name": "Mahesh Kumar", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001002", "name": "Siddaraju", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001003", "name": "Mahadevappa", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001004", "name": "Rathnamma", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001005", "name": "Yediyurappa", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001006", "name": "Kempaiah", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001007", "name": "Jayalakshmi", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001008", "name": "Venkataramana", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001009", "name": "Narayanappa", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-MYS-2026-001010", "name": "Sharadamma", "district": "Mysuru", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002001", "name": "Doddaiah", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002002", "name": "Rangappa", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002003", "name": "Manjula", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002004", "name": "Chaluve Gowda", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002005", "name": "Prakash", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002006", "name": "Vasantha", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002007", "name": "Ningamma", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002008", "name": "Kariyappa", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002009", "name": "Thimmegowda", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-HAS-2026-002010", "name": "Bhagya", "district": "Hassan", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003001", "name": "Muniyappa", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003002", "name": "Reddyappa", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003003", "name": "Narayanareddy", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003004", "name": "Venkatalakshmamma", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003005", "name": "Krishnappa", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003006", "name": "Rajanna", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003007", "name": "Saraswathi", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003008", "name": "Srinivas", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003009", "name": "Byregowda", "district": "Kolar", "state": "Karnataka" },
-  { "farmerId": "KA-KOL-2026-003010", "name": "Parvathamma", "district": "Kolar", "state": "Karnataka" }
+  {
+    "farmerId": "KA-MAN-2026-004417",
+    "name": "Lakshmamma",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Dudda",
+    "acres": 3.5,
+    "crops": [
+      "Tomato",
+      "Paddy",
+      "Ragi"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004418",
+    "name": "Ramu Gowda",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Keragodu",
+    "acres": 4,
+    "crops": [
+      "Sugarcane",
+      "Paddy"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004419",
+    "name": "Shivanna",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Basaralu",
+    "acres": 2.5,
+    "crops": [
+      "Tomato",
+      "Beans"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004420",
+    "name": "Bhairappa",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Kothathi",
+    "acres": 5,
+    "crops": [
+      "Paddy",
+      "Ragi",
+      "Maize"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004421",
+    "name": "Nanjamma",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Koppa",
+    "acres": 3,
+    "crops": [
+      "Banana",
+      "Tomato"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004422",
+    "name": "Puttaiah",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Bannur Road",
+    "acres": 4.2,
+    "crops": [
+      "Sugarcane",
+      "Maize"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004423",
+    "name": "Govinda",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Maddur Gate",
+    "acres": 3.8,
+    "crops": [
+      "Tomato",
+      "Potato"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004424",
+    "name": "Devakka",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Guthalu",
+    "acres": 2,
+    "crops": [
+      "Vegetables",
+      "Tomato"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004425",
+    "name": "Somanna",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Holalu",
+    "acres": 6,
+    "crops": [
+      "Paddy",
+      "Ragi"
+    ]
+  },
+  {
+    "farmerId": "KA-MAN-2026-004426",
+    "name": "Gowramma",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "village": "Kyathaghatta",
+    "acres": 3.2,
+    "crops": [
+      "Tomato",
+      "Groundnut"
+    ]
+  },
+  {
+    "farmerId": "KA-MYS-2026-001001",
+    "name": "Mahesh Kumar",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "village": "Nanjangud",
+    "acres": 5,
+    "crops": [
+      "Banana",
+      "Wheat",
+      "Maize"
+    ]
+  },
+  {
+    "farmerId": "KA-MYS-2026-001002",
+    "name": "Siddaraju",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "village": "T. Narasipura",
+    "acres": 4.5,
+    "crops": [
+      "Paddy",
+      "Sugarcane"
+    ]
+  },
+  {
+    "farmerId": "KA-MYS-2026-001003",
+    "name": "Mahadevappa",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "village": "Hunsur",
+    "acres": 7,
+    "crops": [
+      "Tobacco",
+      "Maize",
+      "Ginger"
+    ]
+  },
+  {
+    "farmerId": "KA-MYS-2026-001004",
+    "name": "Rathnamma",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "village": "K.R. Nagar",
+    "acres": 3,
+    "crops": [
+      "Paddy",
+      "Tomato"
+    ]
+  },
+  {
+    "farmerId": "KA-MYS-2026-001005",
+    "name": "Nanjundaswamy",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "village": "Periyapatna",
+    "acres": 6.5,
+    "crops": [
+      "Maize",
+      "Potato",
+      "Ginger"
+    ]
+  },
+  {
+    "farmerId": "KA-MYS-2026-001006",
+    "name": "Kempegowda",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "village": "Saragur",
+    "acres": 4,
+    "crops": [
+      "Cotton",
+      "Ragi"
+    ]
+  },
+  {
+    "farmerId": "KA-MYS-2026-001007",
+    "name": "Shanthamma",
+    "district": "Mysuru",
+    "state": "Karnataka",
+    "village": "Biligere",
+    "acres": 3.5,
+    "crops": [
+      "Banana",
+      "Vegetables"
+    ]
+  },
+  {
+    "farmerId": "KA-HAS-2026-002001",
+    "name": "Eregowda",
+    "district": "Hassan",
+    "state": "Karnataka",
+    "village": "Alur",
+    "acres": 4.2,
+    "crops": [
+      "Potato",
+      "Maize",
+      "Sugarcane"
+    ]
+  },
+  {
+    "farmerId": "KA-HAS-2026-002002",
+    "name": "Thimmegowda",
+    "district": "Hassan",
+    "state": "Karnataka",
+    "village": "Channarayapatna",
+    "acres": 5.5,
+    "crops": [
+      "Coconut",
+      "Ragi",
+      "Potato"
+    ]
+  },
+  {
+    "farmerId": "KA-HAS-2026-002003",
+    "name": "Lokesh H. M.",
+    "district": "Hassan",
+    "state": "Karnataka",
+    "village": "Holenarasipura",
+    "acres": 3.8,
+    "crops": [
+      "Paddy",
+      "Sugarcane"
+    ]
+  },
+  {
+    "farmerId": "KA-HAS-2026-002004",
+    "name": "Manjula",
+    "district": "Hassan",
+    "state": "Karnataka",
+    "village": "Arsikere Rural",
+    "acres": 6,
+    "crops": [
+      "Coconut",
+      "Maize"
+    ]
+  },
+  {
+    "farmerId": "KA-HAS-2026-002005",
+    "name": "Suresh Gowda",
+    "district": "Hassan",
+    "state": "Karnataka",
+    "village": "Sakleshpur",
+    "acres": 8,
+    "crops": [
+      "Coffee",
+      "Ginger",
+      "Cardamom"
+    ]
+  },
+  {
+    "farmerId": "KA-KOL-2026-003001",
+    "name": "Venkataramanappa",
+    "district": "Kolar",
+    "state": "Karnataka",
+    "village": "Srinivaspur",
+    "acres": 6.5,
+    "crops": [
+      "Mango",
+      "Tomato",
+      "Chilli"
+    ]
+  },
+  {
+    "farmerId": "KA-KOL-2026-003002",
+    "name": "Muniyappa",
+    "district": "Kolar",
+    "state": "Karnataka",
+    "village": "Mulbagal",
+    "acres": 4,
+    "crops": [
+      "Tomato",
+      "Capsicum"
+    ]
+  },
+  {
+    "farmerId": "KA-KOL-2026-003003",
+    "name": "Anandamma",
+    "district": "Kolar",
+    "state": "Karnataka",
+    "village": "Bangarapet",
+    "acres": 3.5,
+    "crops": [
+      "Beans",
+      "Carrot",
+      "Tomato"
+    ]
+  },
+  {
+    "farmerId": "KA-KOL-2026-003004",
+    "name": "Gopalakrishna",
+    "district": "Kolar",
+    "state": "Karnataka",
+    "village": "Malur Rural",
+    "acres": 5,
+    "crops": [
+      "Capsicum",
+      "Tomato",
+      "Cauliflower"
+    ]
+  },
+  {
+    "farmerId": "KA-BEL-2026-004001",
+    "name": "Mallikarjun Patil",
+    "district": "Belagavi",
+    "state": "Karnataka",
+    "village": "Gokak",
+    "acres": 7.5,
+    "crops": [
+      "Sugarcane",
+      "Soybean",
+      "Maize"
+    ]
+  },
+  {
+    "farmerId": "KA-BEL-2026-004002",
+    "name": "Shivanand Hukkeri",
+    "district": "Belagavi",
+    "state": "Karnataka",
+    "village": "Chikkodi",
+    "acres": 9,
+    "crops": [
+      "Sugarcane",
+      "Vegetables"
+    ]
+  },
+  {
+    "farmerId": "KA-BEL-2026-004003",
+    "name": "Basavaraj Kadrolli",
+    "district": "Belagavi",
+    "state": "Karnataka",
+    "village": "Bailhongal",
+    "acres": 5,
+    "crops": [
+      "Cotton",
+      "Onion"
+    ]
+  },
+  {
+    "farmerId": "KA-BEL-2026-004004",
+    "name": "Parashuram Gaddi",
+    "district": "Belagavi",
+    "state": "Karnataka",
+    "village": "Athani",
+    "acres": 8,
+    "crops": [
+      "Grapes",
+      "Sugarcane"
+    ]
+  },
+  {
+    "farmerId": "KA-BLR-2026-005001",
+    "name": "Krishnappa",
+    "district": "Bengaluru Rural",
+    "state": "Karnataka",
+    "village": "Doddaballapur",
+    "acres": 4.5,
+    "crops": [
+      "Grapes",
+      "Tomato",
+      "Broccoli"
+    ]
+  },
+  {
+    "farmerId": "KA-BLR-2026-005002",
+    "name": "Narayanamma",
+    "district": "Bengaluru Rural",
+    "state": "Karnataka",
+    "village": "Devanahalli",
+    "acres": 3.8,
+    "crops": [
+      "Pomelo",
+      "Vegetables",
+      "Flowers"
+    ]
+  },
+  {
+    "farmerId": "KA-BLR-2026-005003",
+    "name": "Ramesh Reddy",
+    "district": "Bengaluru Rural",
+    "state": "Karnataka",
+    "village": "Hosakote",
+    "acres": 5.2,
+    "crops": [
+      "Cabbage",
+      "Capsicum",
+      "Tomato"
+    ]
+  },
+  {
+    "farmerId": "KA-TUM-2026-006001",
+    "name": "Nagarajaiah",
+    "district": "Tumakuru",
+    "state": "Karnataka",
+    "village": "Tiptur",
+    "acres": 8.5,
+    "crops": [
+      "Copra",
+      "Coconut",
+      "Ragi"
+    ]
+  },
+  {
+    "farmerId": "KA-TUM-2026-006002",
+    "name": "Gangadhar",
+    "district": "Tumakuru",
+    "state": "Karnataka",
+    "village": "Sira",
+    "acres": 6,
+    "crops": [
+      "Groundnut",
+      "Maize"
+    ]
+  },
+  {
+    "farmerId": "KA-TUM-2026-006003",
+    "name": "Jayamma",
+    "district": "Tumakuru",
+    "state": "Karnataka",
+    "village": "Kunigal",
+    "acres": 4,
+    "crops": [
+      "Ragi",
+      "Paddy",
+      "Vegetables"
+    ]
+  },
+  {
+    "farmerId": "KA-DHA-2026-007001",
+    "name": "Veeresh Shettar",
+    "district": "Dharwad",
+    "state": "Karnataka",
+    "village": "Kundgol",
+    "acres": 7,
+    "crops": [
+      "Chilli",
+      "Cotton",
+      "Onion"
+    ]
+  },
+  {
+    "farmerId": "KA-DHA-2026-007002",
+    "name": "Prakash Hiremath",
+    "district": "Dharwad",
+    "state": "Karnataka",
+    "village": "Kalghatgi",
+    "acres": 5.5,
+    "crops": [
+      "Paddy",
+      "Sugarcane"
+    ]
+  },
+  {
+    "farmerId": "KA-CTA-2026-008001",
+    "name": "Thippeswamy",
+    "district": "Chitradurga",
+    "state": "Karnataka",
+    "village": "Challakere",
+    "acres": 6.5,
+    "crops": [
+      "Groundnut",
+      "Onion",
+      "Pomegranate"
+    ]
+  },
+  {
+    "farmerId": "KA-CTA-2026-008002",
+    "name": "Boraiah",
+    "district": "Chitradurga",
+    "state": "Karnataka",
+    "village": "Hiriyur",
+    "acres": 8,
+    "crops": [
+      "Coconut",
+      "Onion",
+      "Maize"
+    ]
+  },
+  {
+    "farmerId": "KA-SHI-2026-009001",
+    "name": "Subrahmanya Bhat",
+    "district": "Shivamogga",
+    "state": "Karnataka",
+    "village": "Thirthahalli",
+    "acres": 6,
+    "crops": [
+      "Arecanut",
+      "Ginger",
+      "Pepper"
+    ]
+  },
+  {
+    "farmerId": "KA-SHI-2026-009002",
+    "name": "Manjunath Hegde",
+    "district": "Shivamogga",
+    "state": "Karnataka",
+    "village": "Sagar",
+    "acres": 5,
+    "crops": [
+      "Paddy",
+      "Ginger",
+      "Pineapple"
+    ]
+  },
+  {
+    "farmerId": "KA-HAV-2026-010001",
+    "name": "Gurusiddappa",
+    "district": "Haveri",
+    "state": "Karnataka",
+    "village": "Byadagi Rural",
+    "acres": 7,
+    "crops": [
+      "Chilli",
+      "Maize",
+      "Cotton"
+    ]
+  },
+  {
+    "farmerId": "KA-HAV-2026-010002",
+    "name": "Kariyappa",
+    "district": "Haveri",
+    "state": "Karnataka",
+    "village": "Ranebennur",
+    "acres": 5.5,
+    "crops": [
+      "Hybrid Seeds",
+      "Vegetables",
+      "Maize"
+    ]
+  },
+  {
+    "farmerId": "KA-CKB-2026-011001",
+    "name": "Channarayappa",
+    "district": "Chikkaballapur",
+    "state": "Karnataka",
+    "village": "Chintamani",
+    "acres": 4.8,
+    "crops": [
+      "Tomato",
+      "Groundnut",
+      "Mango"
+    ]
+  },
+  {
+    "farmerId": "KA-CKB-2026-011002",
+    "name": "Venkataswamy",
+    "district": "Chikkaballapur",
+    "state": "Karnataka",
+    "village": "Gowribidanur",
+    "acres": 5.2,
+    "crops": [
+      "Maize",
+      "Capsicum",
+      "Potato"
+    ]
+  }
 ]

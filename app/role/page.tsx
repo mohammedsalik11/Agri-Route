@@ -2,19 +2,19 @@
 
 import { useT } from '@/lib/i18n/LanguageProvider';
 import { useRouter } from 'next/navigation';
-import { Sprout, Store, Truck } from 'lucide-react';
+import { Sprout, Store, Truck, Warehouse } from 'lucide-react';
 
 export default function RoleSelectPage() {
   const { t } = useT();
   const router = useRouter();
 
-  const selectRole = (role: 'farmer' | 'wholesaler' | 'logistics_driver') => {
+  const selectRole = (role: 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner') => {
     document.cookie = `intendedRole=${role};path=/;max-age=${60 * 60 * 24}`;
     router.push('/onboarding');
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-paper">
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-paper">
       <h1 className="text-2xl font-bold text-field-green mb-2">{t('role.title')}</h1>
       <p className="text-ink-muted text-sm mb-8">Agri Route</p>
 
@@ -22,7 +22,7 @@ export default function RoleSelectPage() {
         {/* Farmer */}
         <button
           onClick={() => selectRole('farmer')}
-          className="w-full flex items-center gap-4 px-6 py-6 bg-white rounded-2xl border-2 border-border
+          className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border
                      hover:border-field-green hover:shadow-lg transition-all
                      active:scale-[0.98] touch-manipulation"
         >
@@ -38,7 +38,7 @@ export default function RoleSelectPage() {
         {/* Wholesaler */}
         <button
           onClick={() => selectRole('wholesaler')}
-          className="w-full flex items-center gap-4 px-6 py-6 bg-white rounded-2xl border-2 border-border
+          className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border
                      hover:border-earth hover:shadow-lg transition-all
                      active:scale-[0.98] touch-manipulation"
         >
@@ -54,7 +54,7 @@ export default function RoleSelectPage() {
         {/* Logistics Driver */}
         <button
           onClick={() => selectRole('logistics_driver')}
-          className="w-full flex items-center gap-4 px-6 py-6 bg-white rounded-2xl border-2 border-border
+          className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border
                      hover:border-blue-600 hover:shadow-lg transition-all
                      active:scale-[0.98] touch-manipulation"
         >
@@ -64,6 +64,22 @@ export default function RoleSelectPage() {
           <div className="text-left">
             <p className="text-lg font-semibold text-ink">{t('role.driver') || 'Logistics Driver'}</p>
             <p className="text-sm text-ink-muted">{t('role.driverDesc') || 'Deliver produce and earn per trip'}</p>
+          </div>
+        </button>
+
+        {/* Cold-Storage Provider */}
+        <button
+          onClick={() => selectRole('storage_owner')}
+          className="w-full flex items-center gap-4 px-6 py-5 bg-white rounded-2xl border-2 border-border
+                     hover:border-cyan-600 hover:shadow-lg transition-all
+                     active:scale-[0.98] touch-manipulation"
+        >
+          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-cyan-100">
+            <Warehouse className="w-7 h-7 text-cyan-800" />
+          </div>
+          <div className="text-left">
+            <p className="text-lg font-semibold text-ink">Cold-Storage Provider</p>
+            <p className="text-sm text-ink-muted">List available capacity & rent storage space</p>
           </div>
         </button>
       </div>

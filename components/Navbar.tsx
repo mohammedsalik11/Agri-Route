@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage, useT } from '@/lib/i18n/LanguageProvider';
 import { UserButton } from '@clerk/nextjs';
-import { Sprout, Store, Globe, List, Users, ShoppingBag, MessageSquare, Warehouse, Award, Truck, UserCheck } from 'lucide-react';
+import { Sprout, Store, Globe, List, Users, ShoppingBag, MessageSquare, Warehouse, Award, Truck, UserCheck, ShieldCheck, Building2 } from 'lucide-react';
 import type { Language } from '@/lib/i18n/LanguageProvider';
 
 export const Navbar: React.FC = () => {
@@ -16,7 +16,8 @@ export const Navbar: React.FC = () => {
   const isFarmer = pathname.startsWith('/farmer');
   const isWholesaler = pathname.startsWith('/wholesaler');
   const isDriver = pathname.startsWith('/driver');
-  const homeLink = isFarmer ? '/farmer' : isWholesaler ? '/wholesaler' : isDriver ? '/driver' : '/';
+  const isStorageOwner = pathname.startsWith('/storage-owner');
+  const homeLink = isFarmer ? '/farmer' : isWholesaler ? '/wholesaler' : isDriver ? '/driver' : isStorageOwner ? '/storage-owner' : '/';
 
   const langLabels: Record<Language, string> = {
     en: 'English',
@@ -213,6 +214,20 @@ export const Navbar: React.FC = () => {
                 </Link>
               </>
             )}
+            {isStorageOwner && (
+              <>
+                <Link
+                  href="/storage-owner"
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    pathname === '/storage-owner'
+                      ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-emerald-700 hover:bg-black/5'
+                  }`}
+                >
+                  Storage Dashboard
+                </Link>
+              </>
+            )}
           </nav>
 
           {/* Right tools: Language switch + User Profile */}
@@ -244,9 +259,10 @@ export const Navbar: React.FC = () => {
               {isFarmer && <Sprout className="w-3.5 h-3.5 text-field-green" />}
               {isWholesaler && <Store className="w-3.5 h-3.5 text-earth" />}
               {isDriver && <Truck className="w-3.5 h-3.5 text-blue-600" />}
-              {!isFarmer && !isWholesaler && !isDriver && <UserCheck className="w-3.5 h-3.5 text-field-green" />}
+              {isStorageOwner && <Warehouse className="w-3.5 h-3.5 text-emerald-600" />}
+              {!isFarmer && !isWholesaler && !isDriver && !isStorageOwner && <UserCheck className="w-3.5 h-3.5 text-field-green" />}
               <span className="font-semibold capitalize">
-                {isFarmer ? 'Farmer' : isWholesaler ? 'Wholesaler' : isDriver ? 'Driver' : 'Profile'}
+                {isFarmer ? 'Farmer' : isWholesaler ? 'Wholesaler' : isDriver ? 'Driver' : isStorageOwner ? 'Storage' : 'Profile'}
               </span>
               <span className="text-[10px] text-ink-muted font-normal">(Role)</span>
             </Link>
@@ -257,7 +273,6 @@ export const Navbar: React.FC = () => {
       </header>
 
       {/* Fixed Bottom Tab Bar for Mobile */}
-      {/* Spacer so content is not hidden behind the fixed bar */}
       <div className="sm:hidden h-16 w-full" />
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)] pb-safe">
         {isFarmer ? (
@@ -315,6 +330,13 @@ export const Navbar: React.FC = () => {
             <Link href="/driver#active-trips" className="flex flex-col items-center gap-1 w-full text-ink-muted hover:text-blue-600">
               <ShoppingBag className="w-5 h-5" />
               <span>My Trips</span>
+            </Link>
+          </div>
+        ) : isStorageOwner ? (
+          <div className="flex items-center justify-around px-2 py-2 text-[10px] font-medium h-16">
+            <Link href="/storage-owner" className={`flex flex-col items-center gap-1 w-full ${pathname === '/storage-owner' ? 'text-emerald-600 font-bold' : 'text-ink-muted'}`}>
+              <Warehouse className="w-5 h-5" />
+              <span>Facilities</span>
             </Link>
           </div>
         ) : null}

@@ -4,7 +4,7 @@ import { collections } from './firebase-admin';
 
 export interface UserProfile {
   clerkUserId: string;
-  role: 'farmer' | 'wholesaler' | 'logistics_driver';
+  role: 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner';
   name: string;
   phone: string;
   email?: string;
@@ -26,6 +26,18 @@ export interface UserProfile {
   vehicleNumber?: string;
   vehicleCapacityKg?: number;
   isRefrigerated?: boolean;
+  // cold-storage provider only
+  facilityId?: string;
+  facilityName?: string;
+  operatorName?: string;
+  licenseNumber?: string;
+  storageCapacityKg?: number;
+  availableCapacityKg?: number;
+  facilityAddress?: string;
+  tempRangeC?: [number, number];
+  pricePerKgPerDay?: number;
+  documentUrl?: string;
+  facilityImages?: string[];
   // all
   verificationStatus: 'verified' | 'pending' | 'failed';
   verificationSource?: string;
@@ -86,11 +98,11 @@ export async function getUserProfile(clerkUserId: string): Promise<UserProfile |
     }
 
     // 4. Check Clerk publicMetadata
-    const meta = clerkUser.publicMetadata as { role?: string; district?: string; farmerId?: string; wholesalerId?: string; driverId?: string };
-    if (meta?.role && (meta.role === 'farmer' || meta.role === 'wholesaler' || meta.role === 'logistics_driver')) {
+    const meta = clerkUser.publicMetadata as { role?: string; district?: string; farmerId?: string; wholesalerId?: string; driverId?: string; facilityId?: string; licenseNumber?: string };
+    if (meta?.role && (meta.role === 'farmer' || meta.role === 'wholesaler' || meta.role === 'logistics_driver' || meta.role === 'storage_owner')) {
       const profile: UserProfile = {
         clerkUserId,
-        role: meta.role as 'farmer' | 'wholesaler' | 'logistics_driver',
+        role: meta.role as 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner',
         name: clerkUser.firstName ? `${clerkUser.firstName} ${clerkUser.lastName || ''}`.trim() : (clerkUser.username || 'User'),
         phone: phone || '',
         email: email || '',
@@ -100,6 +112,8 @@ export async function getUserProfile(clerkUserId: string): Promise<UserProfile |
         farmerId: meta.farmerId,
         wholesalerId: meta.wholesalerId,
         driverId: meta.driverId,
+        facilityId: meta.facilityId,
+        licenseNumber: meta.licenseNumber,
         verificationStatus: 'verified',
         createdAt: new Date().toISOString(),
       };
@@ -135,7 +149,7 @@ export async function requireAuth(): Promise<
  * Auth + role guard. Returns the user profile or seamlessly provisions / updates role.
  */
 export async function requireRole(
-  requiredRole: 'farmer' | 'wholesaler' | 'logistics_driver'
+  requiredRole: 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner'
 ): Promise<
   { user: UserProfile; error?: never } | { user?: never; error: NextResponse }
 > {
@@ -153,6 +167,8 @@ export async function requireRole(
           ? 'Farmer User'
           : requiredRole === 'wholesaler'
           ? 'Wholesaler Trader'
+          : requiredRole === 'storage_owner'
+          ? 'Storage Provider'
           : 'Logistics Driver',
       phone: '+919876543210',
       language: 'en',
@@ -165,7 +181,7 @@ export async function requireRole(
     return { user };
   }
 
-  // If user role differs (e.g. user exploring farmer actions), seamlessly update role
+  // If user role differs, update role
   if (user.role !== requiredRole) {
     user.role = requiredRole;
     await collections.users

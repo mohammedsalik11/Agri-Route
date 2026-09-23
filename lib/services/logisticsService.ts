@@ -28,11 +28,14 @@ export interface LogisticsTrip {
 
 export interface LogisticsJob {
   id: string;
-  sourceType: 'listing' | 'order' | 'pool';
+  sourceType: 'listing' | 'order' | 'pool' | 'storage_booking';
   sourceId: string;
   orderId?: string;
   listingId?: string;
   poolId?: string;
+  storageBookingId?: string;
+  facilityId?: string;
+  facilityName?: string;
   farmerId?: string;
   farmerName?: string;
   crop: string;
@@ -108,7 +111,7 @@ export async function createLogisticsJobForListing(params: {
   deliveryAddress?: string;
   requiresRefrigeration?: boolean;
 }): Promise<LogisticsJob> {
-  const jobId = `job_lst_${params.listingId}`;
+  const jobId = 'job_lst_' + params.listingId;
 
   const existing = await collections.logisticsJobs.doc(jobId).get();
   if (existing.exists) {
@@ -142,10 +145,10 @@ export async function createLogisticsJobForListing(params: {
     remainingUnassignedKg: params.quantityKg,
     pickupDistrict: params.pickupDistrict,
     pickupState: params.pickupState || 'Karnataka',
-    pickupAddress: params.pickupAddress || `${params.pickupDistrict} Farm Gate Node`,
+    pickupAddress: params.pickupAddress || (params.pickupDistrict + ' Farm Gate Node'),
     deliveryDistrict,
     deliveryState,
-    deliveryAddress: params.deliveryAddress || `${deliveryDistrict} Wholesale Mandi Hub`,
+    deliveryAddress: params.deliveryAddress || (deliveryDistrict + ' Wholesale Mandi Hub'),
     estimatedDistanceKm: distanceKm,
     totalLogisticsFee: feePaise,
     requiresRefrigeration: params.requiresRefrigeration || false,
@@ -175,7 +178,7 @@ export async function createLogisticsJobForOrder(params: {
   logisticsFeePaise: number;
   requiresRefrigeration?: boolean;
 }): Promise<LogisticsJob> {
-  const jobId = `job_${params.orderId}`;
+  const jobId = 'job_' + params.orderId;
   
   const existing = await collections.logisticsJobs.doc(jobId).get();
   if (existing.exists) {
@@ -195,10 +198,10 @@ export async function createLogisticsJobForOrder(params: {
     remainingUnassignedKg: params.totalQuantityKg,
     pickupDistrict: params.pickupDistrict,
     pickupState: params.pickupState || 'Karnataka',
-    pickupAddress: params.pickupAddress || `${params.pickupDistrict} Farm Gate APMC Node`,
+    pickupAddress: params.pickupAddress || (params.pickupDistrict + ' Farm Gate APMC Node'),
     deliveryDistrict: params.deliveryDistrict,
     deliveryState: params.deliveryState || 'Karnataka',
-    deliveryAddress: params.deliveryAddress || `${params.deliveryDistrict} Wholesale Hub`,
+    deliveryAddress: params.deliveryAddress || (params.deliveryDistrict + ' Wholesale Hub'),
     estimatedDistanceKm: distanceKm,
     totalLogisticsFee: params.logisticsFeePaise,
     requiresRefrigeration: params.requiresRefrigeration || false,
@@ -213,7 +216,66 @@ export async function createLogisticsJobForOrder(params: {
 }
 
 /**
- * Fetches all available logistics jobs (open or partially assigned with remaining kg > 0).
+ * Creates a Logistics Job for farm-to-cold-storage haulage transport.
+ */
+export async function createLogisticsJobForStorageBooking(params: {
+  storageBookingId: string;
+  facilityId: string;
+  facilityName: string;
+  facilityDistrict: string;
+  facilityAddress: string;
+  userId: string;
+  userName: string;
+  userRole: 'farmer' | 'wholesaler';
+  crop: string;
+  quantityKg: number;
+  pickupAddress: string;
+  pickupDistrict: string;
+}): Promise<LogisticsJob> {
+  const jobId = 'job_str_' + params.storageBookingId;
+
+  const existing = await collections.logisticsJobs.doc(jobId).get();
+  if (existing.exists) {
+    return existing.data() as LogisticsJob;
+  }
+
+  const distanceKm = calculateDistanceKm(params.pickupDistrict, params.facilityDistrict);
+  const feePaise = Math.round(params.quantityKg * 140);
+  const now = new Date().toISOString();
+
+  const job: LogisticsJob = {
+    id: jobId,
+    sourceType: 'storage_booking',
+    sourceId: params.storageBookingId,
+    storageBookingId: params.storageBookingId,
+    facilityId: params.facilityId,
+    facilityName: params.facilityName,
+    farmerId: params.userId,
+    farmerName: params.userName,
+    crop: params.crop,
+    totalQuantityKg: params.quantityKg,
+    remainingUnassignedKg: params.quantityKg,
+    pickupDistrict: params.pickupDistrict,
+    pickupState: 'Karnataka',
+    pickupAddress: params.pickupAddress,
+    deliveryDistrict: params.facilityDistrict,
+    deliveryState: 'Karnataka',
+    deliveryAddress: params.facilityAddress,
+    estimatedDistanceKm: Math.max(distanceKm, 20),
+    totalLogisticsFee: feePaise,
+    requiresRefrigeration: true,
+    status: 'open',
+    trips: [],
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await collections.logisticsJobs.doc(jobId).set(job);
+  return job;
+}
+
+/**
+ * Fetches all available logistics jobs.
  */
 export async function getAvailableJobs(district?: string): Promise<LogisticsJob[]> {
   const snapshot = await collections.logisticsJobs
@@ -275,9 +337,6 @@ export async function getJobById(jobId: string): Promise<LogisticsJob | null> {
 
 /**
  * Assigns a driver to haul a trip for a job.
- * PREVENTS DOUBLE ASSIGNMENT via Firestore Transaction.
- * STRICT CAPACITY CONSTRAINT:
- * assignedQuantityKg <= vehicleCapacityKg is enforced.
  */
 export async function assignDriverTrip(params: {
   jobId: string;
@@ -319,14 +378,13 @@ export async function assignDriverTrip(params: {
     for (let i = 0; i < requestedTripsCount; i++) {
       if (remaining <= 0) break;
 
-      // Strict constraint: Each trip load is MIN(vehicleCapacity, remaining)
       const tripQuantity = Math.min(vehicleCapacity, remaining);
       const tripFeePaise = Math.round(
         (job.totalLogisticsFee * tripQuantity) / job.totalQuantityKg
       );
 
       const tripNumber = existingTrips.length + newTrips.length + 1;
-      const tripId = `trip_${job.id}_${tripNumber}_${Math.random().toString(36).slice(2, 6)}`;
+      const tripId = 'trip_' + job.id + '_' + tripNumber + '_' + Math.random().toString(36).slice(2, 6);
       const pickupOtp = String(Math.floor(100000 + Math.random() * 900000));
       const deliveryOtp = String(Math.floor(100000 + Math.random() * 900000));
 
@@ -349,7 +407,7 @@ export async function assignDriverTrip(params: {
         currentLocation: {
           lat: pCoords.lat,
           lng: pCoords.lng,
-          address: `${job.pickupDistrict} Farm Gate APMC Node`,
+          address: job.pickupAddress || (job.pickupDistrict + ' Farm Gate APMC Node'),
           updatedAt: new Date().toISOString(),
         },
       };
@@ -390,7 +448,7 @@ export async function assignDriverTrip(params: {
 }
 
 /**
- * Updates a trip's lifecycle status (en_route_pickup, picked_up, in_transit, delivered).
+ * Updates a trip's lifecycle status.
  */
 export async function updateTripStatus(params: {
   jobId: string;
@@ -433,7 +491,7 @@ export async function updateTripStatus(params: {
 
     if (newStatus === 'delivered') {
       if (trip.deliveryOtp && otpInput && trip.deliveryOtp !== otpInput.trim()) {
-        throw new Error('Invalid Delivery OTP from wholesaler/buyer');
+        throw new Error('Invalid Delivery OTP from recipient');
       }
       trip.deliveredTime = now;
     }
