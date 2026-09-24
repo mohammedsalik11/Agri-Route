@@ -218,5 +218,49 @@
     "vehicleNumber": "KA-32-L-1122",
     "isRefrigerated": false,
     "phone": "+919876543249"
+  },
+  {
+    "driverId": "DRV-MH-2026-3011",
+    "name": "Santosh Gaikwad",
+    "district": "Nashik",
+    "state": "Maharashtra",
+    "vehicleType": "truck",
+    "vehicleCapacityKg": 10000,
+    "vehicleNumber": "MH-15-EG-4412",
+    "isRefrigerated": true,
+    "phone": "+919822098765"
+  },
+  {
+    "driverId": "DRV-PB-2026-4022",
+    "name": "Jaswinder Singh",
+    "district": "Ludhiana",
+    "state": "Punjab",
+    "vehicleType": "truck",
+    "vehicleCapacityKg": 16000,
+    "vehicleNumber": "PB-10-CZ-8890",
+    "isRefrigerated": false,
+    "phone": "+919814087654"
+  },
+  {
+    "driverId": "DRV-UP-2026-5033",
+    "name": "Manoj Kumar Shukla",
+    "district": "Agra",
+    "state": "Uttar Pradesh",
+    "vehicleType": "truck",
+    "vehicleCapacityKg": 12000,
+    "vehicleNumber": "UP-80-BT-3121",
+    "isRefrigerated": true,
+    "phone": "+919412087654"
+  },
+  {
+    "driverId": "DRV-GJ-2026-6044",
+    "name": "Bhavin Ahir",
+    "district": "Surat",
+    "state": "Gujarat",
+    "vehicleType": "mini_truck",
+    "vehicleCapacityKg": 3500,
+    "vehicleNumber": "GJ-05-BX-9011",
+    "isRefrigerated": false,
+    "phone": "+919825087654"
   }
 ]

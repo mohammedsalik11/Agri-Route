@@ -85,7 +85,7 @@ export default function CartPage() {
       <>
         <Navbar />
         <main className="min-h-screen bg-paper pb-24 md:pb-8">
-          <div className="max-w-2xl mx-auto px-4 pt-6">
+          <div className="max-w-7xl mx-auto px-4 pt-6">
             <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
               <div className="w-16 h-16 rounded-2xl bg-white border border-border flex items-center justify-center">
                 <ShoppingCart className="w-8 h-8 text-ink-muted" />
@@ -113,7 +113,7 @@ export default function CartPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-paper pb-32 md:pb-8">
-        <div className="max-w-2xl mx-auto px-4 pt-6 space-y-4">
+        <div className="max-w-7xl mx-auto px-4 pt-6 space-y-6">
           {/* Header */}
           <div className="flex items-center gap-3">
             <Link
@@ -140,9 +140,12 @@ export default function CartPage() {
             </div>
           )}
 
-          {/* Cart Items */}
-          <div className="space-y-3">
-            {items.map((item) => {
+          {/* 2-Column Responsive Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column (8 cols): Cart Items */}
+            <div className="lg:col-span-8 space-y-4">
+              <div className="space-y-3">
+                {items.map((item) => {
               const itemSubtotal = item.quantityKg * item.pricePerKgPaise;
               return (
                 <div
@@ -201,66 +204,72 @@ export default function CartPage() {
               );
             })}
           </div>
+        </div>
 
-          {/* Order Summary */}
-          <div className="bg-white rounded-2xl p-5 border border-border shadow-xs">
-            <h2 className="font-bold text-ink text-sm mb-3 flex items-center gap-2">
-              <Package className="w-4 h-4 text-earth" />
-              Order Summary
-            </h2>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-ink-muted">
-                <span>Produce subtotal ({formatWeight(totalKg)})</span>
-                <span>{formatCurrency(totalPaise)}</span>
-              </div>
-              <div className="flex justify-between text-ink-muted">
-                <span>Platform fee (3%)</span>
-                <span>{formatCurrency(platformFee)}</span>
-              </div>
-              <div className="flex justify-between text-ink-muted">
-                <span>Logistics estimate (5%)</span>
-                <span>{formatCurrency(logisticsFee)}</span>
-              </div>
-              <div className="border-t border-border pt-2 flex justify-between font-bold text-ink text-base">
-                <span>Total Payable</span>
-                <span className="text-earth">{formatCurrency(grandTotal)}</span>
+            {/* Right Column (4 cols): Sticky Order Summary & Checkout */}
+            <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-24">
+              {/* Order Summary */}
+              <div className="bg-white rounded-2xl p-5 border border-border shadow-xs space-y-4">
+                <h2 className="font-bold text-ink text-sm flex items-center gap-2">
+                  <Package className="w-4 h-4 text-earth" />
+                  Order Summary
+                </h2>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between text-ink-muted">
+                    <span>Produce subtotal ({formatWeight(totalKg)})</span>
+                    <span>{formatCurrency(totalPaise)}</span>
+                  </div>
+                  <div className="flex justify-between text-ink-muted">
+                    <span>Platform fee (3%)</span>
+                    <span>{formatCurrency(platformFee)}</span>
+                  </div>
+                  <div className="flex justify-between text-ink-muted">
+                    <span>Logistics estimate (5%)</span>
+                    <span>{formatCurrency(logisticsFee)}</span>
+                  </div>
+                  <div className="border-t border-border pt-2 flex justify-between font-bold text-ink text-base">
+                    <span>Total Payable</span>
+                    <span className="text-earth">{formatCurrency(grandTotal)}</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2 text-xs text-blue-700">
+                  <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>
+                    Payment is held in escrow until successful delivery confirmation.
+                    Funds are released to farmers only after OTP handover.
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-2.5 pt-2">
+                  <button
+                    onClick={handleCheckout}
+                    disabled={loading}
+                    className="w-full py-3.5 bg-earth text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-earth/90 transition-all disabled:opacity-50 shadow-sm"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Placing Order…
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        Place Order · {formatCurrency(grandTotal)}
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={clearCart}
+                    className="w-full py-2.5 border border-border rounded-xl font-semibold text-xs text-ink-muted hover:bg-border/50 transition-colors"
+                  >
+                    Clear Cart
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className="mt-3 p-2.5 bg-blue-50 rounded-xl flex items-center gap-2 text-xs text-blue-700">
-              <ShieldCheck className="w-4 h-4 shrink-0" />
-              <span>
-                Payment is held in escrow until successful delivery confirmation.
-                Funds are released to farmers only after OTP handover.
-              </span>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 pb-6">
-            <button
-              onClick={clearCart}
-              className="flex-1 py-3.5 border border-border rounded-xl font-semibold text-sm text-ink-muted hover:bg-border/50 transition-colors"
-            >
-              Clear Cart
-            </button>
-            <button
-              onClick={handleCheckout}
-              disabled={loading}
-              className="flex-[2] py-3.5 bg-earth text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-earth/90 transition-all disabled:opacity-50 shadow-sm"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Placing Order…
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-4 h-4" />
-                  Place Order · {formatCurrency(grandTotal)}
-                </>
-              )}
-            </button>
           </div>
         </div>
       </main>

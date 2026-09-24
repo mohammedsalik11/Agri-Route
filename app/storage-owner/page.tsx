@@ -201,7 +201,7 @@ export default function StorageOwnerDashboard() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Toast Alert */}
         {toastMessage && (
           <div
@@ -238,7 +238,7 @@ export default function StorageOwnerDashboard() {
               </h1>
               <p className="text-ink-muted text-xs mt-1 flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-field-green" />
-                {profile?.facilityAddress || 'APMC Agro Warehouse Corridor, Karnataka'} |{' '}
+                {profile?.facilityAddress || `${profile?.district || 'Agri'} Warehouse Corridor, ${profile?.state || 'India'}`} |{' '}
                 <FileCheck className="w-3.5 h-3.5 text-earth ml-2" />
                 License: {profile?.licenseNumber || 'WDRA-KA-2026-8812'}
               </p>
@@ -703,7 +703,7 @@ export default function StorageOwnerDashboard() {
                     required
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Plot No. 4, Mandya APMC Industrial Area, Karnataka"
+                    placeholder="Plot No. 4, Regional APMC Industrial Warehouse Zone"
                     className="w-full bg-paper border border-border rounded-xl px-3 py-2 text-ink focus:outline-none focus:border-field-green"
                   />
                 </div>

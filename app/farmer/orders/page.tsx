@@ -91,7 +91,7 @@ export default function FarmerOrdersPage() {
   return (
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
-      <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-ink">{t('order.title')}</h1>
@@ -116,8 +116,8 @@ export default function FarmerOrdersPage() {
         )}
 
         {loading ? (
-          <div className="space-y-4">
-            <div className="animate-pulse bg-white rounded-2xl h-32 w-full border border-border" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="animate-pulse bg-white rounded-2xl h-48 w-full border border-border" />
             <div className="animate-pulse bg-white rounded-2xl h-48 w-full border border-border" />
           </div>
         ) : orders.length === 0 ? (
@@ -129,77 +129,79 @@ export default function FarmerOrdersPage() {
             <p className="text-xs text-ink-muted mt-1">{t('order.noOrdersDesc')}</p>
           </div>
         ) : (
-          orders.map((order) => {
-            const myPayout = order.payout?.find((p) => p.farmerId === userId) || { amount: 0, quantityKg: 0, farmerName: t('order.farmer') };
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            {orders.map((order) => {
+              const myPayout = order.payout?.find((p) => p.farmerId === userId) || { amount: 0, quantityKg: 0, farmerName: t('order.farmer') };
 
-            return (
-              <div key={order.orderId} className="space-y-4">
-                {/* Order Summary Header Card */}
-                <div className="bg-white rounded-2xl p-5 border border-border flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-mono text-ink-muted block">
-                      Order #{order.orderId}
-                    </span>
-                    <h2 className="text-lg font-bold text-ink capitalize mt-0.5">
-                      {order.crop} Full Lot ({formatWeight(order.quantityKg)})
-                    </h2>
-                    <p className="text-xs text-field-green font-semibold mt-1">
-                      {t('order.yourShare')}: {formatWeight(myPayout.quantityKg)} → {formatCurrency(myPayout.amount)}
-                    </p>
+              return (
+                <div key={order.orderId} className="space-y-4">
+                  {/* Order Summary Header Card */}
+                  <div className="bg-white rounded-2xl p-5 border border-border flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-mono text-ink-muted block">
+                        Order #{order.orderId}
+                      </span>
+                      <h2 className="text-lg font-bold text-ink capitalize mt-0.5">
+                        {order.crop} Full Lot ({formatWeight(order.quantityKg)})
+                      </h2>
+                      <p className="text-xs text-field-green font-semibold mt-1">
+                        {t('order.yourShare')}: {formatWeight(myPayout.quantityKg)} → {formatCurrency(myPayout.amount)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[11px] text-ink-muted block">{t('order.buyerTotal')}</span>
+                      <span className="text-base font-bold text-ink">
+                        {formatCurrency(order.total)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[11px] text-ink-muted block">{t('order.buyerTotal')}</span>
-                    <span className="text-base font-bold text-ink">
-                      {formatCurrency(order.total)}
-                    </span>
-                  </div>
+
+                  {/* Escrow Timeline */}
+                  <EscrowTimeline
+                    currentStatus={order.escrow.status}
+                    handoverOtp={order.escrow.handoverOtp}
+                    isFarmer={true}
+                    onGenerateOtp={() => handleGenerateOtp(order.orderId)}
+                  />
+
+                  <LogisticsTracker orderId={order.orderId} isFarmer={true} />
+
+                  {/* Payout Receipt Card if Released */}
+                  {order.escrow.status === 'RELEASED' && (
+                    <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                          <span>{t('earnings.payoutReceipt')}</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-xl p-4 border border-emerald-200 text-xs space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-ink-muted">Farmer Beneficiary:</span>
+                          <span className="font-bold text-ink capitalize">{myPayout.farmerName}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-ink-muted">{t('order.settlementAmount')}:</span>
+                          <span className="font-bold text-field-green text-sm">
+                            {formatCurrency(myPayout.amount)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between font-mono text-[11px]">
+                          <span className="text-ink-muted">{t('order.simulatedUtr')}:</span>
+                          <span className="text-ink font-bold">RZPX{Math.floor(Math.random() * 10000000000)}</span>
+                        </div>
+                      </div>
+
+                      <p className="text-[11px] text-emerald-800 italic">
+                        {t('order.settlementNote')}
+                      </p>
+                    </div>
+                  )}
                 </div>
-
-                {/* Escrow Timeline */}
-                <EscrowTimeline
-                  currentStatus={order.escrow.status}
-                  handoverOtp={order.escrow.handoverOtp}
-                  isFarmer={true}
-                  onGenerateOtp={() => handleGenerateOtp(order.orderId)}
-                />
-
-                <LogisticsTracker orderId={order.orderId} isFarmer={true} />
-
-                {/* Payout Receipt Card if Released */}
-                {order.escrow.status === 'RELEASED' && (
-                  <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                        <span>{t('earnings.payoutReceipt')}</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-4 border border-emerald-200 text-xs space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-ink-muted">Farmer Beneficiary:</span>
-                        <span className="font-bold text-ink capitalize">{myPayout.farmerName}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-ink-muted">{t('order.settlementAmount')}:</span>
-                        <span className="font-bold text-field-green text-sm">
-                          {formatCurrency(myPayout.amount)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between font-mono text-[11px]">
-                        <span className="text-ink-muted">{t('order.simulatedUtr')}:</span>
-                        <span className="text-ink font-bold">RZPX{Math.floor(Math.random() * 10000000000)}</span>
-                      </div>
-                    </div>
-
-                    <p className="text-[11px] text-emerald-800 italic">
-                      {t('order.settlementNote')}
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
       </main>
     </div>

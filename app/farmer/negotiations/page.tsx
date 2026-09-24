@@ -135,7 +135,7 @@ export default function FarmerNegotiationsPage() {
   return (
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
-      <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-ink">{t('negotiate.inbox')}</h1>
           <p className="text-xs text-ink-muted mt-0.5">
@@ -144,7 +144,7 @@ export default function FarmerNegotiationsPage() {
         </div>
 
         {loading ? (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div className="animate-pulse bg-white rounded-2xl h-40 border border-border" />
             <div className="animate-pulse bg-white rounded-2xl h-40 border border-border" />
           </div>
@@ -159,7 +159,7 @@ export default function FarmerNegotiationsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
             {negotiations.map((n) => {
               const diffPaise = n.offerPricePerKgPaise - n.listingPricePerKgPaise;
               const round = n.round || 1;

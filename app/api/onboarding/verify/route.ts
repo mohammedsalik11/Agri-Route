@@ -6,10 +6,10 @@ import wholesalerRegistry from '@/data/wholesaler-registry.json';
 import driverRegistry from '@/data/driver-registry.json';
 import storageOwnerRegistry from '@/data/storage-owner-registry.json';
 
-const FARMER_ID_REGEX = /^KA-[A-Z]{3}-\d{4}-\d{6}$/;
-const WHOLESALER_ID_REGEX = /^WS-KA-\d{4}-\d{4}$/;
-const DRIVER_ID_REGEX = /^DRV-KA-\d{4}-\d{4}$/;
-const STORAGE_OWNER_ID_REGEX = /^STO-KA-\d{4}-\d{4}$/;
+const FARMER_ID_REGEX = /^[A-Z]{2}-[A-Z]{3}-\d{4}-\d{6}$/;
+const WHOLESALER_ID_REGEX = /^WS-[A-Z]{2}-\d{4}-\d{4}$/;
+const DRIVER_ID_REGEX = /^DRV-[A-Z]{2}-\d{4}-\d{4}$/;
+const STORAGE_OWNER_ID_REGEX = /^STO-[A-Z]{2}-\d{4}-\d{4}$/;
 
 export async function POST(request: Request) {
   try {
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
       if (!isRegexMatch && !registryMatch) {
         return NextResponse.json(
-          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Farmer ID format. Expected: KA-XXX-YYYY-NNNNNN (e.g. KA-MAN-2026-004417)' },
+          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Farmer ID format. Expected: SS-XXX-YYYY-NNNNNN (e.g. MH-NAS-2026-008129 or KA-MAN-2026-004417)' },
           { status: 400 }
         );
       }
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
 
       if (!isRegexMatch && !registryMatch) {
         return NextResponse.json(
-          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Wholesaler ID format. Expected: WS-KA-YYYY-XXXX (e.g. WS-KA-2026-1183)' },
+          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Wholesaler ID format. Expected: WS-SS-YYYY-XXXX (e.g. WS-MH-2026-2041 or WS-KA-2026-1183)' },
           { status: 400 }
         );
       }
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
 
       if (!isRegexMatch && !registryMatch) {
         return NextResponse.json(
-          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Driver ID format. Expected: DRV-KA-YYYY-XXXX (e.g. DRV-KA-2026-1042)' },
+          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Driver ID format. Expected: DRV-SS-YYYY-XXXX (e.g. DRV-MH-2026-3011 or DRV-KA-2026-1042)' },
           { status: 400 }
         );
       }
@@ -183,7 +183,7 @@ export async function POST(request: Request) {
 
       if (!isRegexMatch && !registryMatch) {
         return NextResponse.json(
-          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Storage Provider ID format. Expected: STO-KA-YYYY-XXXX (e.g. STO-KA-2026-1001)' },
+          { ok: false, error: 'INVALID_FORMAT', message: 'Invalid Storage Provider ID format. Expected: STO-SS-YYYY-XXXX (e.g. STO-MH-2026-1021 or STO-KA-2026-1001)' },
           { status: 400 }
         );
       }

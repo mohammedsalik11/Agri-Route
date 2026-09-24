@@ -205,5 +205,77 @@
     "state": "Karnataka",
     "gstin": "29WWWWW1205W1Z3",
     "category": "Tur Dal Processing & Trade"
+  },
+  {
+    "wholesalerId": "WS-MH-2026-2041",
+    "businessName": "Vashi Mandi Bulk Sourcing Ltd",
+    "ownerName": "Sunil Agrawal",
+    "district": "Mumbai Suburban",
+    "state": "Maharashtra",
+    "gstin": "27AAAAA2041A1Z5",
+    "category": "Inter-state Onion, Potato & Fruits"
+  },
+  {
+    "wholesalerId": "WS-MH-2026-2042",
+    "businessName": "Sahyadri Global Agri Buyers",
+    "ownerName": "Vilas Shirole",
+    "district": "Pune",
+    "state": "Maharashtra",
+    "gstin": "27BBBBB2042B1Z4",
+    "category": "Vegetable & Tomato Aggregation"
+  },
+  {
+    "wholesalerId": "WS-DL-2026-3184",
+    "businessName": "Azadpur National Farm Links",
+    "ownerName": "Praveen Khurana",
+    "district": "North Delhi",
+    "state": "Delhi",
+    "gstin": "07CCCCC3184C1Z3",
+    "category": "All-India Perishables Wholesaler"
+  },
+  {
+    "wholesalerId": "WS-GJ-2026-4019",
+    "businessName": "Gujarat Spices & Seeds Corp",
+    "ownerName": "Hasmukh Patel",
+    "district": "Ahmedabad",
+    "state": "Gujarat",
+    "gstin": "24DDDDD4019D1Z2",
+    "category": "Cotton, Groundnut & Cumin Trade"
+  },
+  {
+    "wholesalerId": "WS-PB-2026-5120",
+    "businessName": "Khanna Grain Logistics & Trade",
+    "ownerName": "Baljit Singh Brar",
+    "district": "Ludhiana",
+    "state": "Punjab",
+    "gstin": "03EEEEE5120E1Z1",
+    "category": "Wheat & Rice Mill Supply"
+  },
+  {
+    "wholesalerId": "WS-UP-2026-6231",
+    "businessName": "Taj Agro Cold Merchants",
+    "ownerName": "Dinesh Chandra Sharma",
+    "district": "Agra",
+    "state": "Uttar Pradesh",
+    "gstin": "09FFFFF6231F1Z0",
+    "category": "Potato & Cold-Storage Trading"
+  },
+  {
+    "wholesalerId": "WS-AP-2026-7342",
+    "businessName": "Guntur Spice Exporters Hub",
+    "ownerName": "Ch. Sriman Narayana",
+    "district": "Guntur",
+    "state": "Andhra Pradesh",
+    "gstin": "37GGGGG7342G1Z9",
+    "category": "Mirchi & Commercial Crops"
+  },
+  {
+    "wholesalerId": "WS-RJ-2026-8453",
+    "businessName": "Jaipur Mustard & Oilseeds Trade",
+    "ownerName": "Ramavtar Goyal",
+    "district": "Jaipur",
+    "state": "Rajasthan",
+    "gstin": "08HHHHH8453H1Z8",
+    "category": "Oilseeds, Spices & Coarse Cereals"
   }
 ]

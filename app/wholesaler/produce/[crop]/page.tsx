@@ -186,7 +186,7 @@ export default function VegetableLotsPage() {
       <Navbar />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Navigation & Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -229,7 +229,7 @@ export default function VegetableLotsPage() {
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-xs font-semibold text-emerald-200">
-                    Live APMC Mandi Benchmark ({priceInfo.mandiMarket || 'Karnataka'})
+                    Live APMC Mandi Benchmark ({priceInfo.mandiMarket || 'National APMC'})
                   </span>
                 </div>
                 <div className="mt-1 flex items-baseline gap-2">
@@ -386,7 +386,7 @@ export default function VegetableLotsPage() {
                   <span>Pooled Truckload Lots ({filteredPools.length})</span>
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredPools.map((pool) => {
                     const isFull = pool.currentKg >= pool.targetKg;
                     const inCart = hasItem(pool.poolId);
@@ -503,7 +503,7 @@ export default function VegetableLotsPage() {
                   <span>Individual Farmer Listings ({filteredListings.length})</span>
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredListings.map((listing) => {
                     const inCart = hasItem(listing.listingId);
 

@@ -21,6 +21,7 @@ import {
 interface UserProfile {
   name: string;
   district: string;
+  state?: string;
   landSizeAcres?: number;
   village?: string;
   primaryCrops?: string[];
@@ -83,11 +84,11 @@ export default function FarmerDashboard() {
         if (me) {
           setProfile(me);
 
-          // Fetch rates for multiple crops & district at once
           const district = me.district || 'Mandya';
+          const state = me.state || 'Karnataka';
           const primaryCrop = me.primaryCrops?.[0] || 'tomato';
 
-          fetch(`/api/prices?crops=tomato,onion,potato,paddy,wheat,ragi,maize,banana&district=${district}`)
+          fetch(`/api/prices?crops=tomato,onion,potato,paddy,wheat,ragi,maize,banana&state=${encodeURIComponent(state)}&district=${encodeURIComponent(district)}`)
             .then((res) => res.json())
             .then((res) => {
               if (res.ok && res.data?.crops) {
@@ -195,10 +196,10 @@ export default function FarmerDashboard() {
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full bg-field-green/10 text-field-green text-[11px] font-bold tracking-wide uppercase flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-field-green" />
-                Agristack Farmer
+                {t('farmer.sub.agristackFarmer')}
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
-                Verified ✓
+                {t('onboarding.verified')}
               </span>
             </div>
             <h1 className="text-2xl font-extrabold text-ink capitalize tracking-tight">
@@ -228,7 +229,7 @@ export default function FarmerDashboard() {
               className="px-3.5 py-2.5 bg-white text-field-green border border-field-green/30 rounded-xl text-xs font-bold hover:bg-field-green/10 flex items-center gap-1.5 shadow-xs transition-all"
             >
               <ShieldCheck className="w-4 h-4 text-field-green" />
-              <span>Verify Crop</span>
+              <span>{t('verification.title')}</span>
             </Link>
             <Link
               href="/farmer/list"
@@ -240,49 +241,101 @@ export default function FarmerDashboard() {
           </div>
         </div>
 
-        {/* Hero Rate Highlight Card */}
-        <div className="bg-gradient-to-br from-field-green via-[#153e2e] to-[#0d2319] rounded-3xl p-6 text-white shadow-md relative overflow-hidden border border-white/10">
-          <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/3 -mb-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
+        {/* Hero Rate Highlight Card with Wave Aesthetic & Price-vs-MSP Gauge */}
+        <div className="agri-hero-wave rounded-3xl p-6 sm:p-7 text-white shadow-lg relative overflow-hidden border border-emerald-700/40">
+          {/* Subtle wave contours inspired by the brand identity asset */}
+          <svg className="absolute -top-10 -left-10 w-96 h-96 opacity-40 pointer-events-none" viewBox="0 0 400 400" fill="none">
+            <path d="M-20 100 C 60 40, 160 180, 280 80 C 360 10, 420 40, 460 20" stroke="#84cc16" strokeWidth="2" strokeOpacity="0.7" fill="none" />
+            <path d="M-20 140 C 70 70, 180 220, 310 110" stroke="#4ade80" strokeWidth="1" strokeOpacity="0.4" fill="none" />
+          </svg>
+          <svg className="absolute -bottom-16 -right-16 w-96 h-96 opacity-35 pointer-events-none" viewBox="0 0 400 400" fill="none">
+            <path d="M0 320 C 120 280, 220 380, 340 300 C 400 260, 450 310, 480 340" stroke="#84cc16" strokeWidth="2" strokeOpacity="0.6" fill="none" />
+          </svg>
+
+          {/* Micro dot matrix accents in top right and bottom left */}
+          <div className="absolute top-4 right-5 grid grid-cols-4 gap-1.5 opacity-20 pointer-events-none">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <span key={i} className="w-1 h-1 rounded-full bg-white" />
+            ))}
+          </div>
 
           <div className="flex items-center justify-between mb-3 relative z-10">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-bold text-white/90 uppercase tracking-wide capitalize">
-                {t('farmer.dashboard.todayRate')} · {rateData.crop} ({profile?.district || 'Karnataka'} APMC)
+              <span className="w-2.5 h-2.5 rounded-full bg-luminous-lime animate-pulse ring-4 ring-lime-400/20" />
+              <span className="text-xs font-bold text-white/95 uppercase tracking-wider capitalize">
+                {t('farmer.dashboard.todayRate')} · {rateData.crop} ({profile?.district ? `${profile.district} APMC` : `${profile?.state || 'National'} APMC`})
               </span>
             </div>
             <DataSourceBadge source={rateData.source} date={rateData.date} />
           </div>
 
-          <div className="flex items-baseline gap-3 my-1 relative z-10">
-            <span className="text-4xl sm:text-5xl font-extrabold tracking-tight font-mono text-white">
-              ₹{(rateData.modalPrice / 100).toFixed(1)}
-            </span>
-            <span className="text-sm text-white/80 font-medium">/ {t('common.kg')} modal</span>
+          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 my-2 relative z-10">
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-4xl sm:text-5xl font-extrabold tracking-tight font-mono text-white">
+                ₹{(rateData.modalPrice / 100).toFixed(1)}
+              </span>
+              <span className="text-sm text-emerald-100/80 font-medium">/ {t('common.kg')}</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="px-3 py-1 rounded-full bg-emerald-900/60 border border-emerald-500/30 text-emerald-200 font-semibold backdrop-blur-xs">
+                {t('farmer.dashboard.range')}: <strong className="text-white">₹{(rateData.minPrice / 100).toFixed(0)}</strong> - <strong className="text-white">₹{(rateData.maxPrice / 100).toFixed(0)}</strong>
+              </span>
+              <span className="text-luminous-lime font-bold flex items-center gap-1 bg-white/10 px-2.5 py-1 rounded-full backdrop-blur-xs border border-lime-400/20">
+                <TrendingUp className="w-3.5 h-3.5" /> +4.2% {t('farmer.dashboard.weeklyTrend')}
+              </span>
+            </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-white/15 flex flex-wrap items-center justify-between gap-2 text-xs text-white/80 relative z-10">
-            <span>
-              {t('farmer.dashboard.range')}: <strong className="text-white">₹{(rateData.minPrice / 100).toFixed(0)}</strong> - <strong className="text-white">₹{(rateData.maxPrice / 100).toFixed(0)}</strong> / {t('common.kg')}
-            </span>
-            <span className="text-emerald-300 font-semibold flex items-center gap-1 bg-white/10 px-2.5 py-1 rounded-full backdrop-blur-xs">
-              <TrendingUp className="w-3.5 h-3.5" /> +4.2% {t('farmer.dashboard.weeklyTrend')}
-            </span>
+          {/* Integrated Price-vs-MSP Visual Gauge */}
+          <div className="mt-5 pt-4 border-t border-white/15 relative z-10">
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span className="font-bold flex items-center gap-1.5 text-white/90">
+                <TrendingUp className="w-3.5 h-3.5 text-luminous-lime" />
+                <span>{t('farmer.gauge.title')}</span>
+              </span>
+              <span className="text-[11px] font-bold text-luminous-lime bg-white/10 px-2.5 py-0.5 rounded-full border border-lime-400/30">
+                +14% {t('farmer.gauge.profit')}
+              </span>
+            </div>
+
+            {/* 3-Zone Visual Gauge Bar */}
+            <div className="relative pt-3 pb-1">
+              <div className="h-3 w-full rounded-full bg-black/40 overflow-hidden flex p-0.5 gap-0.5 border border-white/20">
+                <div className="w-1/4 h-full rounded-l-full bg-gradient-to-r from-rose-500 to-amber-500 opacity-80" />
+                <div className="w-2/5 h-full bg-gradient-to-r from-amber-500 to-emerald-500 opacity-90" />
+                <div className="flex-1 h-full rounded-r-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-400" />
+              </div>
+
+              {/* Dynamic needle marker pointing to Fair Direct Price */}
+              <div className="absolute top-0 right-[15%] -translate-x-1/2 flex flex-col items-center">
+                <span className="text-[10px] font-black text-lime-300 font-mono bg-emerald-950/95 border border-lime-400/70 px-1.5 py-0.5 rounded shadow-xs">
+                  ₹{((rateData.modalPrice > 0 ? rateData.modalPrice * 1.14 : 2600) / 100).toFixed(1)}
+                </span>
+                <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-lime-300" />
+              </div>
+
+              {/* Labels below gauge */}
+              <div className="flex justify-between items-center text-[10px] font-bold text-white/80 mt-2 px-1">
+                <span className="text-rose-300">{t('farmer.gauge.distress')} (₹{(rateData.minPrice / 100).toFixed(0)})</span>
+                <span className="text-amber-200">{t('farmer.gauge.mandi')} (₹{(rateData.modalPrice / 100).toFixed(0)})</span>
+                <span className="text-lime-300 font-extrabold">{t('farmer.gauge.fair')} (₹{((rateData.modalPrice > 0 ? rateData.modalPrice * 1.14 : 2600) / 100).toFixed(1)})</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Live Multi-Crop Mandi Benchmark Ticker */}
         {Object.keys(multiCropRates).length > 0 && (
-          <div className="bg-white rounded-2xl p-5 border border-border shadow-xs space-y-3.5">
+          <div className="bg-white rounded-3xl p-5 border border-border shadow-xs space-y-3.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-field-green animate-pulse" />
                 <h3 className="text-xs font-extrabold text-ink uppercase tracking-wider">
-                  Live Agmarknet Mandi Rates ({profile?.district || 'Karnataka'})
+                  {t('farmer.sub.mandiBenchmark')} ({profile?.district || profile?.state || 'National'})
                 </h3>
               </div>
-              <span className="text-[11px] text-ink-muted font-medium">Tap crop to switch benchmark</span>
+              <span className="text-[11px] text-ink-muted font-medium">{t('farmer.sub.tapCrop')}</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -308,10 +361,10 @@ export default function FarmerDashboard() {
                         crop: cropKey,
                       });
                     }}
-                    className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                    className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between active:scale-[0.98] ${
                       isSelected
-                        ? 'border-field-green bg-emerald-50/70 ring-2 ring-field-green/30 shadow-xs'
-                        : 'border-border bg-white hover:border-field-green/50 hover:bg-paper/40'
+                        ? 'border-field-green bg-emerald-50/70 ring-2 ring-field-green/20 shadow-xs'
+                        : 'border-border bg-white hover:border-field-green/50 hover:bg-paper-well'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -416,7 +469,7 @@ export default function FarmerDashboard() {
               {stats.matchedSchemeName || t('common.noData')}
             </p>
             <p className="text-xs text-field-green font-bold mt-1.5 truncate">
-              {stats.matchedSchemeBenefit ? `${stats.matchedSchemeBenefit}` : 'View Eligible Schemes →'}
+              {stats.matchedSchemeBenefit ? `${stats.matchedSchemeBenefit}` : `${t('schemes.title')} →`}
             </p>
           </Link>
         </div>
@@ -427,7 +480,7 @@ export default function FarmerDashboard() {
             <h2 className="text-xs font-extrabold text-ink uppercase tracking-wider">
               {t('farmer.dashboard.quickActions')}
             </h2>
-            <span className="text-[11px] text-ink-muted font-medium">Core farmer tools</span>
+            <span className="text-[11px] text-ink-muted font-medium">{t('farmer.sub.coreTools')}</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -443,7 +496,7 @@ export default function FarmerDashboard() {
                   <span className="font-bold text-ink text-sm block">
                     {t('farmer.dashboard.listProduce')}
                   </span>
-                  <span className="text-[11px] text-ink-muted">AI graded harvest</span>
+                  <span className="text-[11px] text-ink-muted">{t('farmer.sub.aiGraded')}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-ink-muted group-hover:text-field-green transition-colors" />
               </div>
@@ -461,7 +514,7 @@ export default function FarmerDashboard() {
                   <span className="font-bold text-ink text-sm block">
                     {t('farmer.dashboard.viewPools')}
                   </span>
-                  <span className="text-[11px] text-ink-muted">District bulk lots</span>
+                  <span className="text-[11px] text-ink-muted">{t('farmer.sub.bulkLots')}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-ink-muted group-hover:text-earth transition-colors" />
               </div>
@@ -479,7 +532,7 @@ export default function FarmerDashboard() {
                   <span className="font-bold text-ink text-sm block">
                     {t('farmer.dashboard.coldStorage')}
                   </span>
-                  <span className="text-[11px] text-ink-muted">Hold vs sell engine</span>
+                  <span className="text-[11px] text-ink-muted">{t('farmer.sub.holdVsSell')}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-ink-muted group-hover:text-blue-700 transition-colors" />
               </div>
@@ -497,7 +550,7 @@ export default function FarmerDashboard() {
                   <span className="font-bold text-ink text-sm block">
                     {t('farmer.dashboard.myEarnings')}
                   </span>
-                  <span className="text-[11px] text-ink-muted">Payout breakdown</span>
+                  <span className="text-[11px] text-ink-muted">{t('farmer.sub.payoutBreakdown')}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-ink-muted group-hover:text-amber-700 transition-colors" />
               </div>
@@ -515,7 +568,7 @@ export default function FarmerDashboard() {
                   <span className="font-bold text-ink text-sm block">
                     {t('farmer.dashboard.negotiationInbox')}
                   </span>
-                  <span className="text-[11px] text-ink-muted">Live buyer offers</span>
+                  <span className="text-[11px] text-ink-muted">{t('farmer.sub.buyerOffers')}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-ink-muted group-hover:text-purple-700 transition-colors" />
               </div>
@@ -531,15 +584,16 @@ export default function FarmerDashboard() {
               <div className="mt-3 flex items-center justify-between">
                 <div>
                   <span className="font-bold text-ink text-sm block">
-                    Crop Verification
+                    {t('verification.title')}
                   </span>
-                  <span className="text-[11px] text-ink-muted">Schedule field visit</span>
+                  <span className="text-[11px] text-ink-muted">{t('farmer.sub.scheduleVisit')}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-ink-muted group-hover:text-emerald-800 transition-colors" />
               </div>
             </Link>
           </div>
         </div>
+
       </main>
       <KisanBot userRole="farmer" />
     </div>

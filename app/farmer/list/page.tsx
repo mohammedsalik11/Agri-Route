@@ -125,6 +125,7 @@ export default function CreateListingPage() {
   const [customVariety, setCustomVariety] = useState('');
   const [isCustomVariety, setIsCustomVariety] = useState(false);
   const [userDistrict, setUserDistrict] = useState('Mandya');
+  const [userState, setUserState] = useState('Karnataka');
 
   useEffect(() => {
     fetch('/api/me')
@@ -132,6 +133,9 @@ export default function CreateListingPage() {
       .then((data) => {
         if (data?.data?.district) {
           setUserDistrict(data.data.district);
+        }
+        if (data?.data?.state) {
+          setUserState(data.data.state);
         }
       })
       .catch(() => {});
@@ -188,7 +192,7 @@ export default function CreateListingPage() {
     setIsCustomVariety(false);
     setCustomVariety('');
 
-    fetch(`/api/prices?crop=${encodeURIComponent(activeCropKey)}&district=${encodeURIComponent(userDistrict)}`)
+    fetch(`/api/prices?crop=${encodeURIComponent(activeCropKey)}&state=${encodeURIComponent(userState)}&district=${encodeURIComponent(userDistrict)}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((res) => {
         if (res && res.data) {
@@ -326,501 +330,560 @@ export default function CreateListingPage() {
     <div className="min-h-screen bg-paper pb-20">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-ink">{t('listing.create')}</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">{t('listing.create')}</h1>
           <p className="text-xs text-ink-muted mt-1">
             Search 1,000+ agricultural categories, enforce transport vehicle capacity limits, and pool harvest at fair prices.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-800 text-xs">
+          <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-2.5 text-red-800 text-xs shadow-xs">
             <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
             <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Section 1: Crop Selection with 1000 Categories Search */}
-          <div className="bg-white rounded-2xl p-5 border border-border space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <label className="text-xs font-bold text-ink uppercase tracking-wider block">
-                1. Select Crop / Produce (1,000+ Categories)
-              </label>
-              <span className="text-[11px] font-semibold text-field-green">
-                Selected: {activeCropDisplayName}
-              </span>
-            </div>
-
-            {/* Category Filter Pills */}
-            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {CROP_CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-field-green text-white shadow-xs'
-                      : 'bg-paper text-ink hover:bg-stone-100 border border-border/80'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
-              <input
-                type="text"
-                placeholder="Search crops by English, Kannada (ಟೊಮ್ಯಾಟೊ, ಈರುಳ್ಳಿ), Hindi (टमाटर, प्याज), or variety..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-24 py-2.5 bg-paper/60 border border-border focus:border-field-green focus:bg-white rounded-xl text-xs text-ink outline-hidden transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCustomCrop(true);
-                  if (searchQuery.trim()) {
-                    setCustomCropName(searchQuery.trim());
-                  }
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-field-green/10 text-field-green font-bold text-[11px] rounded-lg hover:bg-field-green/20"
-              >
-                + Custom
-              </button>
-            </div>
-
-            {/* Custom Crop Input Box */}
-            {isCustomCrop && (
-              <div className="p-3 bg-field-green/5 border border-field-green/30 rounded-xl space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-field-green">
-                    Custom Crop / Variety Entry:
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column: Input Sections (8 cols) */}
+            <div className="lg:col-span-8 space-y-5">
+              {/* Section 1: Crop Selection with 1000 Categories Search */}
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-border shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <label className="text-xs font-bold text-ink uppercase tracking-wider block">
+                    1. Select Crop / Produce (1,000+ Categories)
+                  </label>
+                  <span className="text-[11px] font-bold text-field-green bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    Selected: {activeCropDisplayName}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomCrop(false)}
-                    className="text-[11px] text-ink-muted hover:underline"
-                  >
-                    Select from catalog
-                  </button>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Enter custom crop name (e.g. Ooty Fresh Garlic, Coorg Robusta Cherry)..."
-                  value={customCropName}
-                  onChange={(e) => setCustomCropName(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-border rounded-xl text-xs text-ink focus:border-field-green outline-hidden"
-                  autoFocus
-                />
-              </div>
-            )}
 
-            {/* Grid of Filtered Crops */}
-            {!isCustomCrop && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-56 overflow-y-auto pr-1">
-                {filteredCrops.map((c) => {
-                  const isSelected = selectedCropItem.id === c.id;
-                  return (
+                {/* Category Filter Pills */}
+                <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                  {CROP_CATEGORIES.map((cat) => (
                     <button
-                      key={c.id}
+                      key={cat}
                       type="button"
-                      onClick={() => {
-                        setSelectedCropItem(c);
-                        setIsCustomCrop(false);
-                      }}
-                      className={`p-2.5 rounded-xl border flex items-center gap-2.5 text-left transition-all ${
-                        isSelected
-                          ? 'border-field-green bg-field-green/10 text-field-green font-bold shadow-xs'
-                          : 'border-border bg-paper/40 hover:bg-white text-ink'
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all ${
+                        selectedCategory === cat
+                          ? 'bg-field-green text-white shadow-xs'
+                          : 'bg-paper-well text-ink hover:bg-stone-100 border border-border/80'
                       }`}
                     >
-                      <span className="text-xl shrink-0">{c.emoji}</span>
-                      <div className="min-w-0">
-                        <span className="text-xs block font-bold truncate">{c.name}</span>
-                        <span className="text-[10px] text-ink-muted block truncate">
-                          {c.kannadaName || c.category}
-                        </span>
-                      </div>
+                      {cat}
                     </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
 
-          {/* Section 1b: Variety / Cultivar Selection */}
-          <div className="bg-white rounded-2xl p-5 border border-border space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-ink uppercase tracking-wider block">
-                1b. Variety &amp; Mandi Benchmarks
-              </label>
-              <span className="text-[11px] text-ink-muted font-semibold">
-                {activeCropDisplayName}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {varieties.map((v) => {
-                const isChosen =
-                  !isCustomVariety && selectedVariety.toLowerCase() === v.variety.toLowerCase();
-                return (
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted" />
+                  <input
+                    type="text"
+                    placeholder="Search crops by English, Kannada (ಟೊಮ್ಯಾಟೊ, ಈರುಳ್ಳಿ), Hindi (टमाटर, प्याज), or variety..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-24 py-3 bg-paper-well border border-border focus:border-field-green focus:bg-white rounded-xl text-xs text-ink outline-hidden transition-all"
+                  />
                   <button
-                    key={v.variety}
                     type="button"
                     onClick={() => {
-                      setSelectedVariety(v.variety);
-                      setIsCustomVariety(false);
+                      setIsCustomCrop(true);
+                      if (searchQuery.trim()) {
+                        setCustomCropName(searchQuery.trim());
+                      }
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
-                      isChosen
-                        ? 'bg-field-green text-white border-field-green shadow-xs'
-                        : 'bg-paper/70 text-ink border-border hover:border-field-green/50 hover:bg-white'
-                    }`}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-field-green/10 text-field-green font-bold text-[11px] rounded-lg hover:bg-field-green/20 transition-colors"
                   >
-                    {isChosen && <CheckCircle className="w-3.5 h-3.5 text-white" />}
-                    <span>{v.variety}</span>
-                    <span
-                      className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                        isChosen
-                          ? 'bg-white/20 text-white'
-                          : 'bg-emerald-100 text-emerald-900 border border-emerald-200'
-                      }`}
-                    >
-                      ₹{(v.modalPrice / 100).toFixed(1)}/kg
-                    </span>
+                    + Custom
                   </button>
-                );
-              })}
-
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCustomVariety(true);
-                  setSelectedVariety('');
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                  isCustomVariety
-                    ? 'bg-field-green text-white border-field-green shadow-xs'
-                    : 'bg-paper/70 text-ink border-border hover:border-field-green/50 hover:bg-white'
-                }`}
-              >
-                + Custom Variety
-              </button>
-            </div>
-
-            {isCustomVariety && (
-              <div className="pt-1">
-                <input
-                  type="text"
-                  placeholder="Enter specific variety name..."
-                  value={customVariety}
-                  onChange={(e) => setCustomVariety(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-border focus:border-field-green text-xs bg-paper/40 outline-hidden"
-                  autoFocus
-                />
-              </div>
-            )}
-
-            {/* Benchmark highlight banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl mt-2">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-                  <Sparkles className="w-3.5 h-3.5" />
                 </div>
-                <div>
-                  <span className="text-xs font-bold text-emerald-950">
-                    Live APMC Reference: ₹{(activeVarietyPrice / 100).toFixed(1)} / kg
-                  </span>
-                  <span className="text-[10px] text-emerald-700 block">
-                    {userDistrict} APMC Yard ({priceData.date})
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAskPricePerKg((activeVarietyPrice / 100).toFixed(1))}
-                className="px-3 py-1.5 bg-field-green text-white text-xs font-bold rounded-lg hover:bg-field-green-dark transition-all shadow-xs shrink-0"
-              >
-                Apply ₹{(activeVarietyPrice / 100).toFixed(1)}/kg
-              </button>
-            </div>
-          </div>
 
-          {/* Section 2: Vehicle Capacity & Transport Limit */}
-          <div className="bg-white rounded-2xl p-5 border border-border space-y-4">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-ink uppercase tracking-wider block">
-                2. Transport Vehicle &amp; Capacity Limit
-              </label>
-              <span className="text-xs font-bold text-field-green flex items-center gap-1">
-                <Truck className="w-3.5 h-3.5" />
-                Max Limit: {selectedVehicle.capacityKg.toLocaleString()} kg
-              </span>
-            </div>
-
-            {/* Vehicle Selection Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {VEHICLE_OPTIONS.map((v) => {
-                const isSelected = selectedVehicle.id === v.id;
-                return (
-                  <button
-                    key={v.id}
-                    type="button"
-                    onClick={() => setSelectedVehicle(v)}
-                    className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
-                      isSelected
-                        ? 'border-field-green bg-field-green/10 text-ink shadow-xs'
-                        : 'border-border bg-paper/40 hover:bg-white text-ink-muted'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xl">{v.icon}</span>
-                      <span className="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded bg-white text-field-green border border-border/80">
-                        {v.capacityKg.toLocaleString()} kg
+                {/* Custom Crop Input Box */}
+                {isCustomCrop && (
+                  <div className="p-3.5 bg-field-green/5 border border-field-green/30 rounded-2xl space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-field-green">
+                        Custom Crop / Variety Entry:
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomCrop(false)}
+                        className="text-[11px] text-ink-muted hover:underline"
+                      >
+                        Select from catalog
+                      </button>
                     </div>
-                    <div>
-                      <span className="text-xs font-bold text-ink block truncate">{v.name}</span>
-                      <span className="text-[10px] text-ink-muted block truncate mt-0.5">
-                        {v.description}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                    <input
+                      type="text"
+                      placeholder="Enter custom crop name (e.g. Ooty Fresh Garlic, Coorg Robusta Cherry)..."
+                      value={customCropName}
+                      onChange={(e) => setCustomCropName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl text-xs text-ink focus:border-field-green outline-hidden"
+                      autoFocus
+                    />
+                  </div>
+                )}
 
-            {/* Capacity Meter */}
-            {qty > 0 && (
-              <div className="p-3 bg-stone-50 rounded-xl border border-border space-y-1.5">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-ink">
-                    Vehicle Load: {qty.toLocaleString()} / {selectedVehicle.capacityKg.toLocaleString()} kg
-                  </span>
-                  <span
-                    className={`font-bold ${
-                      isOverVehicleCapacity ? 'text-red-600' : 'text-field-green'
-                    }`}
-                  >
-                    {capacityPercent}%
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-300 ${
-                      isOverVehicleCapacity
-                        ? 'bg-red-500'
-                        : capacityPercent > 80
-                        ? 'bg-amber-500'
-                        : 'bg-field-green'
-                    }`}
-                    style={{ width: `${Math.min(100, capacityPercent)}%` }}
-                  />
-                </div>
-                {isOverVehicleCapacity && (
-                  <p className="text-[11px] font-bold text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    Cannot list more than vehicle capacity limit ({selectedVehicle.capacityKg.toLocaleString()} kg). Please adjust quantity or select a larger transport vehicle.
-                  </p>
+                {/* Grid of Filtered Crops */}
+                {!isCustomCrop && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-60 overflow-y-auto pr-1">
+                    {filteredCrops.map((c) => {
+                      const isSelected = selectedCropItem.id === c.id;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCropItem(c);
+                            setIsCustomCrop(false);
+                          }}
+                          className={`p-2.5 rounded-xl border flex items-center gap-2.5 text-left transition-all ${
+                            isSelected
+                              ? 'border-field-green bg-emerald-50 text-field-green font-bold shadow-xs ring-1 ring-field-green/30'
+                              : 'border-border bg-paper-well hover:bg-white text-ink'
+                          }`}
+                        >
+                          <span className="text-xl shrink-0">{c.emoji}</span>
+                          <div className="min-w-0">
+                            <span className="text-xs block font-bold truncate">{c.name}</span>
+                            <span className="text-[10px] text-ink-muted block truncate">
+                              {c.kannadaName || c.category}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
-            )}
-          </div>
 
-          {/* Section 3: AI Quality Assay */}
-          <div className="bg-white rounded-2xl p-5 border border-border space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-ink uppercase tracking-wider">
-                3. Produce Photo &amp; AI Quality Assay
-              </label>
-              <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-emerald-600" />
-                Gemini Vision Assay
-              </span>
-            </div>
-
-            {analyzingPhoto ? (
-              <div className="flex flex-col items-center justify-center py-6 gap-3">
-                <Loader2 className="w-8 h-8 animate-spin text-field-green" />
-                <p className="text-xs font-semibold text-field-green">
-                  Analyzing produce with Gemini Vision…
-                </p>
-              </div>
-            ) : gradeSource === 'ai' && aiNotes ? (
-              <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-                <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
-                <div className="text-xs">
-                  <p className="font-bold text-emerald-800">AI Grade: {qualityGrade} verified</p>
-                  <p className="text-emerald-700 mt-0.5">{aiNotes}</p>
+              {/* Section 1b: Variety / Cultivar Selection */}
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-border shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-ink uppercase tracking-wider block">
+                    1b. Variety &amp; Mandi Benchmarks
+                  </label>
+                  <span className="text-[11px] text-ink-muted font-semibold">
+                    {activeCropDisplayName}
+                  </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGradeSource('self-declared');
-                    setAiNotes(null);
-                  }}
-                  className="ml-auto text-[10px] text-ink-muted hover:text-ink underline"
-                >
-                  Retake
-                </button>
-              </div>
-            ) : (
-              <CameraCapture onCapture={handleCameraCapture} disabled={analyzingPhoto} />
-            )}
 
-            {/* Quality Grade Selector */}
-            <div className="pt-2">
-              <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="font-semibold text-ink">Assayed Grade:</span>
-                <span className="text-[11px] font-bold text-field-green">
-                  {gradeSource === 'ai' ? '🤖 AI Verified' : '✏️ Self Declared'}
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {(['A', 'B', 'C'] as const).map((g) => (
+                <div className="flex flex-wrap gap-2">
+                  {varieties.map((v) => {
+                    const isChosen =
+                      !isCustomVariety && selectedVariety.toLowerCase() === v.variety.toLowerCase();
+                    return (
+                      <button
+                        key={v.variety}
+                        type="button"
+                        onClick={() => {
+                          setSelectedVariety(v.variety);
+                          setIsCustomVariety(false);
+                        }}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                          isChosen
+                            ? 'bg-field-green text-white border-field-green shadow-xs'
+                            : 'bg-paper-well text-ink border-border hover:border-field-green/50 hover:bg-white'
+                        }`}
+                      >
+                        {isChosen && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+                        <span>{v.variety}</span>
+                        <span
+                          className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                            isChosen
+                              ? 'bg-white/20 text-white'
+                              : 'bg-emerald-100 text-emerald-900 border border-emerald-200'
+                          }`}
+                        >
+                          ₹{(v.modalPrice / 100).toFixed(1)}/kg
+                        </span>
+                      </button>
+                    );
+                  })}
+
                   <button
-                    key={g}
                     type="button"
                     onClick={() => {
-                      setQualityGrade(g);
-                      setGradeSource('self-declared');
+                      setIsCustomVariety(true);
+                      setSelectedVariety('');
                     }}
-                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                      qualityGrade === g
-                        ? 'border-field-green bg-field-green text-white shadow-xs'
-                        : 'border-border bg-paper/60 text-ink hover:bg-white'
+                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                      isCustomVariety
+                        ? 'bg-field-green text-white border-field-green shadow-xs'
+                        : 'bg-paper-well text-ink border-border hover:border-field-green/50 hover:bg-white'
                     }`}
                   >
-                    Grade {g}
+                    + Custom Variety
                   </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: Quantity & Ask Price */}
-          <div className="bg-white rounded-2xl p-5 border border-border space-y-4">
-            <label className="text-xs font-bold text-ink uppercase tracking-wider block">
-              4. Quantity &amp; Price
-            </label>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-              <div>
-                <div className="flex items-center justify-between h-5 mb-1.5">
-                  <label className="text-xs font-semibold text-ink">Quantity (kg)</label>
-                  <span className="text-[10px] text-ink-muted">
-                    Max: {selectedVehicle.capacityKg.toLocaleString()} kg
-                  </span>
                 </div>
-                <div className="relative">
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    max={selectedVehicle.capacityKg}
-                    value={quantityKg}
-                    onChange={(e) => setQuantityKg(e.target.value)}
-                    className={`w-full px-3.5 py-2.5 bg-paper/50 border rounded-xl text-base font-bold font-mono outline-hidden ${
-                      isOverVehicleCapacity
-                        ? 'border-red-500 text-red-700 focus:border-red-600'
-                        : 'border-border focus:border-field-green text-ink'
-                    }`}
-                    placeholder="e.g. 600"
-                  />
-                  <span className="absolute right-3 top-3 text-xs text-ink-muted font-bold">
-                    KG
-                  </span>
-                </div>
-              </div>
 
-              <div>
-                <div className="flex items-center justify-between h-5 mb-1.5">
-                  <label className="text-xs font-semibold text-ink">
-                    Your Ask Price (₹ per kg)
-                  </label>
+                {isCustomVariety && (
+                  <div className="pt-1">
+                    <input
+                      type="text"
+                      placeholder="Enter specific variety name..."
+                      value={customVariety}
+                      onChange={(e) => setCustomVariety(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-border focus:border-field-green text-xs bg-paper-well outline-hidden"
+                      autoFocus
+                    />
+                  </div>
+                )}
+
+                {/* Benchmark highlight banner */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 bg-emerald-50/80 border border-emerald-200 rounded-2xl mt-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-extrabold text-emerald-950">
+                        Live APMC Reference: ₹{(activeVarietyPrice / 100).toFixed(1)} / kg
+                      </span>
+                      <span className="text-[10px] text-emerald-700 block">
+                        {userDistrict} APMC Yard ({priceData.date})
+                      </span>
+                    </div>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setAskPricePerKg((activeVarietyPrice / 100).toFixed(1))}
-                    className="text-[11px] font-bold text-field-green hover:underline leading-none"
+                    className="px-3.5 py-2 bg-field-green text-white text-xs font-bold rounded-xl hover:bg-field-green-light transition-all shadow-xs shrink-0"
                   >
-                    Use Mandi (₹{(activeVarietyPrice / 100).toFixed(1)})
+                    Apply ₹{(activeVarietyPrice / 100).toFixed(1)}/kg
                   </button>
                 </div>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-2.5 text-base font-bold text-ink">
-                    ₹
+              </div>
+
+              {/* Section 2: Vehicle Capacity & Transport Limit */}
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-border shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-ink uppercase tracking-wider block">
+                    2. Transport Vehicle &amp; Capacity Limit
+                  </label>
+                  <span className="text-xs font-bold text-field-green flex items-center gap-1">
+                    <Truck className="w-3.5 h-3.5" />
+                    Max Limit: {selectedVehicle.capacityKg.toLocaleString()} kg
                   </span>
-                  <input
-                    type="number"
-                    step="0.5"
-                    required
-                    min="1"
-                    value={askPricePerKg}
-                    onChange={(e) => setAskPricePerKg(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2.5 bg-paper/50 border border-border rounded-xl text-base font-bold font-mono focus:border-field-green outline-hidden"
-                    placeholder="e.g. 14"
-                  />
-                  <span className="absolute right-3 top-3 text-xs text-ink-muted font-bold">
-                    / KG
+                </div>
+
+                {/* Vehicle Selection Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {VEHICLE_OPTIONS.map((v) => {
+                    const isSelected = selectedVehicle.id === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSelectedVehicle(v)}
+                        className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all ${
+                          isSelected
+                            ? 'border-field-green bg-emerald-50 text-ink shadow-xs ring-1 ring-field-green/30'
+                            : 'border-border bg-paper-well hover:bg-white text-ink-muted'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-2xl">{v.icon}</span>
+                          <span className="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-white text-field-green border border-border/80">
+                            {v.capacityKg.toLocaleString()} kg
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-ink block truncate">{v.name}</span>
+                          <span className="text-[10px] text-ink-muted block truncate mt-0.5">
+                            {v.description}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Capacity Meter */}
+                {qty > 0 && (
+                  <div className="p-3.5 bg-paper-well rounded-2xl border border-border space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-ink">
+                        Vehicle Load: {qty.toLocaleString()} / {selectedVehicle.capacityKg.toLocaleString()} kg
+                      </span>
+                      <span
+                        className={`font-bold ${
+                          isOverVehicleCapacity ? 'text-red-600' : 'text-field-green'
+                        }`}
+                      >
+                        {capacityPercent}%
+                      </span>
+                    </div>
+                    <div className="w-full h-2.5 bg-stone-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          isOverVehicleCapacity
+                            ? 'bg-red-500'
+                            : capacityPercent > 80
+                            ? 'bg-amber-500'
+                            : 'bg-field-green'
+                        }`}
+                        style={{ width: `${Math.min(100, capacityPercent)}%` }}
+                      />
+                    </div>
+                    {isOverVehicleCapacity && (
+                      <p className="text-[11px] font-bold text-red-600 flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        Cannot list more than vehicle capacity limit ({selectedVehicle.capacityKg.toLocaleString()} kg). Please adjust quantity or select a larger transport vehicle.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Section 3: AI Quality Assay */}
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-border shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-ink uppercase tracking-wider">
+                    3. Produce Photo &amp; AI Quality Assay
+                  </label>
+                  <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-emerald-600" />
+                    Gemini Vision Assay
                   </span>
+                </div>
+
+                {analyzingPhoto ? (
+                  <div className="flex flex-col items-center justify-center py-6 gap-3">
+                    <Loader2 className="w-8 h-8 animate-spin text-field-green" />
+                    <p className="text-xs font-semibold text-field-green">
+                      Analyzing produce with Gemini Vision…
+                    </p>
+                  </div>
+                ) : gradeSource === 'ai' && aiNotes ? (
+                  <div className="flex items-center gap-3 p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200">
+                    <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <div className="text-xs">
+                      <p className="font-bold text-emerald-800">AI Grade: {qualityGrade} verified</p>
+                      <p className="text-emerald-700 mt-0.5">{aiNotes}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGradeSource('self-declared');
+                        setAiNotes(null);
+                      }}
+                      className="ml-auto text-[10px] text-ink-muted hover:text-ink underline font-bold"
+                    >
+                      Retake
+                    </button>
+                  </div>
+                ) : (
+                  <CameraCapture onCapture={handleCameraCapture} disabled={analyzingPhoto} />
+                )}
+
+                {/* Quality Grade Selector */}
+                <div className="pt-2">
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <span className="font-semibold text-ink">Assayed Grade:</span>
+                    <span className="text-[11px] font-bold text-field-green">
+                      {gradeSource === 'ai' ? '🤖 AI Verified' : '✏️ Self Declared'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {(['A', 'B', 'C'] as const).map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => {
+                          setQualityGrade(g);
+                          setGradeSource('self-declared');
+                        }}
+                        className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                          qualityGrade === g
+                            ? 'border-field-green bg-field-green text-white shadow-xs'
+                            : 'border-border bg-paper-well text-ink hover:bg-white'
+                        }`}
+                      >
+                        Grade {g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4: Quantity & Ask Price */}
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-border shadow-xs space-y-4">
+                <label className="text-xs font-bold text-ink uppercase tracking-wider block">
+                  4. Quantity &amp; Price
+                </label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                  <div>
+                    <div className="flex items-center justify-between h-5 mb-1.5">
+                      <label className="text-xs font-semibold text-ink">Quantity (kg) *</label>
+                      <span className="text-[10px] text-ink-muted">
+                        Max: {selectedVehicle.capacityKg.toLocaleString()} kg
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        max={selectedVehicle.capacityKg}
+                        value={quantityKg}
+                        onChange={(e) => setQuantityKg(e.target.value)}
+                        className={`w-full px-4 py-3 bg-paper-well border rounded-xl text-base font-bold font-mono outline-hidden ${
+                          isOverVehicleCapacity
+                            ? 'border-red-500 text-red-700 focus:border-red-600'
+                            : 'border-border focus:border-field-green text-ink'
+                        }`}
+                        placeholder="e.g. 600"
+                      />
+                      <span className="absolute right-3.5 top-3.5 text-xs text-ink-muted font-bold">
+                        KG
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between h-5 mb-1.5">
+                      <label className="text-xs font-semibold text-ink">
+                        Your Ask Price (₹ per kg) *
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setAskPricePerKg((activeVarietyPrice / 100).toFixed(1))}
+                        className="text-[11px] font-bold text-field-green hover:underline leading-none"
+                      >
+                        Use Mandi (₹{(activeVarietyPrice / 100).toFixed(1)})
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-4 top-3 text-base font-bold text-ink">
+                        ₹
+                      </span>
+                      <input
+                        type="number"
+                        step="0.5"
+                        required
+                        min="1"
+                        value={askPricePerKg}
+                        onChange={(e) => setAskPricePerKg(e.target.value)}
+                        className="w-full pl-9 pr-14 py-3 bg-paper-well border border-border rounded-xl text-base font-bold font-mono focus:border-field-green outline-hidden"
+                        placeholder="e.g. 14"
+                      />
+                      <span className="absolute right-3.5 top-3.5 text-xs text-ink-muted font-bold">
+                        / KG
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Sticky Live Summary & Actions (4 cols) */}
+            <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-20">
+              {/* Order Valuation Summary Card */}
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-border shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-border">
+                  <span className="text-xs font-extrabold text-ink uppercase tracking-wider">
+                    Listing Summary
+                  </span>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-field-green/10 text-field-green">
+                    Grade {qualityGrade}
+                  </span>
+                </div>
+
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-ink-muted">Produce:</span>
+                    <span className="font-bold text-ink capitalize flex items-center gap-1">
+                      <span>{selectedCropItem.emoji}</span>
+                      <span>{activeCropDisplayName}</span>
+                    </span>
+                  </div>
+                  {selectedVariety && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-ink-muted">Variety:</span>
+                      <span className="font-semibold text-ink">{selectedVariety}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-ink-muted">Quantity:</span>
+                    <span className="font-extrabold text-ink font-mono">{qty > 0 ? `${qty.toLocaleString()} kg` : '0 kg'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-ink-muted">Transport Lot:</span>
+                    <span className="font-semibold text-ink flex items-center gap-1">
+                      <span>{selectedVehicle.icon}</span>
+                      <span>{selectedVehicle.name}</span>
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-border">
+                    <span className="text-ink-muted">Ask Rate:</span>
+                    <span className="font-extrabold text-field-green text-sm font-mono">
+                      ₹{askPricePaise > 0 ? (askPricePaise / 100).toFixed(1) : '0.0'} / kg
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-1">
+                    <span className="font-bold text-ink">Est. Lot Value:</span>
+                    <span className="font-extrabold text-ink text-base font-mono">
+                      ₹{((qty * (askPricePaise / 100))).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Submit Action Button */}
+                <button
+                  type="submit"
+                  disabled={loading || isOverVehicleCapacity || qty <= 0}
+                  className="w-full py-3.5 px-5 bg-field-green text-white font-bold text-sm rounded-xl hover:bg-field-green-light active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Publishing listing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Publish Listing</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Live Fair Price Gauge */}
+              <FairPriceGauge
+                askPricePerKg={askPricePaise}
+                mandiMinPerKg={Math.round(activeVarietyPrice * 0.75)}
+                mandiModalPerKg={activeVarietyPrice}
+                mandiMaxPerKg={Math.round(activeVarietyPrice * 1.25)}
+                mspPerKg={priceData.mspPerKg}
+                verdict={verdict}
+                extraEarningVsFloor={extraEarningVsFloor}
+                dataSource={priceData.dataSource}
+                checkedDate={priceData.date}
+                cropName={`${selectedVariety || activeCropDisplayName}`}
+              />
+
+              {/* Pool Match Preview */}
+              <div className="bg-field-green/5 border border-field-green/20 rounded-3xl p-4.5 flex items-start gap-3 shadow-xs">
+                <span className="text-2xl">🚚</span>
+                <div className="text-xs space-y-1">
+                  <p className="font-bold text-field-green text-sm">
+                    Automatic Pool Matching Active
+                  </p>
+                  <p className="text-ink leading-relaxed">
+                    Your <span className="font-bold">{quantityKg || '0'} kg</span> of{' '}
+                    <span className="capitalize font-bold">{activeCropDisplayName}</span> will automatically aggregate with nearby farmers in{' '}
+                    <span className="font-bold">{userDistrict}</span> to build complete {selectedVehicle.name} lots.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Live Fair Price Gauge */}
-          <FairPriceGauge
-            askPricePerKg={askPricePaise}
-            mandiMinPerKg={Math.round(activeVarietyPrice * 0.75)}
-            mandiModalPerKg={activeVarietyPrice}
-            mandiMaxPerKg={Math.round(activeVarietyPrice * 1.25)}
-            mspPerKg={priceData.mspPerKg}
-            verdict={verdict}
-            extraEarningVsFloor={extraEarningVsFloor}
-            dataSource={priceData.dataSource}
-            checkedDate={priceData.date}
-            cropName={`${selectedVariety || activeCropDisplayName}`}
-          />
-
-          {/* Pool Match Preview */}
-          <div className="bg-field-green/10 border border-field-green/30 rounded-2xl p-4 flex items-start gap-3">
-            <span className="text-xl">🚚</span>
-            <div className="text-xs space-y-1">
-              <p className="font-bold text-field-green text-sm">
-                Automatic Pool Matching Active
-              </p>
-              <p className="text-ink">
-                Your <span className="font-bold">{quantityKg || '0'} kg</span> of{' '}
-                <span className="capitalize font-bold">{activeCropDisplayName}</span> will automatically aggregate with nearby farmers in{' '}
-                <span className="font-bold">{userDistrict}</span> to build complete {selectedVehicle.name} lots.
-              </p>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading || isOverVehicleCapacity || qty <= 0}
-            className="w-full py-4 px-6 bg-field-green text-white font-bold text-base rounded-2xl hover:bg-field-green-dark active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Publishing listing &amp; joining pool...</span>
-              </>
-            ) : (
-              <>
-                <span>Publish Listing ({selectedVehicle.name})</span>
-                <ArrowRight className="w-5 h-5" />
-              </>
-            )}
-          </button>
         </form>
       </main>
     </div>

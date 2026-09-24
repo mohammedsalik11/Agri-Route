@@ -5,14 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useT, useLanguage } from '@/lib/i18n/LanguageProvider';
 import { Sprout, Store, Truck, Warehouse, AlertCircle, Loader2, CheckCircle, Info, ArrowLeft } from 'lucide-react';
 
-const DISTRICTS_KA = [
-  'Bagalkot', 'Ballari', 'Belagavi', 'Bengaluru Rural', 'Bengaluru Urban',
-  'Bidar', 'Chamarajanagara', 'Chikkaballapur', 'Chikkamagaluru', 'Chitradurga',
-  'Dakshina Kannada', 'Davangere', 'Dharwad', 'Gadag', 'Hassan',
-  'Haveri', 'Kalaburagi', 'Kodagu', 'Kolar', 'Koppal',
-  'Mandya', 'Mysuru', 'Raichur', 'Ramanagara', 'Shivamogga',
-  'Tumakuru', 'Udupi', 'Uttara Kannada', 'Vijayapura', 'Yadgir',
-];
+import { INDIAN_STATES, getDistrictsForState } from '@/lib/constants/indianStates';
 
 const CROP_OPTIONS = [
   'Tomato', 'Onion', 'Potato', 'Ragi', 'Paddy', 'Maize', 'Wheat',
@@ -53,6 +46,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1); // Step 1: role select, Step 2: details
+  const availableDistricts = getDistrictsForState(state);
 
   // Pre-load existing profile data so the user can review/update inputs, but NEVER auto-redirect away
   useEffect(() => {
@@ -220,91 +214,117 @@ export default function OnboardingPage() {
   // Step 1: Role selection
   if (step === 1) {
     return (
-      <main className="min-h-screen bg-paper flex flex-col items-center justify-center px-4 py-12">
-        <div className="text-center mb-8 flex flex-col items-center">
-          <div className="w-20 h-20 rounded-2xl bg-white p-2.5 border border-border shadow-md mb-3.5 flex items-center justify-center">
+      <main className="min-h-screen bg-paper flex flex-col items-center justify-between px-4 py-8 relative overflow-hidden">
+        {/* Ambient background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-72 bg-gradient-to-b from-field-green/10 via-emerald-500/5 to-transparent blur-3xl pointer-events-none" />
+
+        <div className="text-center pt-4 mb-6 flex flex-col items-center relative z-10">
+          <div className="w-16 h-16 rounded-2xl bg-white p-2.5 border border-border shadow-md mb-3 flex items-center justify-center">
             <img
               src="/logo.png"
               alt="Agri Route Logo"
               className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-2xl font-bold text-ink">{t('role.title')}</h1>
-          <p className="text-xs text-ink-muted mt-1">{t('app.tagline')}</p>
+          <span className="text-[11px] font-bold text-field-green uppercase tracking-wider bg-field-green/10 px-3 py-1 rounded-full mb-1.5">
+            Step 1 of 2 · {t('role.title')}
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+            {t('role.title')}
+          </h1>
+          <p className="text-xs text-ink-muted mt-1 max-w-xs">{t('app.tagline')}</p>
         </div>
 
-        <div className="w-full max-w-md space-y-3.5">
+        <div className="w-full max-w-md space-y-3.5 my-auto relative z-10">
+          {/* Farmer Card */}
           <button
             onClick={() => handleRoleSelect('farmer')}
-            className={`w-full flex items-center gap-4 px-6 py-4.5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
-              role === 'farmer' ? 'border-field-green bg-field-green/5' : 'border-border hover:border-field-green hover:shadow-md'
+            className={`w-full flex items-center gap-4 p-4.5 bg-white rounded-2xl border-2 transition-all duration-200 active:scale-[0.98] text-left shadow-xs group min-h-[76px] ${
+              role === 'farmer' ? 'border-field-green bg-emerald-50/50 ring-2 ring-field-green/20' : 'border-border hover:border-field-green/60 hover:shadow-sm'
             }`}
           >
-            <div className="w-12 h-12 rounded-xl bg-field-green/10 text-field-green flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-field-green/10 text-field-green flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <Sprout className="w-6 h-6" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <p className="font-bold text-ink text-base">{t('role.farmer')}</p>
-                <span className="text-[11px] font-semibold text-field-green bg-field-green/10 px-2 py-0.5 rounded-md">Producer</span>
+                <p className="font-extrabold text-ink text-base">{t('role.farmer')}</p>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-field-green bg-emerald-100/70 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  {t('onboarding.producer')}
+                </span>
               </div>
-              <p className="text-xs text-ink-muted mt-0.5">{t('role.farmerDesc')}</p>
+              <p className="text-xs text-ink-muted mt-0.5 leading-snug">{t('role.farmerDesc')}</p>
             </div>
           </button>
 
+          {/* Wholesaler Card */}
           <button
             onClick={() => handleRoleSelect('wholesaler')}
-            className={`w-full flex items-center gap-4 px-6 py-4.5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
-              role === 'wholesaler' ? 'border-earth bg-earth/5' : 'border-border hover:border-earth hover:shadow-md'
+            className={`w-full flex items-center gap-4 p-4.5 bg-white rounded-2xl border-2 transition-all duration-200 active:scale-[0.98] text-left shadow-xs group min-h-[76px] ${
+              role === 'wholesaler' ? 'border-earth bg-amber-50/50 ring-2 ring-earth/20' : 'border-border hover:border-earth/60 hover:shadow-sm'
             }`}
           >
-            <div className="w-12 h-12 rounded-xl bg-earth/10 text-earth flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-earth/10 text-earth flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <Store className="w-6 h-6" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <p className="font-bold text-ink text-base">{t('role.wholesaler')}</p>
-                <span className="text-[11px] font-semibold text-earth bg-earth/10 px-2 py-0.5 rounded-md">Buyer</span>
+                <p className="font-extrabold text-ink text-base">{t('role.wholesaler')}</p>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-earth bg-amber-100/70 px-2.5 py-0.5 rounded-full border border-amber-200">
+                  {t('onboarding.buyer')}
+                </span>
               </div>
-              <p className="text-xs text-ink-muted mt-0.5">{t('role.wholesalerDesc')}</p>
+              <p className="text-xs text-ink-muted mt-0.5 leading-snug">{t('role.wholesalerDesc')}</p>
             </div>
           </button>
 
+          {/* Logistics Driver Card */}
           <button
             onClick={() => handleRoleSelect('logistics_driver')}
-            className={`w-full flex items-center gap-4 px-6 py-4.5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
-              role === 'logistics_driver' ? 'border-blue-600 bg-blue-50/50' : 'border-border hover:border-blue-600 hover:shadow-md'
+            className={`w-full flex items-center gap-4 p-4.5 bg-white rounded-2xl border-2 transition-all duration-200 active:scale-[0.98] text-left shadow-xs group min-h-[76px] ${
+              role === 'logistics_driver' ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20' : 'border-border hover:border-blue-600/60 hover:shadow-sm'
             }`}
           >
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <Truck className="w-6 h-6" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <p className="font-bold text-ink text-base">{t('role.driver') || 'Logistics Driver'}</p>
-                <span className="text-[11px] font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">Transporter</span>
+                <p className="font-extrabold text-ink text-base">{t('role.driver') || 'Logistics Driver'}</p>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100/70 px-2.5 py-0.5 rounded-full border border-blue-200">
+                  {t('onboarding.transporter')}
+                </span>
               </div>
-              <p className="text-xs text-ink-muted mt-0.5">{t('role.driverDesc') || 'Deliver produce and earn per trip'}</p>
+              <p className="text-xs text-ink-muted mt-0.5 leading-snug">{t('role.driverDesc') || 'Deliver produce and earn per trip'}</p>
             </div>
           </button>
 
+          {/* Cold Storage Owner Card */}
           <button
             onClick={() => handleRoleSelect('storage_owner')}
-            className={`w-full flex items-center gap-4 px-6 py-4.5 bg-white rounded-2xl border-2 transition-all active:scale-[0.98] text-left shadow-xs ${
-              role === 'storage_owner' ? 'border-cyan-600 bg-cyan-50/50' : 'border-border hover:border-cyan-600 hover:shadow-md'
+            className={`w-full flex items-center gap-4 p-4.5 bg-white rounded-2xl border-2 transition-all duration-200 active:scale-[0.98] text-left shadow-xs group min-h-[76px] ${
+              role === 'storage_owner' ? 'border-teal-600 bg-teal-50/50 ring-2 ring-teal-500/20' : 'border-border hover:border-teal-600/60 hover:shadow-sm'
             }`}
           >
-            <div className="w-12 h-12 rounded-xl bg-cyan-100 text-cyan-800 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <Warehouse className="w-6 h-6" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <p className="font-bold text-ink text-base">Cold-Storage Provider</p>
-                <span className="text-[11px] font-semibold text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded-md">Facility Owner</span>
+                <p className="font-extrabold text-ink text-base">{t('onboarding.storageOwnerCardTitle')}</p>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 bg-teal-100/70 px-2.5 py-0.5 rounded-full border border-teal-200">
+                  {t('onboarding.storageOwnerCardTag')}
+                </span>
               </div>
-              <p className="text-xs text-ink-muted mt-0.5">List available warehouse capacity & rent to farmers</p>
+              <p className="text-xs text-ink-muted mt-0.5 leading-snug">{t('onboarding.storageOwnerCardDesc')}</p>
             </div>
           </button>
+        </div>
+
+        <div className="w-full max-w-md pt-4 text-center relative z-10">
+          <p className="text-[11px] text-ink-muted">
+            {t('app.footerNote')}
+          </p>
         </div>
       </main>
     );
@@ -322,7 +342,7 @@ export default function OnboardingPage() {
               className="p-2.5 rounded-xl bg-white border border-border text-ink hover:bg-paper shadow-xs flex items-center gap-1.5 text-xs font-semibold"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Change Role</span>
+              <span>{t('onboarding.changeRole')}</span>
             </button>
             <div>
               <div className="flex items-center gap-2">
@@ -332,7 +352,7 @@ export default function OnboardingPage() {
                 {role === 'storage_owner' && <Warehouse className="w-4 h-4 text-cyan-700" />}
                 <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
                   {role === 'storage_owner'
-                    ? 'Cold Storage Provider'
+                    ? t('role.storageOwner')
                     : role === 'logistics_driver'
                     ? (t('role.driver') || 'Logistics Driver')
                     : t(`role.${role}`)}
@@ -342,6 +362,7 @@ export default function OnboardingPage() {
             </div>
           </div>
         </div>
+
 
 
         {/* Registry note */}
@@ -407,15 +428,39 @@ export default function OnboardingPage() {
             />
             <p className="text-[11px] text-ink-muted mt-1.5">
               {role === 'farmer'
-                ? 'Format: KA-XXX-YYYY-NNNNNN (e.g. KA-MAN-2026-004417)'
+                ? 'Format: SS-XXX-YYYY-NNNNNN (e.g. MH-NAS-2026-008129 or KA-MAN-2026-004417)'
                 : role === 'wholesaler'
-                ? 'Format: WS-KA-YYYY-NNNN (e.g. WS-KA-2026-1183)'
-                : 'Format: DRV-KA-YYYY-NNNN (e.g. DRV-KA-2026-1042)'}
+                ? 'Format: WS-SS-YYYY-NNNN (e.g. WS-MH-2026-2041 or WS-KA-2026-1183)'
+                : role === 'storage_owner'
+                ? 'Format: STO-SS-YYYY-NNNN (e.g. STO-MH-2026-1021 or STO-KA-2026-1001)'
+                : 'Format: DRV-SS-YYYY-NNNN (e.g. DRV-MH-2026-3011 or DRV-KA-2026-1042)'}
             </p>
           </div>
 
-          {/* District & State */}
+          {/* State & District */}
           <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-ink mb-1.5">
+                {t('onboarding.state')} *
+              </label>
+              <select
+                required
+                value={state}
+                onChange={(e) => {
+                  const newState = e.target.value;
+                  setState(newState);
+                  const newDists = getDistrictsForState(newState);
+                  if (!newDists.includes(district)) {
+                    setDistrict('');
+                  }
+                }}
+                className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none"
+              >
+                {INDIAN_STATES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
             <div>
               <label className="block text-xs font-semibold text-ink mb-1.5">
                 {t('onboarding.district')} *
@@ -424,24 +469,13 @@ export default function OnboardingPage() {
                 required
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none appearance-none"
+                className="w-full px-3.5 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-field-green focus:outline-none"
               >
                 <option value="">{t('onboarding.selectDistrict')}</option>
-                {DISTRICTS_KA.map((d) => (
+                {availableDistricts.map((d) => (
                   <option key={d} value={d}>{d}</option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-ink mb-1.5">
-                {t('onboarding.state')}
-              </label>
-              <input
-                type="text"
-                value={state}
-                disabled
-                className="w-full px-3.5 py-3 bg-paper/80 border border-border rounded-xl text-sm text-ink-muted"
-              />
             </div>
           </div>
 
@@ -451,7 +485,7 @@ export default function OnboardingPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1.5">
-                    Vehicle Type *
+                    {t('onboarding.vehicleType')} *
                   </label>
                   <select
                     value={vehicleType}
@@ -466,7 +500,7 @@ export default function OnboardingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1.5">
-                    Vehicle Number *
+                    {t('onboarding.vehicleNumber')} *
                   </label>
                   <input
                     type="text"
@@ -482,7 +516,7 @@ export default function OnboardingPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1.5">
-                    Vehicle Max Load (kg) *
+                    {t('onboarding.vehicleMaxLoad')} *
                   </label>
                   <input
                     type="number"
@@ -503,7 +537,7 @@ export default function OnboardingPage() {
                       onChange={(e) => setIsRefrigerated(e.target.checked)}
                       className="w-4 h-4 text-blue-600 rounded"
                     />
-                    <span className="text-xs font-semibold text-ink">Refrigerated (Cold Chain)</span>
+                    <span className="text-xs font-semibold text-ink">{t('onboarding.refrigeratedColdChain')}</span>
                   </label>
                 </div>
               </div>
@@ -608,7 +642,7 @@ export default function OnboardingPage() {
             <>
               <div>
                 <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Facility Name *
+                  {t('onboarding.facilityName')} *
                 </label>
                 <input
                   type="text"
@@ -623,7 +657,7 @@ export default function OnboardingPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1.5">
-                    WDRA / APMC License No. *
+                    {t('onboarding.licenseNumber')} *
                   </label>
                   <input
                     type="text"
@@ -636,7 +670,7 @@ export default function OnboardingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1.5">
-                    Total Capacity (kg) *
+                    {t('onboarding.totalCapacity')} *
                   </label>
                   <input
                     type="number"
@@ -653,7 +687,7 @@ export default function OnboardingPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1.5">
-                    Rental Price (Paise/kg/day) *
+                    {t('onboarding.rentalPrice')} *
                   </label>
                   <input
                     type="number"
@@ -665,11 +699,11 @@ export default function OnboardingPage() {
                     placeholder="15 (= ₹0.15/kg/day)"
                     className="w-full px-3 py-3 bg-paper/50 border border-border rounded-xl text-sm focus:border-cyan-600 focus:outline-none"
                   />
-                  <p className="text-[10px] text-ink-muted mt-1">15 paise = ₹0.15 per kg/day</p>
+                  <p className="text-[10px] text-ink-muted mt-1">{t('onboarding.paiseNote')}</p>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1.5">
-                    Facility Address *
+                    {t('onboarding.facilityAddress')} *
                   </label>
                   <input
                     type="text"

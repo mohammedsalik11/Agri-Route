@@ -373,7 +373,7 @@ export default function DriverDashboardPage() {
                           <p className="text-ink-muted">{job.pickupAddress}</p>
                           <p className="text-[11px] text-ink-muted font-medium mt-0.5">{job.pickupDistrict}, {job.pickupState}</p>
                           <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.pickupAddress + ', ' + job.pickupDistrict + ', Karnataka')}`}
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.pickupAddress + ', ' + job.pickupDistrict + ', ' + (job.pickupState || 'India'))}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-[11px] font-bold text-field-green hover:underline mt-1.5"
@@ -392,7 +392,7 @@ export default function DriverDashboardPage() {
                           <p className="text-ink-muted">{job.deliveryAddress}</p>
                           <p className="text-[11px] text-ink-muted font-medium mt-0.5">{job.deliveryDistrict}, {job.deliveryState}</p>
                           <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.deliveryAddress + ', ' + job.deliveryDistrict + ', Karnataka')}`}
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.deliveryAddress + ', ' + job.deliveryDistrict + ', ' + (job.deliveryState || 'India'))}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 hover:underline mt-1.5"
@@ -423,7 +423,7 @@ export default function DriverDashboardPage() {
                     {/* Action Buttons with Google Maps Navigation */}
                     <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
                       <a
-                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(job.pickupAddress + ', ' + job.pickupDistrict + ', Karnataka')}&destination=${encodeURIComponent(job.deliveryAddress + ', ' + job.deliveryDistrict + ', Karnataka')}&travelmode=driving`}
+                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(job.pickupAddress + ', ' + job.pickupDistrict + ', ' + (job.pickupState || 'India'))}&destination=${encodeURIComponent(job.deliveryAddress + ', ' + job.deliveryDistrict + ', ' + (job.deliveryState || 'India'))}&travelmode=driving`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3.5 py-2.5 bg-white border border-border text-ink hover:border-blue-600 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs"
@@ -490,7 +490,7 @@ export default function DriverDashboardPage() {
                 Available Produce Loads ({availableJobs.length})
               </h2>
               <p className="text-xs text-ink-muted mt-0.5">
-                Capacity-checked loads ready for pickup across Karnataka mandis & farms
+                Capacity-checked loads ready for pickup across agricultural mandis & farms across India
               </p>
             </div>
           </div>

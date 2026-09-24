@@ -19,6 +19,7 @@ import {
   AlertCircle,
   PackageCheck,
 } from 'lucide-react';
+import { INDIAN_STATES, getDistrictsForState } from '@/lib/constants/indianStates';
 
 interface StorageFacility {
   facilityId: string;
@@ -56,6 +57,7 @@ export default function WholesalerStoragePage() {
   const [facilities, setFacilities] = useState<StorageFacility[]>([]);
   const [myBookings, setMyBookings] = useState<StorageBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedState, setSelectedState] = useState<string>('ALL');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -134,9 +136,16 @@ export default function WholesalerStoragePage() {
     }
   };
 
-  const districts = ['ALL', 'Mandya', 'Mysuru', 'Hassan', 'Kolar', 'Bengaluru Urban', 'Bengaluru Rural', 'Tumakuru', 'Belagavi', 'Dharwad'];
+  const districts =
+    selectedState === 'ALL'
+      ? ['ALL', 'Mandya', 'Mysuru', 'Nashik', 'Pune', 'Ludhiana', 'Agra', 'Guntur', 'Surat', 'Indore', 'Jaipur', 'Hooghly']
+      : ['ALL', ...getDistrictsForState(selectedState).slice(0, 10)];
 
   const filteredFacilities = facilities.filter((fac) => {
+    const matchesState =
+      selectedState === 'ALL' ||
+      (fac.state && fac.state.toLowerCase() === selectedState.toLowerCase());
+
     const matchesDistrict =
       selectedDistrict === 'ALL' ||
       fac.district.toLowerCase() === selectedDistrict.toLowerCase();
@@ -145,9 +154,10 @@ export default function WholesalerStoragePage() {
       fac.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       fac.operator.toLowerCase().includes(searchQuery.toLowerCase()) ||
       fac.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (fac.state && fac.state.toLowerCase().includes(searchQuery.toLowerCase())) ||
       fac.suitableCrops.some((c) => c.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    return matchesDistrict && matchesSearch;
+    return matchesState && matchesDistrict && matchesSearch;
   });
 
   return (
@@ -165,7 +175,7 @@ export default function WholesalerStoragePage() {
               Cold Storage Warehouses &amp; Staging Hubs
             </h1>
             <p className="text-xs text-ink-muted mt-0.5">
-              Locate and book WDRA/FSSAI verified temperature-controlled storage and staging centers across Karnataka
+              Locate and book WDRA/FSSAI verified temperature-controlled storage and staging centers across India
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -216,30 +226,48 @@ export default function WholesalerStoragePage() {
         )}
 
         {/* Filter Bar */}
-        <div className="bg-white rounded-2xl p-4 border border-border flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-ink-muted absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search by facility name, operator, or crop..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-paper pl-9 pr-3 py-2 text-xs rounded-xl border border-border focus:outline-none focus:border-earth font-medium text-ink"
-            />
+        <div className="bg-white rounded-2xl p-4 border border-border shadow-xs space-y-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-ink-muted absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search by facility name, operator, district, or crop..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-paper pl-9 pr-3 py-2.5 text-xs rounded-xl border border-border focus:outline-none focus:border-earth font-medium text-ink"
+              />
+            </div>
+
+            <div className="sm:w-56 shrink-0">
+              <select
+                value={selectedState}
+                onChange={(e) => {
+                  setSelectedState(e.target.value);
+                  setSelectedDistrict('ALL');
+                }}
+                className="w-full bg-paper px-3 py-2.5 text-xs rounded-xl border border-border focus:outline-none focus:border-earth font-bold text-ink"
+              >
+                <option value="ALL">All States (Pan-India)</option>
+                {INDIAN_STATES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
             {districts.map((d) => (
               <button
                 key={d}
                 onClick={() => setSelectedDistrict(d)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
                   selectedDistrict === d
                     ? 'bg-earth text-white'
-                    : 'bg-paper text-ink-muted hover:bg-border/40'
+                    : 'bg-paper text-ink-muted hover:bg-border/40 hover:text-ink'
                 }`}
               >
-                {d === 'ALL' ? 'All Districts' : d}
+                {d === 'ALL' ? (selectedState === 'ALL' ? 'All Districts' : `All in ${selectedState}`) : d}
               </button>
             ))}
           </div>
@@ -327,7 +355,7 @@ export default function WholesalerStoragePage() {
                 <div className="pt-3 border-t border-border flex items-center justify-between">
                   <div className="flex items-center gap-1 text-xs text-ink-muted">
                     <MapPin className="w-3.5 h-3.5 text-earth" />
-                    <span>{fac.district}, Karnataka</span>
+                    <span>{fac.district}, {fac.state || 'India'}</span>
                   </div>
 
                   <div className="flex items-center gap-2">

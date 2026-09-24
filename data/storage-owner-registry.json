@@ -178,5 +178,65 @@
     "licenseNumber": "WDRA-KA-SHI-2024-0455",
     "facilityId": "cs-shivamogga-01",
     "verificationStatus": "verified"
+  },
+  {
+    "ownerId": "STO-MH-2026-1021",
+    "name": "Vilas Shinde",
+    "businessName": "Sahyadri Farmers Producer Co",
+    "district": "Nashik",
+    "state": "Maharashtra",
+    "phone": "+919822012345",
+    "email": "vilas@sahyadrifarms.com",
+    "licenseNumber": "WDRA-MH-NAS-2024-1102",
+    "facilityId": "cs-nashik-01",
+    "verificationStatus": "verified"
+  },
+  {
+    "ownerId": "STO-MH-2026-1022",
+    "name": "Prashant Jagtap",
+    "businessName": "Maharashtra State Agri Marketing Board",
+    "district": "Pune",
+    "state": "Maharashtra",
+    "phone": "+919822054321",
+    "email": "prashant@msamb.gov.in",
+    "licenseNumber": "WDRA-MH-PUN-2025-0451",
+    "facilityId": "cs-pune-01",
+    "verificationStatus": "verified"
+  },
+  {
+    "ownerId": "STO-PB-2026-1031",
+    "name": "Jatinder Singh Grewal",
+    "businessName": "Punjab Agro Industries Corporation",
+    "district": "Ludhiana",
+    "state": "Punjab",
+    "phone": "+919814011223",
+    "email": "jatinder@punjabagro.gov.in",
+    "licenseNumber": "WDRA-PB-LUD-2024-0231",
+    "facilityId": "cs-ludhiana-01",
+    "verificationStatus": "verified"
+  },
+  {
+    "ownerId": "STO-UP-2026-1041",
+    "name": "Brijeshwar Singhal",
+    "businessName": "UP State Warehousing Corporation",
+    "district": "Agra",
+    "state": "Uttar Pradesh",
+    "phone": "+919412056789",
+    "email": "brijeshwar@upswc.in",
+    "licenseNumber": "WDRA-UP-AGR-2024-0982",
+    "facilityId": "cs-agra-01",
+    "verificationStatus": "verified"
+  },
+  {
+    "ownerId": "STO-GJ-2026-1051",
+    "name": "Chiragbhai Desai",
+    "businessName": "Gujarat Agro Industries Corp",
+    "district": "Surat",
+    "state": "Gujarat",
+    "phone": "+919825034567",
+    "email": "chirag@gaic.gujarat.gov.in",
+    "licenseNumber": "WDRA-GJ-SUR-2024-0612",
+    "facilityId": "cs-surat-01",
+    "verificationStatus": "verified"
   }
 ]

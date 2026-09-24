@@ -118,5 +118,80 @@
       { "date": "2026-09-10", "minPrice": 1400, "maxPrice": 2400, "modalPrice": 1900, "unit": "per_quintal" },
       { "date": "2026-09-09", "minPrice": 1350, "maxPrice": 2350, "modalPrice": 1850, "unit": "per_quintal" }
     ]
+  },
+  "cotton": {
+    "state": "Gujarat",
+    "district": "Rajkot",
+    "market": "Rajkot APMC",
+    "commodity": "Cotton",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 6900, "maxPrice": 7650, "modalPrice": 7350, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 6850, "maxPrice": 7600, "modalPrice": 7300, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 6800, "maxPrice": 7550, "modalPrice": 7250, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 6800, "maxPrice": 7500, "modalPrice": 7200, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 6750, "maxPrice": 7450, "modalPrice": 7180, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 6700, "maxPrice": 7400, "modalPrice": 7150, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 6650, "maxPrice": 7350, "modalPrice": 7100, "unit": "per_quintal" }
+    ]
+  },
+  "soyabean": {
+    "state": "Madhya Pradesh",
+    "district": "Indore",
+    "market": "Indore APMC",
+    "commodity": "Soyabean",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 4400, "maxPrice": 5100, "modalPrice": 4850, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 4350, "maxPrice": 5050, "modalPrice": 4800, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 4300, "maxPrice": 5000, "modalPrice": 4750, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 4250, "maxPrice": 4950, "modalPrice": 4700, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 4200, "maxPrice": 4900, "modalPrice": 4680, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 4150, "maxPrice": 4850, "modalPrice": 4650, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 4100, "maxPrice": 4800, "modalPrice": 4600, "unit": "per_quintal" }
+    ]
+  },
+  "green_chilli": {
+    "state": "Andhra Pradesh",
+    "district": "Guntur",
+    "market": "Guntur Mirchi Yard",
+    "commodity": "Green Chilli",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 3800, "maxPrice": 5500, "modalPrice": 4600, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 3750, "maxPrice": 5400, "modalPrice": 4550, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 3700, "maxPrice": 5350, "modalPrice": 4500, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 3650, "maxPrice": 5300, "modalPrice": 4450, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 3600, "maxPrice": 5200, "modalPrice": 4400, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 3550, "maxPrice": 5150, "modalPrice": 4350, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 3500, "maxPrice": 5100, "modalPrice": 4300, "unit": "per_quintal" }
+    ]
+  },
+  "groundnut": {
+    "state": "Gujarat",
+    "district": "Junagadh",
+    "market": "Junagadh APMC",
+    "commodity": "Groundnut",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 6200, "maxPrice": 7100, "modalPrice": 6750, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 6150, "maxPrice": 7050, "modalPrice": 6700, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 6100, "maxPrice": 7000, "modalPrice": 6650, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 6050, "maxPrice": 6950, "modalPrice": 6600, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 6000, "maxPrice": 6900, "modalPrice": 6550, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 5950, "maxPrice": 6850, "modalPrice": 6500, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 5900, "maxPrice": 6800, "modalPrice": 6450, "unit": "per_quintal" }
+    ]
+  },
+  "mustard": {
+    "state": "Rajasthan",
+    "district": "Bharatpur",
+    "market": "Bharatpur APMC",
+    "commodity": "Mustard",
+    "history": [
+      { "date": "2026-09-15", "minPrice": 5400, "maxPrice": 6150, "modalPrice": 5850, "unit": "per_quintal" },
+      { "date": "2026-09-14", "minPrice": 5350, "maxPrice": 6100, "modalPrice": 5800, "unit": "per_quintal" },
+      { "date": "2026-09-13", "minPrice": 5300, "maxPrice": 6050, "modalPrice": 5750, "unit": "per_quintal" },
+      { "date": "2026-09-12", "minPrice": 5250, "maxPrice": 6000, "modalPrice": 5700, "unit": "per_quintal" },
+      { "date": "2026-09-11", "minPrice": 5200, "maxPrice": 5950, "modalPrice": 5680, "unit": "per_quintal" },
+      { "date": "2026-09-10", "minPrice": 5150, "maxPrice": 5900, "modalPrice": 5650, "unit": "per_quintal" },
+      { "date": "2026-09-09", "minPrice": 5100, "maxPrice": 5850, "modalPrice": 5600, "unit": "per_quintal" }
+    ]
   }
 }

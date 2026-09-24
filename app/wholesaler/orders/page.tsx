@@ -102,7 +102,7 @@ export default function WholesalerOrdersPage() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-ink">{t('wholesaler.orders')}</h1>
@@ -134,8 +134,8 @@ export default function WholesalerOrdersPage() {
         )}
 
         {loading ? (
-          <div className="space-y-4">
-            <div className="animate-pulse bg-white rounded-2xl h-36 border border-border" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="animate-pulse bg-white rounded-2xl h-48 border border-border" />
             <div className="animate-pulse bg-white rounded-2xl h-48 border border-border" />
           </div>
         ) : orders.length === 0 ? (
@@ -156,39 +156,41 @@ export default function WholesalerOrdersPage() {
             </Link>
           </div>
         ) : (
-          orders.map((order) => (
-            <div key={order.orderId} className="space-y-4">
-              <div className="bg-white rounded-2xl p-5 border border-border flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-mono text-ink-muted block">
-                    Shipment #{order.orderId}
-                  </span>
-                  <h2 className="text-lg font-bold text-ink capitalize mt-0.5">
-                    {order.crop} Lot ({formatWeight(order.quantityKg)})
-                  </h2>
-                  <p className="text-xs text-ink-muted mt-0.5">
-                    Direct Farmer Sourcing · Escrow Protected
-                  </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            {orders.map((order) => (
+              <div key={order.orderId} className="space-y-4">
+                <div className="bg-white rounded-2xl p-5 border border-border flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-mono text-ink-muted block">
+                      Shipment #{order.orderId}
+                    </span>
+                    <h2 className="text-lg font-bold text-ink capitalize mt-0.5">
+                      {order.crop} Lot ({formatWeight(order.quantityKg)})
+                    </h2>
+                    <p className="text-xs text-ink-muted mt-0.5">
+                      Direct Farmer Sourcing · Escrow Protected
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[11px] text-ink-muted block">Total Deposited</span>
+                    <span className="text-base font-bold text-earth">
+                      {formatCurrency(order.total)}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-[11px] text-ink-muted block">Total Deposited</span>
-                  <span className="text-base font-bold text-earth">
-                    {formatCurrency(order.total)}
-                  </span>
-                </div>
+
+                <EscrowTimeline
+                  currentStatus={order.escrow.status}
+                  handoverOtp={order.escrow.handoverOtp}
+                  isFarmer={false}
+                  onConfirmDelivery={(otp) => handleConfirmDelivery(order.orderId, otp)}
+                  onRaiseDispute={(reason) => handleRaiseDispute(order.orderId, reason)}
+                />
+
+                <LogisticsTracker orderId={order.orderId} isFarmer={false} />
               </div>
-
-              <EscrowTimeline
-                currentStatus={order.escrow.status}
-                handoverOtp={order.escrow.handoverOtp}
-                isFarmer={false}
-                onConfirmDelivery={(otp) => handleConfirmDelivery(order.orderId, otp)}
-                onRaiseDispute={(reason) => handleRaiseDispute(order.orderId, reason)}
-              />
-
-              <LogisticsTracker orderId={order.orderId} isFarmer={false} />
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </main>
     </div>

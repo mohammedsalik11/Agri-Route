@@ -45,11 +45,11 @@ export default function SchemesPage() {
     <div className="min-h-screen bg-paper pb-16">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-ink">{t('schemes.title')}</h1>
           <p className="text-xs text-ink-muted mt-0.5">
-            Personalised matching based on your farm size (1.5 acres), crops (Tomato, Ragi), and Karnataka residency.
+            Personalised matching based on your farm land size, primary crops, and state agricultural eligibility.
           </p>
         </div>
 
@@ -78,7 +78,7 @@ export default function SchemesPage() {
         </div>
 
         {/* Schemes List */}
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {displayedSchemes.map((s) => {
             const name = t(s.nameKey) !== s.nameKey ? t(s.nameKey) : s.schemeId.toUpperCase();
             const desc = t(s.descriptionKey) !== s.descriptionKey ? t(s.descriptionKey) : s.benefit;
@@ -86,40 +86,42 @@ export default function SchemesPage() {
             return (
               <div
                 key={s.schemeId}
-                className="bg-white rounded-2xl p-5 border border-border hover:border-field-green/50 transition-all space-y-3"
+                className="bg-white rounded-2xl p-5 border border-border hover:border-field-green/50 transition-all flex flex-col justify-between space-y-3"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-ink text-base">{name}</h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-paper border border-border text-ink-light">
-                        {s.category}
-                      </span>
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-ink text-base">{name}</h3>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-paper border border-border text-ink-light">
+                          {s.category}
+                        </span>
+                      </div>
+                      <p className="text-xs font-semibold text-field-green mt-0.5">
+                        {s.benefit}
+                      </p>
                     </div>
-                    <p className="text-xs font-semibold text-field-green mt-0.5">
-                      {s.benefit}
-                    </p>
+                    <ReadAloud text={`${name}. ${desc}. Benefit: ${s.benefit}`} label={name} />
                   </div>
-                  <ReadAloud text={`${name}. ${desc}. Benefit: ${s.benefit}`} label={name} />
+
+                  <p className="text-xs text-ink-muted leading-relaxed">
+                    {desc}
+                  </p>
+
+                  {/* Match Reasons Pill */}
+                  {s.matchReasons && s.matchReasons.length > 0 && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs space-y-1">
+                      <span className="font-bold text-emerald-900 block text-[11px]">
+                        ✓ {t('schemes.whyMatch')}:
+                      </span>
+                      <ul className="list-disc list-inside text-emerald-800 text-[11px] space-y-0.5">
+                        {s.matchReasons.map((r, i) => (
+                          <li key={i}>{r}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-
-                <p className="text-xs text-ink-muted leading-relaxed">
-                  {desc}
-                </p>
-
-                {/* Match Reasons Pill */}
-                {s.matchReasons && s.matchReasons.length > 0 && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs space-y-1">
-                    <span className="font-bold text-emerald-900 block text-[11px]">
-                      ✓ {t('schemes.whyMatch')}:
-                    </span>
-                    <ul className="list-disc list-inside text-emerald-800 text-[11px] space-y-0.5">
-                      {s.matchReasons.map((r, i) => (
-                        <li key={i}>{r}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
 
                 <div className="pt-2 border-t border-border-light flex items-center justify-between">
                   <span className="text-[11px] text-ink-muted flex items-center gap-1">

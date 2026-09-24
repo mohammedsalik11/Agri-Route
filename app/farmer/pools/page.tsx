@@ -25,7 +25,7 @@ export default function FarmerPoolsPage() {
   const { t, formatCurrency, formatWeight } = useT();
   const [pools, setPools] = useState<PoolItem[]>([]);
   const [myListings, setMyListings] = useState<any[]>([]);
-  const [userDistrict, setUserDistrict] = useState<string>('Karnataka');
+  const [userDistrict, setUserDistrict] = useState<string>('All India');
   const [loading, setLoading] = useState(true);
 
   const fetchPools = async () => {
@@ -38,7 +38,11 @@ export default function FarmerPoolsPage() {
       ]);
 
       if (meRes?.data) {
-        setUserDistrict(meRes.data.district || 'Karnataka');
+        setUserDistrict(
+          meRes.data.district
+            ? `${meRes.data.district}, ${meRes.data.state || 'India'}`
+            : (meRes.data.state || 'All India')
+        );
       }
 
       if (listingsRes?.data && Array.isArray(listingsRes.data)) {
@@ -63,18 +67,26 @@ export default function FarmerPoolsPage() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-3xl p-6 border border-border shadow-xs">
           <div>
-            <h1 className="text-2xl font-bold text-ink">{t('pool.title')}</h1>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-field-green/10 text-field-green text-[11px] font-bold tracking-wide uppercase flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-field-green" />
+                Village Aggregation
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mt-1">
+              {t('pool.title')}
+            </h1>
             <p className="text-xs text-ink-muted mt-0.5">
               Village-level aggregation into wholesale truck-scale lots ({userDistrict})
             </p>
           </div>
           <button
             onClick={fetchPools}
-            className="p-2 bg-white rounded-xl border border-border text-ink hover:bg-paper"
+            className="p-2.5 bg-paper-well rounded-xl border border-border text-ink hover:bg-paper transition-all self-start sm:self-auto"
             title="Refresh pools"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -82,46 +94,46 @@ export default function FarmerPoolsPage() {
         </div>
 
         {/* Core Innovation Explainer */}
-        <div className="bg-gradient-to-r from-field-green/10 via-earth/10 to-field-green/10 border border-field-green/30 rounded-2xl p-4 flex items-start gap-3">
-          <Sparkles className="w-5 h-5 text-field-green shrink-0 mt-0.5" />
+        <div className="bg-gradient-to-r from-field-green/10 via-emerald-500/5 to-earth/10 border border-field-green/30 rounded-3xl p-5 sm:p-6 flex items-start gap-3.5 shadow-xs">
+          <Sparkles className="w-6 h-6 text-field-green shrink-0 mt-0.5" />
           <div className="text-xs space-y-1">
-            <p className="font-bold text-field-green text-sm">
+            <p className="font-extrabold text-field-green text-sm sm:text-base">
               Why Pooled Lots Matter
             </p>
-            <p className="text-ink">
+            <p className="text-ink leading-relaxed">
               Individual small quantities (2-5 quintals) cannot justify a wholesale truck. By auto-pooling your produce with neighbouring farms into a standard lot, you unlock direct wholesale demand without middleman cuts.
             </p>
           </div>
         </div>
 
-        {/* Pools List */}
-        <div className="space-y-4">
-          {loading ? (
-            <div className="space-y-3">
-              <div className="animate-pulse bg-white rounded-2xl h-44 border border-border" />
-              <div className="animate-pulse bg-white rounded-2xl h-44 border border-border" />
+        {/* Pools Grid */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="animate-pulse bg-white rounded-3xl h-48 border border-border" />
+            <div className="animate-pulse bg-white rounded-3xl h-48 border border-border" />
+          </div>
+        ) : pools.length === 0 ? (
+          <div className="bg-white rounded-3xl p-10 text-center border border-border space-y-3 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-field-green/10 text-field-green flex items-center justify-center mx-auto">
+              <Users className="w-7 h-7" />
             </div>
-          ) : pools.length === 0 ? (
-            <div className="bg-white rounded-2xl p-10 text-center border border-border space-y-3">
-              <div className="w-12 h-12 rounded-full bg-field-green/10 text-field-green flex items-center justify-center mx-auto">
-                <Users className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-ink text-base">{t('pool.noPools')}</h3>
-              <p className="text-xs text-ink-muted max-w-sm mx-auto">
-                No active pools currently in your area. List your harvest to automatically create a new pooled lot for your district!
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/farmer/list"
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-field-green text-white rounded-xl text-xs font-bold hover:bg-field-green-light transition-all shadow-xs"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>{t('farmer.dashboard.listProduce')}</span>
-                </Link>
-              </div>
+            <h3 className="font-extrabold text-ink text-lg">{t('pool.noPools')}</h3>
+            <p className="text-xs text-ink-muted max-w-sm mx-auto">
+              No active pools currently in your area. List your harvest to automatically create a new pooled lot for your district!
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/farmer/list"
+                className="inline-flex items-center gap-1.5 px-5 py-3 bg-field-green text-white rounded-xl text-xs font-bold hover:bg-field-green-light transition-all shadow-xs min-h-[48px]"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t('farmer.dashboard.listProduce')}</span>
+              </Link>
             </div>
-          ) : (
-            pools.map((pool) => {
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {pools.map((pool) => {
               // Real contribution from this farmer's database listings
               const myPoolListings = myListings.filter((l) => l.poolId === pool.poolId);
               const userContributionKg = myPoolListings.reduce(
@@ -130,7 +142,7 @@ export default function FarmerPoolsPage() {
               );
 
               return (
-                <div key={pool.poolId} className="space-y-3">
+                <div key={pool.poolId} className="bg-white rounded-3xl p-5 sm:p-6 border border-border shadow-xs space-y-3.5 flex flex-col justify-between">
                   <PoolProgressBar
                     crop={pool.crop}
                     qualityGrade={pool.qualityGrade}
@@ -146,9 +158,9 @@ export default function FarmerPoolsPage() {
                   />
 
                   {/* Dynamic Transport Info */}
-                  <div className="bg-white rounded-xl p-3.5 border border-border flex items-center justify-between text-xs">
+                  <div className="bg-paper-well rounded-2xl p-3.5 border border-border/70 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-earth/10 text-earth flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-xl bg-earth/10 text-earth flex items-center justify-center shrink-0">
                         <Truck className="w-4 h-4" />
                       </div>
                       <div>
@@ -156,19 +168,19 @@ export default function FarmerPoolsPage() {
                           {pool.district} Rural Logistics Route
                         </span>
                         <span className="text-[11px] text-ink-muted">
-                          Pickup at {pool.district} APMC Centroid Hub · Direct Wholesale Transit
+                          Pickup at {pool.district} Centroid Hub · Direct Wholesale
                         </span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-semibold text-earth bg-earth/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-earth bg-earth/10 px-2 py-0.5 rounded-full">
                       OPTIMIZED
                     </span>
                   </div>
                 </div>
               );
-            })
-          )}
-        </div>
+            })}
+          </div>
+        )}
 
         {/* Dynamic Centroid Aggregation Card */}
         {pools.length > 0 && (

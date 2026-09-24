@@ -41,6 +41,7 @@ export default function LotDetailPage() {
   const [dataLoading, setDataLoading] = useState(true);
   const [crop, setCrop] = useState('tomato');
   const [district, setDistrict] = useState('Mandya');
+  const [state, setState] = useState('India');
   const [qualityGrade, setQualityGrade] = useState('A');
   const [poolStatus, setPoolStatus] = useState<string>('open');
   const [members, setMembers] = useState<MemberFarmer[]>([]);
@@ -60,7 +61,8 @@ export default function LotDetailPage() {
         if (res.ok && res.data) {
           const p = res.data;
           setCrop(p.crop || 'produce');
-          setDistrict(p.district || 'Karnataka');
+          setDistrict(p.district || 'All India');
+          setState(p.state || 'India');
           setQualityGrade(p.qualityGrade || 'A');
           setPoolStatus(p.status || 'open');
           setPoolPricePaise(p.poolPricePerKg || 1400);
@@ -155,10 +157,12 @@ export default function LotDetailPage() {
     return (
       <div className="min-h-screen bg-paper pb-24">
         <Navbar />
-        <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
           <div className="animate-pulse bg-white rounded-2xl h-24 border border-border" />
-          <div className="animate-pulse bg-white rounded-2xl h-64 border border-border" />
-          <div className="animate-pulse bg-white rounded-2xl h-48 border border-border" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7 animate-pulse bg-white rounded-2xl h-96 border border-border" />
+            <div className="lg:col-span-5 animate-pulse bg-white rounded-2xl h-64 border border-border" />
+          </div>
         </main>
       </div>
     );
@@ -168,7 +172,7 @@ export default function LotDetailPage() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <div>
           <span className="text-xs font-bold text-earth uppercase tracking-wide">
             Pooled Wholesale Lot
@@ -200,11 +204,11 @@ export default function LotDetailPage() {
             </div>
             <div>
               <span className="font-bold text-ink text-sm block">Farm Gate Collection Centroid</span>
-              <span className="text-ink-muted">{district} Agri-Aggregation Center, Karnataka</span>
+              <span className="text-ink-muted">{district} Agri-Aggregation Center, {state || 'India'}</span>
             </div>
           </div>
           <a
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(district + ' APMC Yard, Karnataka')}`}
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(district + ' APMC Yard, ' + (state || 'India'))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-paper border border-border text-ink hover:border-earth hover:text-earth rounded-xl font-bold transition-all shrink-0 shadow-xs"
@@ -214,8 +218,12 @@ export default function LotDetailPage() {
           </a>
         </div>
 
-        {/* Members Breakdown Table */}
-        <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-4">
+        {/* 2-Column Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column (7 cols): Members & Negotiation */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* Members Breakdown Table */}
+            <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-ink flex items-center gap-2">
               <Users className="w-4 h-4 text-earth" />
@@ -339,11 +347,14 @@ export default function LotDetailPage() {
               {isNegotiating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               <span>{t('negotiate.submitOffer')}</span>
             </button>
+            </div>
           </div>
         </div>
 
-        {/* Commercial Summary & Buy */}
-        <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-3">
+        {/* Right Column (5 cols): Sticky Commercial Summary & Checkout */}
+        <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+            {/* Commercial Summary & Buy */}
+            <div className="bg-white rounded-2xl p-6 border border-border shadow-xs space-y-3">
           <h3 className="text-sm font-bold text-ink">Commercial Summary</h3>
 
           <div className="space-y-2 text-xs">
@@ -352,7 +363,7 @@ export default function LotDetailPage() {
               <span className="font-bold text-ink">{formatCurrency(subtotalPaise)}</span>
             </div>
             <div className="flex justify-between text-ink-muted">
-              <span>Logistics (Karnataka Freight Partner 5%):</span>
+              <span>Logistics (National Agri-Freight 5%):</span>
               <span className="font-bold text-ink">{formatCurrency(logisticsFeePaise)}</span>
             </div>
             <div className="flex justify-between text-ink-muted">
@@ -425,7 +436,20 @@ export default function LotDetailPage() {
             </button>
           </div>
         </div>
-      </main>
+
+        {/* Escrow Assurance Pill */}
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-xs text-emerald-900 flex items-start gap-2.5 shadow-2xs">
+          <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold text-emerald-950">Razorpay-Secured Escrow</p>
+            <p className="text-[11px] text-emerald-800 leading-relaxed">
+              Your funds are held securely until physical produce inspection and entry of the 6-digit farmer handover OTP.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
     </div>
   );
 }

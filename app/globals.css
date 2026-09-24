@@ -1,58 +1,95 @@
 @import "tailwindcss";
 
 @theme {
-  /* Agri Route Palette — field-first design */
-  --color-field-green: #1B4332;
-  --color-field-green-light: #2D6A4F;
-  --color-earth: #B07D3E;
-  --color-earth-light: #D4A867;
-  --color-alert-red: #C1121F;
-  --color-fair-green: #2D6A4F;
-  --color-amber: #E9972C;
-  --color-paper: #FBF7F0;
-  --color-ink: #111827;
-  --color-ink-light: #374151;
+  /* Agri Route Palette — modern agri-tech / fintech-for-agriculture */
+  --color-field-green: #064E3B;
+  --color-field-green-light: #0F766E;
+  --color-luminous-lime: #84CC16;
+  --color-luminous-lime-light: #A3E635;
+  --color-earth: #D97706;
+  --color-earth-light: #F59E0B;
+  --color-alert-red: #DC2626;
+  --color-fair-green: #16A34A;
+  --color-amber: #F59E0B;
+  --color-paper: #F8FAF7;
+  --color-paper-card: #FFFFFF;
+  --color-paper-well: #F1F5F2;
+  --color-ink: #0F172A;
+  --color-ink-light: #334155;
   --color-ink-muted: #64748B;
   --color-border: #E2E8F0;
   --color-border-light: #F1F5F9;
 
   /* Status colors */
-  --color-status-live: #059669;
+  --color-status-live: #16A34A;
   --color-status-cached: #64748B;
   --color-status-simulated: #D97706;
 }
 
-/* Full Raw Farm Backdrop — 100% Opacity without any filter/overlay */
+/* Modern Clean Background with High-Sunlight Readability */
 body {
-  background-image: url('/farm-backdrop.png');
-  background-size: cover;
-  background-position: center top;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background-color: var(--color-paper);
   color: var(--color-ink);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  line-height: 1.5;
 }
 
-/* Transparent container so the backdrop shows directly */
+/* Smooth surface utility */
 .bg-paper {
-  background-color: transparent !important;
+  background-color: var(--color-paper);
 }
 
-/* Force minimum touch targets for mobile */
-button, a, [role="button"] {
-  min-height: 44px;
+.bg-paper-well {
+  background-color: var(--color-paper-well);
 }
 
-/* Number emphasis */
+/* Minimum touch targets for mobile accessibility (rural handheld usability) */
+button, [role="button"], input[type="button"], input[type="submit"] {
+  min-height: 48px;
+}
+
+/* Numerical emphasis with tabular numbers for direct price clarity */
 .price-large {
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
-/* Loading skeleton */
+/* Signature wave gradient card inspired by the emerald-lime visual identity */
+.agri-hero-wave {
+  background: radial-gradient(circle at 50% 20%, #065f46 0%, #064e3b 60%, #022c22 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.agri-hero-wave::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 70%;
+  height: 140%;
+  background: radial-gradient(circle, rgba(132, 204, 22, 0.22) 0%, rgba(132, 204, 22, 0) 70%);
+  pointer-events: none;
+  filter: blur(30px);
+}
+
+.agri-hero-wave::after {
+  content: "";
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 60%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.18) 0%, rgba(74, 222, 128, 0) 70%);
+  pointer-events: none;
+  filter: blur(25px);
+}
+
+/* Loading shimmer skeleton */
 .skeleton {
   background: linear-gradient(90deg, var(--color-border-light) 25%, var(--color-border) 50%, var(--color-border-light) 75%);
   background-size: 200% 100%;

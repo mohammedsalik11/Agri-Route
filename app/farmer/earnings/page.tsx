@@ -53,7 +53,7 @@ export default function EarningsPage() {
     <div className="min-h-screen bg-paper pb-24">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-ink">{t('earnings.title')}</h1>
           <p className="text-xs text-ink-muted mt-0.5">

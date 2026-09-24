@@ -130,7 +130,7 @@ export const Navbar: React.FC = () => {
                       : 'text-ink-muted hover:text-field-green hover:bg-black/5'
                   }`}
                 >
-                  Messages
+                  {t('common.messages')}
                 </Link>
               </>
             )}
@@ -184,7 +184,7 @@ export const Navbar: React.FC = () => {
                       : 'text-ink-muted hover:text-earth hover:bg-black/5'
                   }`}
                 >
-                  Messages
+                  {t('common.messages')}
                 </Link>
               </>
             )}
@@ -198,19 +198,19 @@ export const Navbar: React.FC = () => {
                       : 'text-ink-muted hover:text-blue-600 hover:bg-black/5'
                   }`}
                 >
-                  Driver Hub
+                  {t('nav.driverHub')}
                 </Link>
                 <Link
                   href="/driver#active-trips"
                   className="px-3 py-1.5 rounded-lg text-ink-muted hover:text-blue-600 hover:bg-black/5 transition-all"
                 >
-                  Active Trips
+                  {t('nav.activeTrips')}
                 </Link>
                 <Link
                   href="/driver#jobs"
                   className="px-3 py-1.5 rounded-lg text-ink-muted hover:text-blue-600 hover:bg-black/5 transition-all"
                 >
-                  Available Loads
+                  {t('nav.availableLoads')}
                 </Link>
                 <Link
                   href="/driver/messages"
@@ -220,7 +220,7 @@ export const Navbar: React.FC = () => {
                       : 'text-ink-muted hover:text-blue-600 hover:bg-black/5'
                   }`}
                 >
-                  Messages
+                  {t('common.messages')}
                 </Link>
               </>
             )}
@@ -234,7 +234,7 @@ export const Navbar: React.FC = () => {
                       : 'text-ink-muted hover:text-emerald-700 hover:bg-black/5'
                   }`}
                 >
-                  Storage Dashboard
+                  {t('nav.storageDashboard')}
                 </Link>
                 <Link
                   href="/storage-owner/messages"
@@ -244,10 +244,11 @@ export const Navbar: React.FC = () => {
                       : 'text-ink-muted hover:text-emerald-700 hover:bg-black/5'
                   }`}
                 >
-                  Messages
+                  {t('common.messages')}
                 </Link>
               </>
             )}
+
           </nav>
 
           {/* Right tools: Language switch + User Profile */}
@@ -271,10 +272,11 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Switch Role / Edit Profile */}
+            {/* Switch Role / Edit Profile */}
             <Link
               href="/onboarding"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper/80 border border-border text-xs font-semibold text-ink hover:border-field-green hover:bg-field-green/5 transition-all shadow-xs"
-              title="Change Role or Profile Inputs"
+              title={t('nav.changeRole')}
             >
               {isFarmer && <Sprout className="w-3.5 h-3.5 text-field-green" />}
               {isWholesaler && <Store className="w-3.5 h-3.5 text-earth" />}
@@ -282,9 +284,17 @@ export const Navbar: React.FC = () => {
               {isStorageOwner && <Warehouse className="w-3.5 h-3.5 text-emerald-600" />}
               {!isFarmer && !isWholesaler && !isDriver && !isStorageOwner && <UserCheck className="w-3.5 h-3.5 text-field-green" />}
               <span className="font-semibold capitalize">
-                {isFarmer ? 'Farmer' : isWholesaler ? 'Wholesaler' : isDriver ? 'Driver' : isStorageOwner ? 'Storage' : 'Profile'}
+                {isFarmer
+                  ? t('role.farmer')
+                  : isWholesaler
+                  ? t('role.wholesaler')
+                  : isDriver
+                  ? t('role.driver')
+                  : isStorageOwner
+                  ? t('nav.storage')
+                  : t('nav.profile')}
               </span>
-              <span className="text-[10px] text-ink-muted font-normal">(Role)</span>
+              <span className="text-[10px] text-ink-muted font-normal">({t('nav.roleTag')})</span>
             </Link>
 
             <UserButton />
@@ -307,67 +317,68 @@ export const Navbar: React.FC = () => {
             </Link>
             <Link href="/farmer/pools" className={`flex flex-col items-center gap-1 w-full ${pathname === '/farmer/pools' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>
               <Users className="w-5 h-5" />
-              <span>Pools</span>
+              <span>{t('nav.pools')}</span>
             </Link>
             <Link href="/farmer/storage" className={`flex flex-col items-center gap-1 w-full ${pathname === '/farmer/storage' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>
               <Warehouse className="w-5 h-5" />
-              <span>Storage</span>
+              <span>{t('nav.storage')}</span>
             </Link>
             <Link href="/farmer/orders" className={`flex flex-col items-center gap-1 w-full ${pathname === '/farmer/orders' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>
               <ShoppingBag className="w-5 h-5" />
-              <span>Orders</span>
+              <span>{t('nav.orders')}</span>
             </Link>
             <Link href="/farmer/messages" className={`flex flex-col items-center gap-1 w-full ${pathname === '/farmer/messages' ? 'text-field-green font-bold' : 'text-ink-muted'}`}>
               <MessageSquare className="w-5 h-5" />
-              <span>Messages</span>
+              <span>{t('common.messages')}</span>
             </Link>
           </div>
         ) : isWholesaler ? (
           <div className="flex items-center justify-around px-2 py-2 text-[10px] font-medium h-16">
             <Link href="/wholesaler" className={`flex flex-col items-center gap-1 w-full ${pathname === '/wholesaler' ? 'text-earth font-bold' : 'text-ink-muted'}`}>
               <Store className="w-5 h-5" />
-              <span>Browse</span>
+              <span>{t('nav.browse')}</span>
             </Link>
             <Link href="/wholesaler/storage" className={`flex flex-col items-center gap-1 w-full ${pathname === '/wholesaler/storage' ? 'text-earth font-bold' : 'text-ink-muted'}`}>
               <Warehouse className="w-5 h-5" />
-              <span>Storage</span>
+              <span>{t('nav.storage')}</span>
             </Link>
             <Link href="/wholesaler/orders" className={`flex flex-col items-center gap-1 w-full ${pathname === '/wholesaler/orders' ? 'text-earth font-bold' : 'text-ink-muted'}`}>
               <ShoppingBag className="w-5 h-5" />
-              <span>Orders</span>
+              <span>{t('nav.orders')}</span>
             </Link>
             <Link href="/wholesaler/messages" className={`flex flex-col items-center gap-1 w-full ${pathname === '/wholesaler/messages' ? 'text-earth font-bold' : 'text-ink-muted'}`}>
               <MessageSquare className="w-5 h-5" />
-              <span>Messages</span>
+              <span>{t('common.messages')}</span>
             </Link>
           </div>
         ) : isDriver ? (
           <div className="flex items-center justify-around px-2 py-2 text-[10px] font-medium h-16">
             <Link href="/driver" className={`flex flex-col items-center gap-1 w-full ${pathname === '/driver' ? 'text-blue-600 font-bold' : 'text-ink-muted'}`}>
               <List className="w-5 h-5" />
-              <span>Loads</span>
+              <span>{t('nav.loads')}</span>
             </Link>
             <Link href="/driver#active-trips" className="flex flex-col items-center gap-1 w-full text-ink-muted hover:text-blue-600">
               <ShoppingBag className="w-5 h-5" />
-              <span>My Trips</span>
+              <span>{t('nav.activeTrips')}</span>
             </Link>
             <Link href="/driver/messages" className={`flex flex-col items-center gap-1 w-full ${pathname === '/driver/messages' ? 'text-blue-600 font-bold' : 'text-ink-muted'}`}>
               <MessageSquare className="w-5 h-5" />
-              <span>Messages</span>
+              <span>{t('common.messages')}</span>
             </Link>
           </div>
         ) : isStorageOwner ? (
           <div className="flex items-center justify-around px-2 py-2 text-[10px] font-medium h-16">
             <Link href="/storage-owner" className={`flex flex-col items-center gap-1 w-full ${pathname === '/storage-owner' ? 'text-emerald-600 font-bold' : 'text-ink-muted'}`}>
               <Warehouse className="w-5 h-5" />
-              <span>Facilities</span>
+              <span>{t('nav.facilities')}</span>
             </Link>
             <Link href="/storage-owner/messages" className={`flex flex-col items-center gap-1 w-full ${pathname === '/storage-owner/messages' ? 'text-emerald-600 font-bold' : 'text-ink-muted'}`}>
               <MessageSquare className="w-5 h-5" />
-              <span>Messages</span>
+              <span>{t('common.messages')}</span>
             </Link>
           </div>
         ) : null}
+
       </div>
     </>
   );

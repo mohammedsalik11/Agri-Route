@@ -13,6 +13,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/health',
   '/api/prices',
   '/api/prices/(.*)',
+  '/api/chat(.*)',
 ]);
 
 const isFarmerRoute = createRouteMatcher(['/farmer(.*)']);

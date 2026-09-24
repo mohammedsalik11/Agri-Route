@@ -576,5 +576,113 @@
       "Capsicum",
       "Potato"
     ]
+  },
+  {
+    "farmerId": "MH-NAS-2026-008129",
+    "name": "Dnyaneshwar Patil",
+    "district": "Nashik",
+    "state": "Maharashtra",
+    "village": "Pimpalgaon",
+    "acres": 6.5,
+    "crops": ["Onion", "Tomato", "Grapes"]
+  },
+  {
+    "farmerId": "MH-PUN-2026-008214",
+    "name": "Sambhaji Shinde",
+    "district": "Pune",
+    "state": "Maharashtra",
+    "village": "Baramati",
+    "acres": 5.0,
+    "crops": ["Sugarcane", "Tomato", "Banana"]
+  },
+  {
+    "farmerId": "PB-LUD-2026-004128",
+    "name": "Harpreet Singh",
+    "district": "Ludhiana",
+    "state": "Punjab",
+    "village": "Samrala",
+    "acres": 12.0,
+    "crops": ["Wheat", "Paddy", "Potato"]
+  },
+  {
+    "farmerId": "PB-JAL-2026-004192",
+    "name": "Gurdeep Singh Gill",
+    "district": "Jalandhar",
+    "state": "Punjab",
+    "village": "Shahkot",
+    "acres": 8.5,
+    "crops": ["Potato", "Maize", "Wheat"]
+  },
+  {
+    "farmerId": "UP-AGR-2026-007214",
+    "name": "Radheshyam Yadav",
+    "district": "Agra",
+    "state": "Uttar Pradesh",
+    "village": "Fatehabad",
+    "acres": 4.5,
+    "crops": ["Potato", "Mustard", "Wheat"]
+  },
+  {
+    "farmerId": "UP-VAR-2026-007355",
+    "name": "Kailash Nath Verma",
+    "district": "Varanasi",
+    "state": "Uttar Pradesh",
+    "village": "Pindra",
+    "acres": 3.0,
+    "crops": ["Tomato", "Green Chilli", "Brinjal"]
+  },
+  {
+    "farmerId": "GJ-SUR-2026-003921",
+    "name": "Kiritbhai Patel",
+    "district": "Surat",
+    "state": "Gujarat",
+    "village": "Bardoli",
+    "acres": 7.0,
+    "crops": ["Sugarcane", "Banana", "Paddy"]
+  },
+  {
+    "farmerId": "GJ-BNK-2026-003984",
+    "name": "Pravinbhai Chaudhary",
+    "district": "Banaskantha",
+    "state": "Gujarat",
+    "village": "Deesa",
+    "acres": 9.5,
+    "crops": ["Potato", "Groundnut", "Mustard"]
+  },
+  {
+    "farmerId": "MP-IND-2026-006144",
+    "name": "Bhanwar Lal Meena",
+    "district": "Indore",
+    "state": "Madhya Pradesh",
+    "village": "Sanwer",
+    "acres": 6.0,
+    "crops": ["Soybean", "Wheat", "Garlic"]
+  },
+  {
+    "farmerId": "RJ-JAI-2026-005231",
+    "name": "Mukhram Jat",
+    "district": "Jaipur",
+    "state": "Rajasthan",
+    "village": "Chomu",
+    "acres": 5.5,
+    "crops": ["Mustard", "Barley", "Tomato"]
+  },
+  {
+    "farmerId": "AP-GUN-2026-009182",
+    "name": "Venkateswara Rao",
+    "district": "Guntur",
+    "state": "Andhra Pradesh",
+    "village": "Tenali",
+    "acres": 4.0,
+    "crops": ["Green Chilli", "Paddy", "Cotton"]
+  },
+  {
+    "farmerId": "WB-HGH-2026-002109",
+    "name": "Subhas Mondal",
+    "district": "Hooghly",
+    "state": "West Bengal",
+    "village": "Singur",
+    "acres": 3.2,
+    "crops": ["Potato", "Paddy", "Vegetables"]
   }
 ]

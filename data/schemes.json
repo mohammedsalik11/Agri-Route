@@ -184,5 +184,98 @@
     "applyUrl": "https://raitamitra.karnataka.gov.in",
     "lastDate": null,
     "isActive": true
+  },
+  {
+    "schemeId": "namo-shetkari",
+    "nameKey": "schemes.namoShetkari.name",
+    "descriptionKey": "schemes.namoShetkari.description",
+    "benefit": "₹6,000 per year supplementary income support matching PM-KISAN",
+    "category": "income",
+    "eligibility": {
+      "states": [
+        "Maharashtra"
+      ],
+      "crops": "ALL",
+      "maxLandAcres": null
+    },
+    "applyUrl": "https://mahadbt.maharashtra.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "kisan-durghatna-up",
+    "nameKey": "schemes.kisanDurghatna.name",
+    "descriptionKey": "schemes.kisanDurghatna.description",
+    "benefit": "₹5,00,000 comprehensive farm risk & welfare insurance",
+    "category": "insurance",
+    "eligibility": {
+      "states": [
+        "Uttar Pradesh"
+      ],
+      "crops": "ALL",
+      "maxLandAcres": null
+    },
+    "applyUrl": "https://upagripardarshi.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "pani-bachao-pb",
+    "nameKey": "schemes.paniBachao.name",
+    "descriptionKey": "schemes.paniBachao.description",
+    "benefit": "₹1,500 per acre direct DBT incentive for water saving",
+    "category": "input",
+    "eligibility": {
+      "states": [
+        "Punjab"
+      ],
+      "crops": [
+        "paddy",
+        "wheat"
+      ],
+      "maxLandAcres": null
+    },
+    "applyUrl": "https://agri.punjab.gov.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "bhavantar-mp",
+    "nameKey": "schemes.bhavantar.name",
+    "descriptionKey": "schemes.bhavantar.description",
+    "benefit": "Price deficiency DBT covering gap between Mandi selling price & MSP",
+    "category": "income",
+    "eligibility": {
+      "states": [
+        "Madhya Pradesh"
+      ],
+      "crops": [
+        "soybean",
+        "groundnut",
+        "maize",
+        "wheat"
+      ],
+      "maxLandAcres": null
+    },
+    "applyUrl": "https://mpeuparjan.nic.in",
+    "lastDate": null,
+    "isActive": true
+  },
+  {
+    "schemeId": "rythu-bharosa-ap",
+    "nameKey": "schemes.rythuBharosa.name",
+    "descriptionKey": "schemes.rythuBharosa.description",
+    "benefit": "₹13,500 per year per farmer family for input assistance",
+    "category": "income",
+    "eligibility": {
+      "states": [
+        "Andhra Pradesh"
+      ],
+      "crops": "ALL",
+      "maxLandAcres": null
+    },
+    "applyUrl": "https://ysrrythubharosa.ap.gov.in",
+    "lastDate": null,
+    "isActive": true
   }
 ]
