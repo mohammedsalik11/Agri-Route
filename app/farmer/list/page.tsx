@@ -309,6 +309,9 @@ export default function CreateListingPage() {
           gradeSource,
           lat: 12.52,
           lng: 76.89,
+          vehicleType: selectedVehicle.id,
+          vehicleCapacityKg: selectedVehicle.capacityKg,
+          targetKg: selectedVehicle.capacityKg,
         }),
       });
 

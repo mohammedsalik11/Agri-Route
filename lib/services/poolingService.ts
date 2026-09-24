@@ -100,6 +100,8 @@ export async function attachToPool(listing: {
   lat: number;
   lng: number;
   availableUntil: string;
+  vehicleCapacityKg?: number;
+  targetKg?: number;
 }): Promise<{ poolId: string; pool: Pool }> {
   const poolKey = getPoolKey(listing.crop, listing.qualityGrade, listing.district, listing.availableUntil);
 
@@ -124,6 +126,16 @@ export async function attachToPool(listing: {
     const newListingIds = [...existingPool.listingIds, listing.listingId];
     const newFarmerCount = existingPool.farmerCount + 1;
 
+    // Adapt target capacity if incoming vehicle or accumulated quantity requires a larger truck
+    const incomingVehicleCapacity = Number(listing.vehicleCapacityKg) || Number(listing.targetKg) || 0;
+    let targetKg = existingPool.targetKg;
+    if (incomingVehicleCapacity > targetKg) {
+      targetKg = incomingVehicleCapacity;
+    }
+    if (newCurrentKg > targetKg) {
+      targetKg = Math.max(targetKg, Math.ceil(newCurrentKg / 5000) * 5000);
+    }
+
     // Recompute weighted price - fetch all listings in pool
     const listingDocs = await Promise.all(
       newListingIds.map(id => collections.listings.doc(id).get())
@@ -136,10 +148,11 @@ export async function attachToPool(listing: {
     const poolPrice = Math.round(weightedAsk * (1 - POOL_DISCOUNT));
     const centroid = computeCentroid(listingsData);
 
-    const newStatus = newCurrentKg >= existingPool.targetKg ? 'ready' : 'open';
+    const newStatus = newCurrentKg >= targetKg ? 'ready' : 'open';
 
     await collections.pools.doc(poolId).update({
       currentKg: newCurrentKg,
+      targetKg,
       farmerCount: newFarmerCount,
       listingIds: newListingIds,
       weightedAskPricePerKg: weightedAsk,
@@ -151,6 +164,7 @@ export async function attachToPool(listing: {
     pool = {
       ...existingPool,
       currentKg: newCurrentKg,
+      targetKg,
       farmerCount: newFarmerCount,
       listingIds: newListingIds,
       weightedAskPricePerKg: weightedAsk,
@@ -161,7 +175,9 @@ export async function attachToPool(listing: {
   } else {
     // Create new pool
     poolId = `pool_${poolKey}_${Date.now()}`;
-    const targetKg = getTargetKg(listing.crop);
+    const specifiedTarget = Number(listing.targetKg) || Number(listing.vehicleCapacityKg);
+    const baseTarget = specifiedTarget && specifiedTarget > 0 ? specifiedTarget : getTargetKg(listing.crop);
+    const targetKg = Math.max(baseTarget, listing.quantityKg);
 
     const weightedAsk = listing.askPricePerKg;
     const poolPrice = Math.round(weightedAsk * (1 - POOL_DISCOUNT));

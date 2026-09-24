@@ -58,8 +58,9 @@ export interface LogisticsJob {
   updatedAt: string;
 }
 
-// Karnataka district coordinates for distance calculation
+// Pan-India agricultural district & trade hub coordinates for distance calculation
 const DISTRICT_COORDS: Record<string, { lat: number; lng: number }> = {
+  // Karnataka
   'Mandya': { lat: 12.5218, lng: 76.8951 },
   'Mysuru': { lat: 12.2958, lng: 76.6394 },
   'Bengaluru Urban': { lat: 12.9716, lng: 77.5946 },
@@ -72,11 +73,71 @@ const DISTRICT_COORDS: Record<string, { lat: number; lng: number }> = {
   'Shivamogga': { lat: 13.9299, lng: 75.5681 },
   'Chamarajanagara': { lat: 11.9261, lng: 76.9437 },
   'Ramanagara': { lat: 12.7209, lng: 77.2799 },
+  // Maharashtra
+  'Nashik': { lat: 19.9975, lng: 73.7898 },
+  'Pune': { lat: 18.5204, lng: 73.8567 },
+  'Mumbai City': { lat: 18.9388, lng: 72.8354 },
+  'Mumbai Suburban': { lat: 19.0760, lng: 72.8777 },
+  'Nagpur': { lat: 21.1458, lng: 79.0882 },
+  'Jalgaon': { lat: 21.0077, lng: 75.5626 },
+  'Ahmednagar': { lat: 19.0952, lng: 74.7496 },
+  'Kolhapur': { lat: 16.7050, lng: 74.2433 },
+  'Solapur': { lat: 17.6599, lng: 75.9064 },
+  // Punjab
+  'Ludhiana': { lat: 30.9010, lng: 75.8573 },
+  'Jalandhar': { lat: 31.3260, lng: 75.5762 },
+  'Amritsar': { lat: 31.6340, lng: 74.8723 },
+  'Bathinda': { lat: 30.2110, lng: 74.9455 },
+  'Patiala': { lat: 30.3398, lng: 76.3869 },
+  // Uttar Pradesh
+  'Agra': { lat: 27.1767, lng: 78.0081 },
+  'Varanasi': { lat: 25.3176, lng: 82.9739 },
+  'Lucknow': { lat: 26.8467, lng: 80.9462 },
+  'Kanpur': { lat: 26.4499, lng: 80.3319 },
+  'Meerut': { lat: 28.9845, lng: 77.7064 },
+  'Prayagraj': { lat: 25.4358, lng: 81.8463 },
+  // Gujarat
+  'Surat': { lat: 21.1702, lng: 72.8311 },
+  'Ahmedabad': { lat: 23.0225, lng: 72.5714 },
+  'Rajkot': { lat: 22.3039, lng: 70.8022 },
+  'Junagadh': { lat: 21.5222, lng: 70.4579 },
+  'Vadodara': { lat: 22.3072, lng: 73.1812 },
+  // Madhya Pradesh
+  'Indore': { lat: 22.7196, lng: 75.8577 },
+  'Bhopal': { lat: 23.2599, lng: 77.4126 },
+  'Ujjain': { lat: 23.1765, lng: 75.7885 },
+  'Gwalior': { lat: 26.2183, lng: 78.1828 },
+  // Andhra Pradesh & Telangana
+  'Guntur': { lat: 16.3067, lng: 80.4365 },
+  'Vijayawada': { lat: 16.5062, lng: 80.6480 },
+  'Visakhapatnam': { lat: 17.6868, lng: 83.2185 },
+  'Hyderabad': { lat: 17.3850, lng: 78.4867 },
+  // Rajasthan
+  'Jaipur': { lat: 26.9124, lng: 75.7873 },
+  'Jodhpur': { lat: 26.2389, lng: 73.0243 },
+  'Kota': { lat: 25.2138, lng: 75.8648 },
+  'Bharatpur': { lat: 27.2152, lng: 77.4890 },
+  // West Bengal
+  'Kolkata': { lat: 22.5726, lng: 88.3639 },
+  'Hooghly': { lat: 22.9056, lng: 88.3976 },
+  // Delhi
+  'Delhi': { lat: 28.6139, lng: 77.2090 },
+  // Tamil Nadu
+  'Chennai': { lat: 13.0827, lng: 80.2707 },
+  'Coimbatore': { lat: 11.0168, lng: 76.9558 },
 };
 
 export function calculateDistanceKm(fromDistrict: string, toDistrict: string): number {
-  const c1 = DISTRICT_COORDS[fromDistrict] || { lat: 12.5, lng: 76.8 };
-  const c2 = DISTRICT_COORDS[toDistrict] || { lat: 12.97, lng: 77.59 };
+  const normFrom = Object.keys(DISTRICT_COORDS).find(
+    (k) => k.toLowerCase() === (fromDistrict || '').toLowerCase()
+  );
+  const normTo = Object.keys(DISTRICT_COORDS).find(
+    (k) => k.toLowerCase() === (toDistrict || '').toLowerCase()
+  );
+
+  const c1 = normFrom ? DISTRICT_COORDS[normFrom] : { lat: 12.52, lng: 76.89 };
+  const c2 = normTo ? DISTRICT_COORDS[normTo] : { lat: 12.97, lng: 77.59 };
+
   const R = 6371; // km
   const dLat = ((c2.lat - c1.lat) * Math.PI) / 180;
   const dLon = ((c2.lng - c1.lng) * Math.PI) / 180;
@@ -89,6 +150,62 @@ export function calculateDistanceKm(fromDistrict: string, toDistrict: string): n
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const dist = Math.round(R * c);
   return Math.max(dist, 25); // Minimum 25 km
+}
+
+/**
+ * Market Freight Pricing Engine based on commercial agricultural transport rates in India.
+ * Payment is directly computed from distance (km), vehicle payload tier, and cold-chain premium.
+ */
+export interface MarketFreightRate {
+  distanceKm: number;
+  ratePerKmPaise: number;
+  baseFarePaise: number;
+  refrigerationSurchargePaise: number;
+  totalFeePaise: number;
+}
+
+export function calculateMarketFreight(
+  distanceKm: number,
+  quantityKg: number,
+  requiresRefrigeration: boolean = false
+): MarketFreightRate {
+  const km = Math.max(distanceKm, 20); // Minimum 20 km
+
+  // Indian Agri-Logistics Market Rates per KM:
+  // - Small load (<= 1,000 kg, e.g. 3-Wheeler / Tata Ace): ₹22/km, Base ₹400
+  // - Medium load (1,001 - 3,000 kg, e.g. Bolero Maxx / Pickup): ₹30/km, Base ₹650
+  // - Intermediate load (3,001 - 7,000 kg, e.g. 14-17ft Medium Truck): ₹42/km, Base ₹1,000
+  // - Heavy commercial load (> 7,000 kg, e.g. 10-wheeler / Multi-axle): ₹56/km, Base ₹1,500
+  let ratePerKmRupees = 30;
+  let baseFareRupees = 650;
+
+  if (quantityKg <= 1000) {
+    ratePerKmRupees = 22;
+    baseFareRupees = 400;
+  } else if (quantityKg <= 3000) {
+    ratePerKmRupees = 30;
+    baseFareRupees = 650;
+  } else if (quantityKg <= 7000) {
+    ratePerKmRupees = 42;
+    baseFareRupees = 1000;
+  } else {
+    ratePerKmRupees = 56;
+    baseFareRupees = 1500;
+  }
+
+  const baseFarePaise = baseFareRupees * 100;
+  const distanceFarePaise = Math.round(km * ratePerKmRupees * 100);
+  const reeferMultiplier = requiresRefrigeration ? 0.25 : 0;
+  const refrigerationSurchargePaise = Math.round((baseFarePaise + distanceFarePaise) * reeferMultiplier);
+  const totalFeePaise = baseFarePaise + distanceFarePaise + refrigerationSurchargePaise;
+
+  return {
+    distanceKm: km,
+    ratePerKmPaise: ratePerKmRupees * 100,
+    baseFarePaise,
+    refrigerationSurchargePaise,
+    totalFeePaise,
+  };
 }
 
 /**
@@ -122,12 +239,13 @@ export async function createLogisticsJobForListing(params: {
   const deliveryState = params.deliveryState || 'Karnataka';
   const distanceKm = calculateDistanceKm(params.pickupDistrict, deliveryDistrict);
   
-  // Calculate standard 5% transport fee or min ₹1.20/kg
-  const subtotal = params.quantityKg * params.askPricePerKg;
-  const feePaise = Math.max(
-    Math.round(subtotal * 0.05),
-    Math.round(params.quantityKg * 120)
+  // Calculate market-based transport fee from distance (km) and cargo weight
+  const marketPricing = calculateMarketFreight(
+    distanceKm,
+    params.quantityKg,
+    params.requiresRefrigeration
   );
+  const feePaise = marketPricing.totalFeePaise;
 
   const now = new Date().toISOString();
 
@@ -186,6 +304,12 @@ export async function createLogisticsJobForOrder(params: {
   }
 
   const distanceKm = calculateDistanceKm(params.pickupDistrict, params.deliveryDistrict);
+  const marketPricing = calculateMarketFreight(
+    distanceKm,
+    params.totalQuantityKg,
+    params.requiresRefrigeration
+  );
+  const totalLogisticsFee = params.logisticsFeePaise || marketPricing.totalFeePaise;
   const now = new Date().toISOString();
 
   const job: LogisticsJob = {
@@ -203,7 +327,7 @@ export async function createLogisticsJobForOrder(params: {
     deliveryState: params.deliveryState || 'Karnataka',
     deliveryAddress: params.deliveryAddress || (params.deliveryDistrict + ' Wholesale Hub'),
     estimatedDistanceKm: distanceKm,
-    totalLogisticsFee: params.logisticsFeePaise,
+    totalLogisticsFee,
     requiresRefrigeration: params.requiresRefrigeration || false,
     status: 'open',
     trips: [],
@@ -240,7 +364,8 @@ export async function createLogisticsJobForStorageBooking(params: {
   }
 
   const distanceKm = calculateDistanceKm(params.pickupDistrict, params.facilityDistrict);
-  const feePaise = Math.round(params.quantityKg * 140);
+  const marketPricing = calculateMarketFreight(distanceKm, params.quantityKg, true);
+  const feePaise = marketPricing.totalFeePaise;
   const now = new Date().toISOString();
 
   const job: LogisticsJob = {
@@ -379,9 +504,12 @@ export async function assignDriverTrip(params: {
       if (remaining <= 0) break;
 
       const tripQuantity = Math.min(vehicleCapacity, remaining);
-      const tripFeePaise = Math.round(
-        (job.totalLogisticsFee * tripQuantity) / job.totalQuantityKg
+      const tripMarket = calculateMarketFreight(
+        job.estimatedDistanceKm,
+        tripQuantity,
+        job.requiresRefrigeration
       );
+      const tripFeePaise = tripMarket.totalFeePaise;
 
       const tripNumber = existingTrips.length + newTrips.length + 1;
       const tripId = 'trip_' + job.id + '_' + tripNumber + '_' + Math.random().toString(36).slice(2, 6);

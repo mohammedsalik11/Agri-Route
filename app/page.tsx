@@ -18,22 +18,9 @@ export default function LanguageSelectPage() {
   const { t } = useT();
   const router = useRouter();
 
-  useEffect(() => {
-    fetch('/api/me')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.ok && data.data?.role) {
-          const role = data.data.role;
-          document.cookie = `userRole=${role};path=/;max-age=${60 * 60 * 24 * 365}`;
-          router.replace(role === 'farmer' ? '/farmer' : role === 'wholesaler' ? '/wholesaler' : '/driver');
-        }
-      })
-      .catch(() => {});
-  }, [router]);
-
   const handleSelect = (lang: Language) => {
     setLanguage(lang);
-    router.push('/onboarding');
+    router.push('/sign-in');
   };
 
   return (

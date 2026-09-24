@@ -530,8 +530,11 @@ export default function DriverDashboardPage() {
                         </div>
 
                         <div className="text-right">
-                          <p className="text-[11px] text-ink-muted font-medium">Total Logistics Pool</p>
-                          <p className="text-base font-bold text-emerald-700">₹{(job.totalLogisticsFee / 100).toFixed(0)}</p>
+                          <p className="text-[11px] text-ink-muted font-medium">Market Logistics Payout</p>
+                          <p className="text-base font-bold text-emerald-700 font-mono">₹{(job.totalLogisticsFee / 100).toFixed(0)}</p>
+                          <p className="text-[10px] text-ink-muted">
+                            ~₹{Math.round((job.totalLogisticsFee / 100) / Math.max(job.estimatedDistanceKm, 1))}/km rate
+                          </p>
                         </div>
                       </div>
 
@@ -685,15 +688,21 @@ export default function DriverDashboardPage() {
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-semibold text-xs flex justify-between items-center">
-                <span>Estimated Payout:</span>
-                <span className="text-sm font-bold">
-                  ₹{(
-                    (selectedJob.totalLogisticsFee *
-                      Math.min(vehicleCapacity * tripsCountToAccept, selectedJob.remainingUnassignedKg)) /
-                    (selectedJob.totalQuantityKg * 100)
-                  ).toFixed(0)}
-                </span>
+              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-1.5">
+                <div className="flex justify-between items-center font-bold">
+                  <span>Estimated Driver Payout:</span>
+                  <span className="text-base text-emerald-800 font-mono">
+                    ₹{(
+                      (selectedJob.totalLogisticsFee *
+                        Math.min(vehicleCapacity * tripsCountToAccept, selectedJob.remainingUnassignedKg)) /
+                      (selectedJob.totalQuantityKg * 100)
+                    ).toFixed(0)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[11px] text-emerald-700 pt-1 border-t border-emerald-200/60">
+                  <span>Freight Basis:</span>
+                  <span>{selectedJob.estimatedDistanceKm} km route @ market km rate</span>
+                </div>
               </div>
             </div>
 

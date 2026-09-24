@@ -1,12 +1,14 @@
 import { db, collections } from '../firebase-admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 
+export type MessageRole = 'farmer' | 'wholesaler' | 'driver' | 'logistics_driver' | 'storage_owner' | 'admin';
+
 export interface ChatMessage {
   messageId: string;
   conversationId: string;
   senderId: string;
   senderName: string;
-  senderRole: 'farmer' | 'wholesaler' | 'driver' | 'admin';
+  senderRole: MessageRole;
   text: string;
   createdAt: string;
   read: boolean;
@@ -15,7 +17,7 @@ export interface ChatMessage {
 export interface ConversationParticipant {
   userId: string;
   name: string;
-  role: 'farmer' | 'wholesaler' | 'driver' | 'admin';
+  role: MessageRole;
   businessName?: string;
   district?: string;
   phone?: string;
@@ -122,10 +124,10 @@ export const messageService = {
   async sendMessage(params: {
     senderId: string;
     senderName: string;
-    senderRole: 'farmer' | 'wholesaler' | 'driver' | 'admin';
+    senderRole: MessageRole;
     recipientId: string;
     recipientName?: string;
-    recipientRole?: 'farmer' | 'wholesaler' | 'driver' | 'admin';
+    recipientRole?: MessageRole;
     text: string;
     conversationId?: string;
     cropReference?: Conversation['cropReference'];
@@ -136,7 +138,7 @@ export const messageService = {
       senderRole,
       recipientId,
       recipientName = 'Recipient',
-      recipientRole = senderRole === 'farmer' ? 'wholesaler' : 'farmer',
+      recipientRole = (senderRole === 'farmer' ? 'wholesaler' : 'farmer') as MessageRole,
       text,
       cropReference,
     } = params;

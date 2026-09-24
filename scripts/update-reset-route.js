@@ -1,4 +1,7 @@
-import { NextResponse } from 'next/server';
+const fs = require('fs');
+const path = require('path');
+
+const resetRouteContent = `import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import coldStoragesData from '@/data/cold-storages.json';
 
@@ -169,14 +172,14 @@ export async function POST() {
 
       for (let i = 0; i < p.farmers.length; i++) {
         const f = p.farmers[i];
-        const listingId = `lst_${p.poolId}_${i}`;
+        const listingId = \`lst_\${p.poolId}_\${i}\`;
         listingIds.push(listingId);
         totalQty += f.qty;
         weightedPriceSum += f.qty * f.price;
 
         await db.collection('listings').doc(listingId).set({
           listingId,
-          farmerId: `farmer_${p.district.toLowerCase()}_${i}`,
+          farmerId: \`farmer_\${p.district.toLowerCase()}_\${i}\`,
           farmerName: f.name,
           crop: p.crop,
           variety: p.variety,
@@ -500,3 +503,7 @@ export async function POST() {
     );
   }
 }
+`;
+
+fs.writeFileSync(path.resolve(__dirname, '../app/api/demo/reset/route.ts'), resetRouteContent, 'utf8');
+console.log('Successfully updated app/api/demo/reset/route.ts!');

@@ -23,6 +23,7 @@ import {
 
 interface MemberFarmer {
   listingId?: string;
+  farmerId?: string;
   farmerName: string;
   quantityKg: number;
   askPricePerKg: number;
@@ -271,8 +272,9 @@ export default function LotDetailPage() {
             <button
               type="button"
               onClick={() => {
+                const targetUserId = members[0]?.farmerId || 'demo_farmer_0';
                 router.push(
-                  `/wholesaler/messages?name=${encodeURIComponent(
+                  `/wholesaler/messages?userId=${encodeURIComponent(targetUserId)}&name=${encodeURIComponent(
                     members[0]?.farmerName || 'Farmer Collective'
                   )}&crop=${encodeURIComponent(crop)}&poolId=${encodeURIComponent(poolId)}`
                 );

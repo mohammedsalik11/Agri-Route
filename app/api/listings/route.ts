@@ -92,6 +92,9 @@ export async function POST(request: NextRequest) {
         dataSource: priceCheck.dataSource,
         checkedAt: priceCheck.checkedAt,
       },
+      vehicleType: body.vehicleType || undefined,
+      vehicleCapacityKg: Number(body.vehicleCapacityKg) || undefined,
+      targetKg: Number(body.targetKg) || Number(body.vehicleCapacityKg) || undefined,
       poolId: null,
       status: 'available',
       createdAt: new Date().toISOString(),
@@ -113,6 +116,8 @@ export async function POST(request: NextRequest) {
         lat: lat || 12.52,
         lng: lng || 76.89,
         availableUntil: availableUntil || new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
+        vehicleCapacityKg: Number(body.vehicleCapacityKg) || undefined,
+        targetKg: Number(body.targetKg) || Number(body.vehicleCapacityKg) || undefined,
       });
       pool = poolResult.pool;
     } catch (e) {

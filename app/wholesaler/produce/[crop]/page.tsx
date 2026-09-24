@@ -63,6 +63,7 @@ interface PoolItem {
 
 interface ListingItem {
   listingId: string;
+  farmerId?: string;
   farmerName: string;
   crop: string;
   variety?: string;
@@ -562,8 +563,9 @@ export default function VegetableLotsPage() {
                           <button
                             type="button"
                             onClick={() => {
+                              const targetUserId = listing.farmerId || 'demo_farmer_0';
                               router.push(
-                                `/wholesaler/messages?name=${encodeURIComponent(
+                                `/wholesaler/messages?userId=${encodeURIComponent(targetUserId)}&name=${encodeURIComponent(
                                   listing.farmerName || 'Farmer'
                                 )}&crop=${encodeURIComponent(listing.crop)}&listingId=${encodeURIComponent(
                                   listing.listingId
