@@ -238,5 +238,53 @@
     "licenseNumber": "WDRA-GJ-SUR-2024-0612",
     "facilityId": "cs-surat-01",
     "verificationStatus": "verified"
+  },
+  {
+    "ownerId": "STO-MH-2026-1003",
+    "name": "Dilip R. Deshmukh",
+    "businessName": "Maharashtra State Warehousing Corp",
+    "facilityName": "Nashik Agro Cold Chain Hub",
+    "district": "Nashik",
+    "state": "Maharashtra",
+    "licenseNumber": "WDRA-MH-NAS-2023-0412",
+    "capacityKg": 1000000,
+    "pricePerKgPerDay": 14,
+    "facilityAddress": "MIDC Ambad Industrial Area, Nashik"
+  },
+  {
+    "ownerId": "STO-UP-2026-3088",
+    "name": "Khandari Cold Storage Cluster",
+    "businessName": "Khandari Agro Warehousing Corp",
+    "facilityName": "Khandari Cold Storage Cluster",
+    "district": "Agra",
+    "state": "Uttar Pradesh",
+    "licenseNumber": "WDRA-UP-AGR-2024-1102",
+    "capacityKg": 800000,
+    "pricePerKgPerDay": 16,
+    "facilityAddress": "Khandari Industrial Zone, Agra"
+  },
+  {
+    "ownerId": "STO-PB-2026-2005",
+    "name": "Punjab Agro Cold Chain Depot",
+    "businessName": "Punjab Agro Industries Corp",
+    "facilityName": "Punjab Agro Cold Chain Depot",
+    "district": "Ludhiana",
+    "state": "Punjab",
+    "licenseNumber": "WDRA-PB-LUD-2023-0981",
+    "capacityKg": 600000,
+    "pricePerKgPerDay": 15,
+    "facilityAddress": "GT Road Cold Complex, Samrala, Ludhiana"
+  },
+  {
+    "ownerId": "STO-AP-2026-4019",
+    "name": "Guntur Spices Cold Terminal",
+    "businessName": "AP State Warehousing Corp",
+    "facilityName": "Guntur Spices Cold Terminal",
+    "district": "Guntur",
+    "state": "Andhra Pradesh",
+    "licenseNumber": "WDRA-AP-GUN-2024-0554",
+    "capacityKg": 500000,
+    "pricePerKgPerDay": 18,
+    "facilityAddress": "Tenali Road Cold Hub, Guntur"
   }
 ]

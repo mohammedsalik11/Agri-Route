@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useT, useLanguage } from '@/lib/i18n/LanguageProvider';
-import { Sprout, Store, Truck, Warehouse, AlertCircle, Loader2, CheckCircle, Info, ArrowLeft } from 'lucide-react';
+import { Sprout, Store, Truck, Warehouse, AlertCircle, Loader2, CheckCircle, Info, ArrowLeft, Sparkles, Zap, ArrowRight } from 'lucide-react';
+import { useClerk } from '@clerk/nextjs';
 
 import { INDIAN_STATES, getDistrictsForState } from '@/lib/constants/indianStates';
 
@@ -13,6 +14,359 @@ const CROP_OPTIONS = [
   'Soybean', 'Sugarcane', 'Cotton',
 ];
 
+export interface OnboardingDemoProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner';
+  state: string;
+  district: string;
+  clerkUserId: string;
+  avatar: string;
+  tag: string;
+  badge: string;
+  village?: string;
+  landSizeAcres?: string;
+  crops?: string[];
+  businessName?: string;
+  gstin?: string;
+  vehicleType?: 'truck' | 'mini_truck' | 'pickup' | 'tractor';
+  vehicleNumber?: string;
+  vehicleCapacityKg?: string;
+  isRefrigerated?: boolean;
+  facilityName?: string;
+  licenseNumber?: string;
+  storageCapacityKg?: string;
+  pricePerKgPerDay?: string;
+  facilityAddress?: string;
+}
+
+const DEMO_PROFILES_BY_ROLE: Record<'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner', OnboardingDemoProfile[]> = {
+  farmer: [
+    {
+      id: 'KA-MAN-2026-004417',
+      email: 'farmer.demo@agriroute.in',
+      name: 'Lakshmamma',
+      role: 'farmer',
+      state: 'Karnataka',
+      district: 'Mandya',
+      village: 'Tubinakere',
+      landSizeAcres: '3.5',
+      crops: ['Tomato', 'Paddy', 'Ragi'],
+      clerkUserId: 'user_3JmfQOD5urjMYyFTxKGzI7mIl6j',
+      avatar: '🌾',
+      tag: 'Mandya, KA',
+      badge: 'Tomato Pool',
+    },
+    {
+      id: 'MH-NAS-2026-008129',
+      email: 'farmer.nashik@agriroute.in',
+      name: 'Prakash Patil',
+      role: 'farmer',
+      state: 'Maharashtra',
+      district: 'Nashik',
+      village: 'Lasalgaon',
+      landSizeAcres: '4.5',
+      crops: ['Onion', 'Banana', 'Tomato'],
+      clerkUserId: 'user_3JmhmxLN8EyglsDOe2uAUR5mwgl',
+      avatar: '🌾',
+      tag: 'Nashik, MH',
+      badge: 'Onion Pool',
+    },
+    {
+      id: 'PB-LUD-2026-003921',
+      email: 'farmer.ludhiana@agriroute.in',
+      name: 'Gurpreet Singh',
+      role: 'farmer',
+      state: 'Punjab',
+      district: 'Ludhiana',
+      village: 'Samrala',
+      landSizeAcres: '8.0',
+      crops: ['Wheat', 'Paddy', 'Potato'],
+      clerkUserId: 'user_3Jmhn9LFCh8NPkrc6KHVfhbuLio',
+      avatar: '🌾',
+      tag: 'Ludhiana, PB',
+      badge: 'Wheat Pool',
+    },
+    {
+      id: 'AP-GUN-2026-005612',
+      email: 'farmer.guntur@agriroute.in',
+      name: 'Venkateswara Rao',
+      role: 'farmer',
+      state: 'Andhra Pradesh',
+      district: 'Guntur',
+      village: 'Tenali',
+      landSizeAcres: '5.2',
+      crops: ['Cotton', 'Paddy', 'Tomato'],
+      clerkUserId: 'user_3JmhnBjIvOqHn4Fq5QK3sqhsYRh',
+      avatar: '🌾',
+      tag: 'Guntur, AP',
+      badge: 'Chilli Pool',
+    },
+    {
+      id: 'UP-AGR-2026-007733',
+      email: 'farmer.agra@agriroute.in',
+      name: 'Shivram Yadav',
+      role: 'farmer',
+      state: 'Uttar Pradesh',
+      district: 'Agra',
+      village: 'Khandari',
+      landSizeAcres: '6.0',
+      crops: ['Potato', 'Wheat', 'Mustard'],
+      clerkUserId: 'user_3KHSt7UbqYSJgNNOHLC0CzG7KFG',
+      avatar: '🌾',
+      tag: 'Agra, UP',
+      badge: 'Potato Pool',
+    },
+  ],
+  wholesaler: [
+    {
+      id: 'WS-KA-2026-1183',
+      email: 'wholesaler.demo@agriroute.in',
+      name: 'Suresh Traders',
+      businessName: 'Suresh Traders Bengaluru',
+      role: 'wholesaler',
+      state: 'Karnataka',
+      district: 'Bengaluru Urban',
+      gstin: '29AAAAA0000A1Z5',
+      clerkUserId: 'user_3JmfUujj15M00HzIJciXKVuf3wt',
+      avatar: '🏪',
+      tag: 'Bengaluru, KA',
+      badge: 'APMC Gate 4',
+    },
+    {
+      id: 'WS-DL-2026-3021',
+      email: 'wholesaler.delhi@agriroute.in',
+      name: 'Aggarwal Mandi Traders',
+      businessName: 'Aggarwal Mandi Traders Delhi',
+      role: 'wholesaler',
+      state: 'Delhi',
+      district: 'North Delhi',
+      gstin: '07AAAAA1111B1Z2',
+      clerkUserId: 'user_3JmhnNuO35BLqEFfnK2LTDirZsn',
+      avatar: '🏪',
+      tag: 'Azadpur, DL',
+      badge: 'Shed B-4 Buyer',
+    },
+    {
+      id: 'WS-MH-2026-4412',
+      email: 'wholesaler.mumbai@agriroute.in',
+      name: 'Vashi Agro APMC Traders',
+      businessName: 'Vashi Wholesale APMC Market Bay 12',
+      role: 'wholesaler',
+      state: 'Maharashtra',
+      district: 'Mumbai Suburban',
+      gstin: '27AAAAA5555C1Z9',
+      clerkUserId: 'user_3KHStBn1wJMVw4aBFcdqbQ47dZA',
+      avatar: '🏪',
+      tag: 'Navi Mumbai, MH',
+      badge: 'Vashi APMC Bay 12',
+    },
+    {
+      id: 'WS-PB-2026-5599',
+      email: 'wholesaler.punjab@agriroute.in',
+      name: 'Khanna Grain Merchants',
+      businessName: 'Asia Largest Grain Terminal Corp',
+      role: 'wholesaler',
+      state: 'Punjab',
+      district: 'Ludhiana',
+      gstin: '03AAAAA8888D1Z4',
+      clerkUserId: 'user_3KHStFyRBAo1LsZndn6qX2zWuLb',
+      avatar: '🏪',
+      tag: 'Khanna, PB',
+      badge: 'Grain Terminal',
+    },
+    {
+      id: 'WS-TS-2026-6622',
+      email: 'wholesaler.hyderabad@agriroute.in',
+      name: 'Deccan Produce Wholesalers',
+      businessName: 'Kothapet Wholesale Spice Market',
+      role: 'wholesaler',
+      state: 'Telangana',
+      district: 'Hyderabad',
+      gstin: '36AAAAA9999E1Z1',
+      clerkUserId: 'user_3KHStK4AubXRDO8IMC13kArd40G',
+      avatar: '🏪',
+      tag: 'Hyderabad, TS',
+      badge: 'Kothapet Spice Bay',
+    },
+  ],
+  logistics_driver: [
+    {
+      id: 'DRV-KA-2026-0042',
+      email: 'driver.demo@agriroute.in',
+      name: 'Ramesh Transport',
+      role: 'logistics_driver',
+      state: 'Karnataka',
+      district: 'Mandya',
+      vehicleType: 'truck',
+      vehicleNumber: 'KA-11-TR-4590',
+      vehicleCapacityKg: '10000',
+      isRefrigerated: false,
+      clerkUserId: 'user_3JmfV7pqfOWT9HwRbD0gKYw5ZSY',
+      avatar: '🚛',
+      tag: 'Mandya, KA',
+      badge: '10T Cargo Truck',
+    },
+    {
+      id: 'DRV-PB-2026-0089',
+      email: 'driver.punjab@agriroute.in',
+      name: 'Harnek Singh Freight',
+      role: 'logistics_driver',
+      state: 'Punjab',
+      district: 'Ludhiana',
+      vehicleType: 'truck',
+      vehicleNumber: 'PB-10-CD-5678',
+      vehicleCapacityKg: '10000',
+      isRefrigerated: true,
+      clerkUserId: 'user_3JmhnY8jtFRU0bMR3FEVbSf9b5g',
+      avatar: '🚛',
+      tag: 'Ludhiana, PB',
+      badge: '10T Cold Reefer',
+    },
+    {
+      id: 'DRV-MH-2026-3011',
+      email: 'driver.maharashtra@agriroute.in',
+      name: 'Balaji Roadlines',
+      role: 'logistics_driver',
+      state: 'Maharashtra',
+      district: 'Nashik',
+      vehicleType: 'truck',
+      vehicleNumber: 'MH-15-AB-3344',
+      vehicleCapacityKg: '10000',
+      isRefrigerated: false,
+      clerkUserId: 'user_3KHStiQmm5E7Jsy3WjgqRhshpGp',
+      avatar: '🚛',
+      tag: 'Nashik, MH',
+      badge: '10T Interstate ICV',
+    },
+    {
+      id: 'DRV-UP-2026-7788',
+      email: 'driver.up@agriroute.in',
+      name: 'Ganga Express Logistics',
+      role: 'logistics_driver',
+      state: 'Uttar Pradesh',
+      district: 'Agra',
+      vehicleType: 'truck',
+      vehicleNumber: 'UP-80-XY-9988',
+      vehicleCapacityKg: '10000',
+      isRefrigerated: false,
+      clerkUserId: 'user_3KHStrHsRQev2fqpL3ArYDapFeW',
+      avatar: '🚛',
+      tag: 'Agra, UP',
+      badge: '10T Cargo Express',
+    },
+    {
+      id: 'DRV-AP-2026-4411',
+      email: 'driver.ap@agriroute.in',
+      name: 'Coastal Cargo Carriers',
+      role: 'logistics_driver',
+      state: 'Andhra Pradesh',
+      district: 'Guntur',
+      vehicleType: 'mini_truck',
+      vehicleNumber: 'AP-07-JK-4411',
+      vehicleCapacityKg: '3000',
+      isRefrigerated: false,
+      clerkUserId: 'user_3KHSu0oNUrbEFRt68ibzfIe1e0y',
+      avatar: '🚛',
+      tag: 'Guntur, AP',
+      badge: '3T Mini Truck',
+    },
+  ],
+  storage_owner: [
+    {
+      id: 'STO-KA-2026-1001',
+      email: 'storage.demo@agriroute.in',
+      name: 'H. M. Chandrashekar',
+      businessName: 'Karnataka Cold Chain Pvt Ltd',
+      facilityName: 'Mandya Agri Cold Store',
+      role: 'storage_owner',
+      state: 'Karnataka',
+      district: 'Mandya',
+      licenseNumber: 'WDRA-KA-MAN-2024-0891',
+      storageCapacityKg: '500000',
+      pricePerKgPerDay: '15',
+      facilityAddress: 'KIADB Industrial Area, Tubinakere, Mandya',
+      clerkUserId: 'user_3JmfV2IGQUlik22UhBGGQ2wJxA2',
+      avatar: '🧊',
+      tag: 'Mandya, KA',
+      badge: 'WDRA 500T · ₹15/day',
+    },
+    {
+      id: 'STO-MH-2026-1003',
+      email: 'storage.nashik@agriroute.in',
+      name: 'Dilip R. Deshmukh',
+      businessName: 'Maharashtra State Warehousing Corp',
+      facilityName: 'Nashik Agro Cold Chain Hub',
+      role: 'storage_owner',
+      state: 'Maharashtra',
+      district: 'Nashik',
+      licenseNumber: 'WDRA-MH-NAS-2023-0412',
+      storageCapacityKg: '1000000',
+      pricePerKgPerDay: '14',
+      facilityAddress: 'MIDC Ambad Industrial Area, Nashik',
+      clerkUserId: 'user_3JmhnmEGVvZMZWekueztRKNJUBj',
+      avatar: '🧊',
+      tag: 'Nashik, MH',
+      badge: 'WDRA 1,000T · ₹14/day',
+    },
+    {
+      id: 'STO-UP-2026-3088',
+      email: 'storage.agra@agriroute.in',
+      name: 'Khandari Cold Storage Cluster',
+      businessName: 'Khandari Agro Warehousing Corp',
+      facilityName: 'Khandari Cold Storage Cluster',
+      role: 'storage_owner',
+      state: 'Uttar Pradesh',
+      district: 'Agra',
+      licenseNumber: 'WDRA-UP-AGR-2024-1102',
+      storageCapacityKg: '800000',
+      pricePerKgPerDay: '16',
+      facilityAddress: 'Khandari Industrial Zone, Agra',
+      clerkUserId: 'user_3KHStvnXlEllSV6OGLOhNnLeRUv',
+      avatar: '🧊',
+      tag: 'Agra, UP',
+      badge: 'WDRA 800T · ₹16/day',
+    },
+    {
+      id: 'STO-PB-2026-2005',
+      email: 'storage.ludhiana@agriroute.in',
+      name: 'Punjab Agro Cold Chain Depot',
+      businessName: 'Punjab Agro Industries Corp',
+      facilityName: 'Punjab Agro Cold Chain Depot',
+      role: 'storage_owner',
+      state: 'Punjab',
+      district: 'Ludhiana',
+      licenseNumber: 'WDRA-PB-LUD-2023-0981',
+      storageCapacityKg: '600000',
+      pricePerKgPerDay: '15',
+      facilityAddress: 'GT Road Cold Complex, Samrala, Ludhiana',
+      clerkUserId: 'user_3KHSu2zU5Yfs31WjkXqBjQ8kwjF',
+      avatar: '🧊',
+      tag: 'Ludhiana, PB',
+      badge: 'WDRA 600T · ₹15/day',
+    },
+    {
+      id: 'STO-AP-2026-4019',
+      email: 'storage.guntur@agriroute.in',
+      name: 'Guntur Spices Cold Terminal',
+      businessName: 'AP State Warehousing Corp',
+      facilityName: 'Guntur Spices Cold Terminal',
+      role: 'storage_owner',
+      state: 'Andhra Pradesh',
+      district: 'Guntur',
+      licenseNumber: 'WDRA-AP-GUN-2024-0554',
+      storageCapacityKg: '500000',
+      pricePerKgPerDay: '18',
+      facilityAddress: 'Tenali Road Cold Hub, Guntur',
+      clerkUserId: 'user_3KHSuH6dqJ52p50fPvIIRZMQbIw',
+      avatar: '🧊',
+      tag: 'Guntur, AP',
+      badge: 'WDRA 500T · ₹18/day',
+    },
+  ],
+};
+
 
 
 
@@ -20,6 +374,7 @@ export default function OnboardingPage() {
   const { t } = useT();
   const { language } = useLanguage();
   const router = useRouter();
+  const clerk = useClerk();
 
   const [role, setRole] = useState<'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner'>('farmer');
   const [name, setName] = useState('');
@@ -43,6 +398,8 @@ export default function OnboardingPage() {
   const [pricePerKgPerDay, setPricePerKgPerDay] = useState('15');
   const [facilityAddress, setFacilityAddress] = useState('');
 
+  const [selectedDemoId, setSelectedDemoId] = useState<string | null>(null);
+  const [loggingInUserId, setLoggingInUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1); // Step 1: role select, Step 2: details
@@ -101,10 +458,114 @@ export default function OnboardingPage() {
 
   const handleRoleSelect = (r: 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner') => {
     setRole(r);
+    setSelectedDemoId(null);
     setError(null);
     setStep(2);
   };
 
+  const applyProfile = (p: OnboardingDemoProfile) => {
+    setSelectedDemoId(p.id);
+    setName(p.name);
+    setIdNumber(p.id);
+    setState(p.state);
+    setDistrict(p.district);
+    if (role === 'farmer') {
+      setVillage(p.village || '');
+      setLandSizeAcres(p.landSizeAcres || '3.5');
+      if (p.crops) setSelectedCrops(p.crops);
+    } else if (role === 'wholesaler') {
+      setBusinessName(p.businessName || p.name);
+      setGstin(p.gstin || '');
+    } else if (role === 'logistics_driver') {
+      setVehicleType(p.vehicleType || 'truck');
+      setVehicleNumber(p.vehicleNumber || 'KA-11-TR-4590');
+      setVehicleCapacityKg(p.vehicleCapacityKg || '10000');
+      setIsRefrigerated(p.isRefrigerated ?? false);
+    } else if (role === 'storage_owner') {
+      setBusinessName(p.businessName || '');
+      setFacilityName(p.facilityName || p.name);
+      setLicenseNumber(p.licenseNumber || 'WDRA-KA-MAN-2024-0891');
+      setStorageCapacityKg(p.storageCapacityKg || '500000');
+      setPricePerKgPerDay(p.pricePerKgPerDay || '15');
+      setFacilityAddress(p.facilityAddress || `${p.district} Industrial Area, ${p.state}`);
+    }
+    setError(null);
+  };
+
+  const handleOneStepLogin = async (p: OnboardingDemoProfile) => {
+    if (loggingInUserId) return;
+    setLoggingInUserId(p.clerkUserId);
+    setError(null);
+
+    const destination =
+      p.role === 'farmer'
+        ? '/farmer'
+        : p.role === 'wholesaler'
+        ? '/wholesaler'
+        : p.role === 'logistics_driver'
+        ? '/driver'
+        : '/storage-owner';
+
+    // Set cookie immediately for quick routing
+    document.cookie = `userRole=${p.role};path=/;max-age=${60 * 60 * 24 * 30}`;
+
+    try {
+      if (clerk?.session) {
+        try {
+          await clerk.signOut();
+        } catch {
+          // ignore signout error
+        }
+      }
+
+      // 1. Try in-app token login via backend API
+      try {
+        const res = await fetch('/api/demo/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clerkUserId: p.clerkUserId }),
+        });
+        const data = await res.json();
+        if (data?.ok && data?.token && clerk?.client?.signIn) {
+          const attempt = await (clerk.client.signIn as any).create({
+            strategy: 'ticket',
+            ticket: data.token,
+          });
+          if (attempt?.status === 'complete' && attempt?.createdSessionId) {
+            await clerk.setActive({ session: attempt.createdSessionId });
+            window.location.href = data.destination || destination;
+            return;
+          }
+        }
+      } catch (tokenErr) {
+        console.warn('Ticket sign-in attempt warning:', tokenErr);
+      }
+
+      // 2. Direct in-app password sign-in (100% on AgriRoute, 0 external clerk website visits!)
+      if (clerk?.client?.signIn && p.email) {
+        const pwAttempt = await clerk.client.signIn.create({
+          identifier: p.email,
+          password: 'Password@AgriRoute2026',
+        });
+        if (pwAttempt?.status === 'complete' && pwAttempt?.createdSessionId) {
+          await clerk.setActive({ session: pwAttempt.createdSessionId });
+          window.location.href = destination;
+          return;
+        }
+      }
+
+      // 3. Fallback: autofill the form so user can proceed
+      applyProfile(p);
+      setError('Form autofilled with verified profile below. Click "Verify & Continue" to launch.');
+      setLoggingInUserId(null);
+    } catch (err: unknown) {
+      console.error('1-step login error:', err);
+      applyProfile(p);
+      const msg = err instanceof Error ? err.message : 'Login failed';
+      setError(`${msg}. Profile loaded into form below.`);
+      setLoggingInUserId(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -372,6 +833,45 @@ export default function OnboardingPage() {
             {t('onboarding.verifyNote')}
           </p>
         </div>
+
+        {/* 1-Step Demo Profiles (Small, only icon with name) */}
+        {(() => {
+          const activeProfiles = DEMO_PROFILES_BY_ROLE[role] || [];
+          return (
+            <div className="mb-4 bg-white border border-border rounded-2xl p-3 sm:p-3.5 shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-field-green" />
+                  <span>1-Step Demo Logins:</span>
+                </span>
+                <span className="text-[10px] text-ink-muted">Click to log in directly</span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {activeProfiles.map((p) => {
+                  const isLoggingIn = loggingInUserId === p.clerkUserId;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleOneStepLogin(p)}
+                      disabled={!!loggingInUserId}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border/80 bg-paper/60 hover:bg-emerald-50/70 hover:border-field-green text-ink text-xs font-semibold shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer group"
+                      title={`1-Step Login as ${p.name} (${p.tag})`}
+                    >
+                      {isLoggingIn ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-field-green" />
+                      ) : (
+                        <span className="text-sm shrink-0">{p.avatar}</span>
+                      )}
+                      <span className="truncate">{p.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 text-xs">

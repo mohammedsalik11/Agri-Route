@@ -262,5 +262,45 @@
     "vehicleNumber": "GJ-05-BX-9011",
     "isRefrigerated": false,
     "phone": "+919825087654"
+  },
+  {
+    "driverId": "DRV-KA-2026-0042",
+    "name": "Ramesh Transport",
+    "district": "Mandya",
+    "state": "Karnataka",
+    "vehicleType": "truck",
+    "vehicleNumber": "KA-11-TR-4590",
+    "vehicleCapacityKg": 10000,
+    "isRefrigerated": false
+  },
+  {
+    "driverId": "DRV-PB-2026-0089",
+    "name": "Harnek Singh Freight",
+    "district": "Ludhiana",
+    "state": "Punjab",
+    "vehicleType": "truck",
+    "vehicleNumber": "PB-10-CD-5678",
+    "vehicleCapacityKg": 10000,
+    "isRefrigerated": true
+  },
+  {
+    "driverId": "DRV-UP-2026-7788",
+    "name": "Ganga Express Logistics",
+    "district": "Agra",
+    "state": "Uttar Pradesh",
+    "vehicleType": "truck",
+    "vehicleNumber": "UP-80-XY-9988",
+    "vehicleCapacityKg": 10000,
+    "isRefrigerated": false
+  },
+  {
+    "driverId": "DRV-AP-2026-4411",
+    "name": "Coastal Cargo Carriers",
+    "district": "Guntur",
+    "state": "Andhra Pradesh",
+    "vehicleType": "mini_truck",
+    "vehicleNumber": "AP-07-JK-4411",
+    "vehicleCapacityKg": 3000,
+    "isRefrigerated": false
   }
 ]

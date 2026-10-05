@@ -84,7 +84,7 @@ export async function POST(request: Request) {
         const existing = await collections.users
           .where('farmerId', '==', idNumber)
           .get();
-        if (!existing.empty && existing.docs.some(doc => doc.id !== userId)) {
+        if (!existing.empty && existing.docs.some(doc => doc.id !== userId && !doc.data().isDemoAccount)) {
           return NextResponse.json(
             { ok: false, error: 'ALREADY_REGISTERED', message: 'This Farmer ID is already registered to another account' },
             { status: 409 }
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
         const existing = await collections.users
           .where('wholesalerId', '==', idNumber)
           .get();
-        if (!existing.empty && existing.docs.some(doc => doc.id !== userId)) {
+        if (!existing.empty && existing.docs.some(doc => doc.id !== userId && !doc.data().isDemoAccount)) {
           return NextResponse.json(
             { ok: false, error: 'ALREADY_REGISTERED', message: 'This Wholesaler ID is already registered to another account' },
             { status: 409 }
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
         const existing = await collections.users
           .where('driverId', '==', idNumber)
           .get();
-        if (!existing.empty && existing.docs.some(doc => doc.id !== userId)) {
+        if (!existing.empty && existing.docs.some(doc => doc.id !== userId && !doc.data().isDemoAccount)) {
           return NextResponse.json(
             { ok: false, error: 'ALREADY_REGISTERED', message: 'This Driver ID is already registered to another account' },
             { status: 409 }
@@ -194,7 +194,7 @@ export async function POST(request: Request) {
         const existing = await collections.users
           .where('ownerId', '==', idNumber)
           .get();
-        if (!existing.empty && existing.docs.some(doc => doc.id !== userId)) {
+        if (!existing.empty && existing.docs.some(doc => doc.id !== userId && !doc.data().isDemoAccount)) {
           return NextResponse.json(
             { ok: false, error: 'ALREADY_REGISTERED', message: 'This Storage Owner ID is already registered to another account' },
             { status: 409 }

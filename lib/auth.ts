@@ -4,7 +4,7 @@ import { collections } from './firebase-admin';
 
 export interface UserProfile {
   clerkUserId: string;
-  role: 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner';
+  role: 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner' | 'admin';
   name: string;
   phone: string;
   email?: string;
@@ -99,10 +99,10 @@ export async function getUserProfile(clerkUserId: string): Promise<UserProfile |
 
     // 4. Check Clerk publicMetadata
     const meta = clerkUser.publicMetadata as { role?: string; district?: string; farmerId?: string; wholesalerId?: string; driverId?: string; facilityId?: string; licenseNumber?: string };
-    if (meta?.role && (meta.role === 'farmer' || meta.role === 'wholesaler' || meta.role === 'logistics_driver' || meta.role === 'storage_owner')) {
+    if (meta?.role && (meta.role === 'farmer' || meta.role === 'wholesaler' || meta.role === 'logistics_driver' || meta.role === 'storage_owner' || meta.role === 'admin')) {
       const profile: UserProfile = {
         clerkUserId,
-        role: meta.role as 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner',
+        role: meta.role as 'farmer' | 'wholesaler' | 'logistics_driver' | 'storage_owner' | 'admin',
         name: clerkUser.firstName ? `${clerkUser.firstName} ${clerkUser.lastName || ''}`.trim() : (clerkUser.username || 'User'),
         phone: phone || '',
         email: email || '',

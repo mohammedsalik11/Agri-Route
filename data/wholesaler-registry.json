@@ -277,5 +277,29 @@
     "state": "Rajasthan",
     "gstin": "08HHHHH8453H1Z8",
     "category": "Oilseeds, Spices & Coarse Cereals"
+  },
+  {
+    "wholesalerId": "WS-DL-2026-3021",
+    "businessName": "Aggarwal Mandi Traders Delhi",
+    "district": "North Delhi",
+    "state": "Delhi"
+  },
+  {
+    "wholesalerId": "WS-MH-2026-4412",
+    "businessName": "Vashi Wholesale APMC Market Bay 12",
+    "district": "Mumbai Suburban",
+    "state": "Maharashtra"
+  },
+  {
+    "wholesalerId": "WS-PB-2026-5599",
+    "businessName": "Asia Largest Grain Terminal Corp",
+    "district": "Ludhiana",
+    "state": "Punjab"
+  },
+  {
+    "wholesalerId": "WS-TS-2026-6622",
+    "businessName": "Kothapet Wholesale Spice Market",
+    "district": "Hyderabad",
+    "state": "Telangana"
   }
 ]

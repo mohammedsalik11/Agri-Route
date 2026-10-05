@@ -137,6 +137,7 @@ export default function LanguageSelectPage() {
         </div>
       </div>
 
+
       {/* Footer tagline */}
       <footer className="w-full max-w-md pt-4 text-center relative z-10">
         <p className="text-xs text-ink-muted leading-relaxed">
